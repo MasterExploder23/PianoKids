@@ -20,7 +20,6 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
 .app-title{font-family:'Fredoka One',cursive;font-size:clamp(22px,5vw,40px);color:white;text-shadow:3px 3px 0 rgba(0,0,0,.2);}
 .stats-bar{display:flex;justify-content:center;gap:8px;margin:6px 0;flex-wrap:wrap;}
 .stat-chip{background:rgba(255,255,255,.25);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;color:white;}
-/* save indicator */
 .save-dot{width:8px;height:8px;border-radius:50%;background:#4caf50;display:inline-block;margin-left:4px;transition:all .3s;}
 .save-dot.saving{background:#fb8c00;animation:blink .5s ease-in-out infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
@@ -28,13 +27,10 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
 /* INSTALL BANNER */
 #install-banner{display:none;background:linear-gradient(135deg,#3949ab,#283593);color:white;border-radius:14px;padding:10px 14px;margin-bottom:8px;align-items:center;gap:10px;flex-wrap:wrap;}
 #install-banner.show{display:flex;}
-.install-icon{font-size:28px;flex-shrink:0;}
-.install-text{flex:1;min-width:160px;}
-.install-title{font-weight:800;font-size:13px;}
-.install-sub{font-size:11px;opacity:.8;margin-top:2px;}
-.install-btn{background:white;color:#3949ab;border:none;border-radius:10px;padding:7px 16px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;white-space:nowrap;}
-.install-close{background:none;border:none;color:white;font-size:18px;cursor:pointer;padding:4px;opacity:.7;flex-shrink:0;}
+.install-btn{background:white;color:#3949ab;border:none;border-radius:10px;padding:7px 16px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;}
+.install-close{background:none;border:none;color:white;font-size:18px;cursor:pointer;padding:4px;opacity:.7;}
 
+/* NAV */
 .nav{display:flex;gap:5px;justify-content:center;margin:8px 0;flex-wrap:wrap;}
 .nav-btn{background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.5);border-radius:12px;padding:6px 11px;color:white;font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;cursor:pointer;transition:all .2s;}
 .nav-btn:hover{background:rgba(255,255,255,.35);}
@@ -60,7 +56,6 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
 .wk-label{font-size:10px;font-weight:800;color:#888;pointer-events:none;line-height:1;text-align:center;}
 .wk-kb{font-size:8px;font-weight:700;color:#bbb;pointer-events:none;margin-top:1px;}
 .bk-label{font-size:8px;font-weight:700;color:rgba(255,255,255,0.55);pointer-events:none;line-height:1;}
-.bk-kb{font-size:7px;font-weight:700;color:rgba(255,255,255,0.35);pointer-events:none;}
 
 /* METRÓNOMO */
 .metro-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;}
@@ -135,12 +130,13 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
 .status-bar{background:#f4f4f8;border-radius:10px;padding:7px 11px;font-size:11px;color:#444;font-weight:700;margin-bottom:9px;border:2px solid #ddd;}
 
 /* JUEGOS */
-.game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:7px;}
-.game-card{background:#f4f4f8;border-radius:14px;padding:12px 9px;text-align:center;cursor:pointer;border:2px solid #ddd;transition:all .2s;}
+.game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px;}
+.game-card{background:#f4f4f8;border-radius:14px;padding:14px 10px;text-align:center;cursor:pointer;border:2px solid #ddd;transition:all .2s;}
 .game-card:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(57,73,171,.15);border-color:#9090c8;}
-.game-icon{font-size:30px;margin-bottom:4px;}
-.game-name{font-size:10px;font-weight:800;color:#444;}
-.game-desc{font-size:9px;color:#888;margin-top:2px;}
+.game-icon{font-size:32px;margin-bottom:5px;}
+.game-name{font-size:11px;font-weight:800;color:#333;margin-bottom:3px;}
+.game-desc{font-size:9px;color:#888;}
+.game-badge{display:inline-block;background:#3949ab;color:white;font-size:8px;font-weight:800;padding:2px 7px;border-radius:9px;margin-top:4px;}
 .game-area{background:#f4f4f8;border-radius:14px;padding:13px;margin-top:9px;display:none;flex-direction:column;align-items:center;gap:9px;border:2px solid #ddd;}
 .game-area.active{display:flex;}
 .game-q{font-family:'Fredoka One',cursive;font-size:18px;color:#444;text-align:center;}
@@ -149,7 +145,32 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
 .game-opt.wrong{background:#c62828!important;color:white!important;border-color:#c62828!important;animation:shake .4s;}
 @keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.fifth-seq{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin:5px 0;}
+@keyframes pop{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+
+/* KARAOKE */
+.lyrics-display{background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:16px;padding:16px;min-height:90px;text-align:center;position:relative;overflow:hidden;margin-bottom:8px;}
+.lyrics-word{display:inline-block;margin:0 4px;font-family:'Fredoka One',cursive;font-size:clamp(14px,3.5vw,22px);color:rgba(255,255,255,.25);transition:all .2s;letter-spacing:1px;}
+.lyrics-word.current{color:#FFD700;transform:scale(1.15);text-shadow:0 0 20px #FFD70099;}
+.lyrics-word.done{color:rgba(255,255,255,.65);}
+.karaoke-progress{width:100%;height:7px;background:#ddd;border-radius:4px;overflow:hidden;margin:4px 0;}
+.karaoke-fill{height:100%;background:linear-gradient(90deg,#FFD700,#ff6b9d);border-radius:4px;transition:width .2s;}
+.perfect-flash{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Fredoka One',cursive;font-size:36px;animation:pop .4s ease-out forwards;pointer-events:none;z-index:10;}
+
+/* DICTADO */
+.dictado-sequence{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:10px;background:#f4f4f8;border-radius:12px;min-height:52px;}
+.note-pill{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;font-weight:800;font-size:12px;color:white;transition:all .3s;border:3px solid transparent;}
+.listen-btn{background:#3949ab;color:white;border:none;border-radius:12px;padding:10px 22px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:6px;transition:all .2s;}
+.listen-btn:hover{background:#283593;}
+.listen-btn.playing{background:#fb8c00;}
+
+/* MEMORIA */
+.memoria-sequence{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;padding:10px;background:#f4f4f8;border-radius:12px;min-height:52px;}
+.mem-pill{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;font-weight:800;font-size:11px;color:white;transition:all .3s;}
+
+/* NIVEL ADAPTATIVO */
+.level-bar{background:#f4f4f8;border-radius:12px;padding:8px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;border:2px solid #ddd;}
+.level-progress{flex:1;height:8px;background:#ddd;border-radius:4px;overflow:hidden;}
+.level-fill{height:100%;border-radius:4px;transition:width .5s ease;}
 
 /* LOGROS */
 .ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:6px;}
@@ -182,46 +203,67 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
 .fl-item{display:flex;align-items:center;gap:3px;font-size:10px;font-weight:700;color:#333;}
 .fl-num{width:16px;height:16px;border-radius:50%;background:#3949ab;color:white;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;}
 .note-display{text-align:center;padding:5px;min-height:40px;display:flex;align-items:center;justify-content:center;}
-.note-bubble{font-family:'Fredoka One',cursive;font-size:22px;padding:4px 14px;border-radius:14px;color:white;animation:pop .25s ease-out;}
-@keyframes pop{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.note-bubble{font-family:'Fredoka One',cursive;font-size:22px;padding:4px 14px;border-radius:14px;color:white;animation:pop .25s ease-out;display:inline-block;}
 
-/* PROGRESO GUARDADO */
-.progress-section{background:#f4f4f8;border-radius:13px;padding:12px;margin-bottom:12px;border:2px solid #ddd;}
-.progress-title{font-family:'Fredoka One',cursive;font-size:15px;color:#3949ab;margin-bottom:10px;}
-.progress-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
-.progress-card{background:white;border-radius:10px;padding:10px;text-align:center;border:2px solid #eee;}
-.progress-num{font-size:24px;font-weight:800;color:#3949ab;}
-.progress-lbl{font-size:10px;color:#888;font-weight:600;margin-top:2px;}
-.song-history{margin-top:10px;}
-.song-history-title{font-size:12px;font-weight:800;color:#444;margin-bottom:6px;}
-.song-hist-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #eee;font-size:11px;color:#555;}
-.song-hist-item:last-child{border-bottom:none;}
-.reset-btn{background:white;color:#c62828;border:2px solid #c62828;border-radius:9px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;cursor:pointer;margin-top:10px;}
-.reset-btn:hover{background:#c62828;color:white;}
+/* PANEL PADRES */
+.padres-tabs{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap;}
+.padres-tab{background:#f4f4f8;border:2px solid #ddd;border-radius:10px;padding:6px 12px;font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;cursor:pointer;color:#444;transition:all .2s;}
+.padres-tab.active{background:#1a237e;color:white;border-color:#1a237e;}
+.padres-panel{display:none;}
+.padres-panel.active{display:block;}
+.stat-grid-p{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px;}
+.stat-card-p{background:#f4f4f8;border-radius:12px;padding:10px;text-align:center;border:2px solid #e0e0f0;}
+.stat-num-p{font-family:'Fredoka One',cursive;font-size:26px;color:#1a237e;}
+.stat-lbl-p{font-size:10px;color:#888;font-weight:700;margin-top:2px;}
+.streak-wrap-p{background:linear-gradient(135deg,#ff6f00,#ff8f00);border-radius:14px;padding:12px 16px;color:white;display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+.streak-num-p{font-family:'Fredoka One',cursive;font-size:40px;line-height:1;}
+.streak-days-p{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap;}
+.streak-day-p{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:white;flex-direction:column;gap:1px;}
+.streak-day-p.active{background:rgba(255,255,255,.35);}
+.streak-day-p.empty{background:rgba(255,255,255,.12);}
+.chart-wrap-p{background:#f4f4f8;border-radius:14px;padding:12px;margin-bottom:12px;border:2px solid #e0e0f0;}
+.bar-chart-p{display:flex;align-items:flex-end;gap:6px;height:90px;}
+.bar-col-p{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.bar-p{width:100%;border-radius:5px 5px 0 0;min-height:4px;}
+.bar-lbl-p{font-size:9px;font-weight:700;color:#888;}
+.bar-val-p{font-size:9px;font-weight:800;color:#1a237e;}
+.note-row-p{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.note-name-p{font-size:12px;font-weight:800;width:38px;flex-shrink:0;}
+.note-bar-wrap-p{flex:1;height:14px;background:#eeeeee;border-radius:7px;overflow:hidden;}
+.note-bar-p{height:100%;border-radius:7px;transition:width .6s ease;}
+.note-count-p{font-size:11px;font-weight:700;color:#888;width:30px;text-align:right;}
+.song-log-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f4f4f8;border-radius:10px;border:2px solid #e0e0f0;margin-bottom:5px;}
+.config-row-p{display:flex;align-items:center;gap:10px;padding:9px 12px;background:#f4f4f8;border-radius:12px;border:2px solid #e0e0f0;margin-bottom:6px;flex-wrap:wrap;}
+.config-lbl-p{flex:1;min-width:100px;font-size:12px;font-weight:800;color:#333;}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;inset:0;background:#ccc;border-radius:24px;cursor:pointer;transition:.3s;}
+.toggle-slider:before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s;}
+.toggle input:checked+.toggle-slider{background:#1a237e;}
+.toggle input:checked+.toggle-slider:before{transform:translateX(20px);}
+.genre-chip{display:inline-flex;align-items:center;background:#e8eaf6;color:#1a237e;border:2px solid #9090c8;border-radius:9px;padding:4px 10px;font-size:10px;font-weight:800;cursor:pointer;margin:3px;user-select:none;}
+.genre-chip.off{background:#f4f4f8;color:#aaa;border-color:#ddd;}
 
 .toast{position:fixed;top:12px;left:50%;transform:translateX(-50%) translateY(-80px);background:#26a69a;color:white;padding:7px 18px;border-radius:14px;font-weight:800;font-size:12px;box-shadow:0 4px 20px rgba(0,0,0,.2);transition:transform .4s cubic-bezier(.34,1.56,.64,1);z-index:1000;font-family:'Nunito',sans-serif;white-space:nowrap;}
 .toast.show{transform:translateX(-50%) translateY(0);}
-@media(max-width:480px){.wk{width:31px;height:130px;}.bk{width:20px;height:80px;}.piano{height:140px;}.song-card{grid-template-columns:32px 1fr auto;}}
+
+@media(max-width:480px){
+  .wk{width:31px;height:130px;}.bk{width:20px;height:80px;}.piano{height:140px;}
+  .song-card{grid-template-columns:32px 1fr auto;}
+  .game-grid{grid-template-columns:1fr 1fr;}
+}
 </style>
 </head>
 <body>
 <div id="toast" class="toast"></div>
-
-<!-- BANNER INSTALACIÓN PWA -->
 <div id="install-banner">
-  <div class="install-icon">📲</div>
-  <div class="install-text">
-    <div class="install-title">¡Instalá PianoKids!</div>
-    <div class="install-sub">Jugá sin internet, como una app real</div>
-  </div>
+  <div style="font-size:26px;">📲</div>
+  <div style="flex:1;"><div style="font-weight:800;font-size:13px;">¡Instalá PianoKids!</div><div style="font-size:11px;opacity:.8;">Jugá sin internet, como una app real</div></div>
   <button class="install-btn" onclick="installPWA()">Instalar</button>
   <button class="install-close" onclick="dismissInstall()">✕</button>
 </div>
-
 <div class="app">
-<div class="header">
-  <div class="app-title">🎹 PianoKids</div>
-</div>
+<div class="header"><div class="app-title">🎹 PianoKids</div></div>
 <div class="stats-bar">
   <div class="stat-chip">⭐ <span id="sc-stars">0</span></div>
   <div class="stat-chip">🔥 <span id="sc-streak">0</span></div>
@@ -237,6 +279,7 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
   <button class="nav-btn" onclick="switchTab('canciones',this)">🎵 Canciones</button>
   <button class="nav-btn" onclick="switchTab('juegos',this)">🎮 Juegos</button>
   <button class="nav-btn" onclick="switchTab('logros',this)">🏅 Logros</button>
+  <button class="nav-btn" onclick="switchTab('padres',this)">👨‍👩‍👧 Padres</button>
 </div>
 
 <!-- LIBRE -->
@@ -254,11 +297,8 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
     <div class="tsep"></div>
     <label>Sonido:</label>
     <select onchange="changeSound(this.value)" style="background:#3949ab;color:white;border:none;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">
-      <option value="piano">🎹 Piano</option>
-      <option value="organ">🎺 Órgano</option>
-      <option value="bells">🔔 Campanas</option>
-      <option value="bass">🎸 Bajo</option>
-      <option value="synth">🌊 Synth</option>
+      <option value="piano">🎹 Piano</option><option value="organ">🎺 Órgano</option>
+      <option value="bells">🔔 Campanas</option><option value="bass">🎸 Bajo</option><option value="synth">🌊 Synth</option>
     </select>
   </div>
   <div class="note-display" id="nd-libre"><span style="font-size:12px;color:#aaa;font-weight:700;">Tocá una tecla 🎵</span></div>
@@ -417,7 +457,14 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
 <!-- JUEGOS -->
 <div id="tab-juegos" class="panel">
   <div class="sec-title">🎮 Mini Juegos</div>
+  <div class="level-bar">
+    <span style="font-size:11px;font-weight:800;color:#444;">Nivel:</span>
+    <div class="level-progress"><div class="level-fill" id="level-fill" style="width:0%;background:linear-gradient(90deg,#3949ab,#fb8c00);"></div></div>
+    <span style="font-size:11px;font-weight:800;color:#3949ab;" id="level-name-j">Principiante</span>
+  </div>
   <div class="game-grid" id="game-grid"></div>
+
+  <!-- Quiz clásico -->
   <div class="game-area" id="game-area">
     <div style="font-weight:800;font-size:12px;color:#3949ab;">Puntos: <span id="game-score">0</span></div>
     <div class="game-q" id="game-q"></div>
@@ -425,42 +472,173 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
     <div id="game-feedback" style="font-size:20px;min-height:26px;text-align:center;font-weight:800;"></div>
     <button onclick="stopGame()" style="background:#c62828;color:white;border:none;border-radius:9px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;cursor:pointer;">⏹ Terminar</button>
   </div>
+
+  <!-- Quintas -->
   <div class="game-area" id="fifth-area">
     <div style="font-weight:800;font-size:12px;color:#3949ab;">Puntos: <span id="fifth-score">0</span></div>
     <div style="font-family:'Fredoka One',cursive;font-size:17px;color:#444;text-align:center;">¡Tocá las notas del círculo de quintas!</div>
-    <div class="fifth-seq" id="fifth-seq"></div>
+    <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;" id="fifth-seq"></div>
     <div style="font-size:11px;color:#888;font-weight:700;text-align:center;" id="fifth-hint"></div>
     <div class="piano-wrapper"><div id="piano-fifth" class="piano"></div></div>
-    <div class="note-display" id="nd-fifth" style="min-height:30px;"></div>
+    <div class="note-display" id="nd-fifth"></div>
     <button onclick="stopFifthGame()" style="background:#c62828;color:white;border:none;border-radius:9px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;cursor:pointer;">⏹ Terminar</button>
+  </div>
+
+  <!-- KARAOKE -->
+  <div class="game-area" id="karaoke-area">
+    <div style="font-weight:800;font-size:13px;color:#3949ab;width:100%;">🎤 Karaoke — <span id="k-song-name"></span></div>
+    <div class="lyrics-display" style="width:100%;"><div id="lyrics-content" style="padding:8px 0;"></div></div>
+    <div class="karaoke-progress"><div class="karaoke-fill" id="karaoke-fill" style="width:0%"></div></div>
+    <div style="display:flex;align-items:center;gap:10px;width:100%;flex-wrap:wrap;">
+      <div style="font-family:'Fredoka One',cursive;font-size:20px;color:#3949ab;">⭐ <span id="k-score">0</span></div>
+      <div style="font-size:12px;font-weight:800;color:#fb8c00;" id="k-combo"></div>
+      <div style="font-size:11px;color:#888;font-weight:700;" id="k-step">Tocá la nota que brilla</div>
+    </div>
+    <div class="piano-wrapper" style="width:100%;"><div id="piano-karaoke" class="piano"></div></div>
+    <div style="display:flex;gap:6px;">
+      <button onclick="stopKaraoke()" style="background:#c62828;color:white;border:none;border-radius:9px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;cursor:pointer;">⏹ Salir</button>
+    </div>
+  </div>
+
+  <!-- DICTADO -->
+  <div class="game-area" id="dictado-area">
+    <div style="font-weight:800;font-size:13px;color:#3949ab;width:100%;">🎧 Dictado Melódico</div>
+    <div style="background:#f4f4f8;border-radius:12px;padding:10px;width:100%;text-align:center;border:2px solid #ddd;">
+      <div style="font-size:12px;font-weight:700;color:#444;margin-bottom:8px;">Escuchá y repetí la secuencia</div>
+      <div style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;">
+        <button class="listen-btn" id="listen-btn" onclick="playDictadoSeq()">🔊 Escuchar</button>
+        <div style="font-size:11px;color:#888;font-weight:600;">Ronda <span id="dictado-round">1</span> · <span id="dictado-score">0</span> pts</div>
+      </div>
+    </div>
+    <div class="dictado-sequence" id="dictado-seq"></div>
+    <div style="font-family:'Fredoka One',cursive;font-size:18px;color:#3949ab;text-align:center;min-height:30px;" id="dictado-status">Presioná Escuchar para empezar</div>
+    <div class="piano-wrapper" style="width:100%;"><div id="piano-dictado" class="piano"></div></div>
+    <div style="display:flex;gap:6px;">
+      <button onclick="newDictadoRound()" style="background:#3949ab;color:white;border:none;border-radius:9px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;cursor:pointer;">🔄 Nueva</button>
+      <button onclick="stopDictado()" style="background:#c62828;color:white;border:none;border-radius:9px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;cursor:pointer;">⏹ Salir</button>
+    </div>
+  </div>
+
+  <!-- MEMORIA -->
+  <div class="game-area" id="memoria-area">
+    <div style="font-weight:800;font-size:13px;color:#3949ab;width:100%;">🧠 Memoria Musical</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;width:100%;flex-wrap:wrap;gap:6px;">
+      <div style="font-family:'Fredoka One',cursive;font-size:20px;color:#3949ab;">Ronda <span id="mem-round">1</span></div>
+      <div style="font-size:12px;font-weight:700;color:#444;">Pts: <span id="mem-score">0</span></div>
+      <div style="font-size:11px;color:#aaa;font-weight:600;">🏆 Récord: <span id="mem-record">0</span></div>
+    </div>
+    <div class="memoria-sequence" id="mem-seq" style="width:100%;"></div>
+    <div style="font-family:'Fredoka One',cursive;font-size:18px;color:#3949ab;text-align:center;min-height:30px;" id="mem-status">Presioná Jugar</div>
+    <div class="piano-wrapper" style="width:100%;"><div id="piano-memoria" class="piano"></div></div>
+    <div style="display:flex;gap:6px;">
+      <button id="mem-play-btn" onclick="startMemoria()" style="background:#3949ab;color:white;border:none;border-radius:12px;padding:9px 22px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">▶ Jugar</button>
+      <button onclick="stopMemoria()" style="background:#c62828;color:white;border:none;border-radius:9px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;cursor:pointer;">⏹ Salir</button>
+    </div>
   </div>
 </div>
 
 <!-- LOGROS -->
 <div id="tab-logros" class="panel">
   <div class="sec-title">🏅 Mis logros</div>
+  <div style="background:#f4f4f8;border-radius:13px;padding:10px;margin-bottom:10px;border:2px solid #ddd;">
+    <div style="font-family:'Fredoka One',cursive;font-size:15px;color:#3949ab;margin-bottom:8px;">⭐ Medallas</div>
+    <div class="ach-grid" id="ach-grid"></div>
+  </div>
+  <div style="background:#f4f4f8;border-radius:12px;padding:11px;border:2px solid #ddd;">
+    <div style="font-weight:800;font-size:12px;color:#444;margin-bottom:6px;">📊 Mi progreso</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;" id="progress-stats"></div>
+  </div>
+  <div style="margin-top:10px;text-align:center;">
+    <button onclick="confirmReset()" style="background:white;color:#c62828;border:2px solid #c62828;border-radius:9px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;cursor:pointer;">🗑️ Borrar progreso</button>
+  </div>
+</div>
 
-  <!-- PROGRESO GUARDADO -->
-  <div class="progress-section">
-    <div class="progress-title">📊 Mi progreso guardado</div>
-    <div class="progress-grid" id="progress-grid"></div>
-    <div class="song-history">
-      <div class="song-history-title">🎵 Canciones completadas</div>
-      <div id="song-history-list"></div>
-    </div>
-    <button class="reset-btn" onclick="confirmReset()">🗑️ Borrar progreso</button>
+<!-- PANEL PADRES -->
+<div id="tab-padres" class="panel">
+  <div class="sec-title">👨‍👩‍👧 Panel de Padres</div>
+  <div class="padres-tabs">
+    <button class="padres-tab active" onclick="switchPadresTab('prog',this)">📊 Progreso</button>
+    <button class="padres-tab" onclick="switchPadresTab('stats',this)">📈 Estadísticas</button>
+    <button class="padres-tab" onclick="switchPadresTab('lecc',this)">📚 Lecciones</button>
+    <button class="padres-tab" onclick="switchPadresTab('cfg',this)">⚙️ Config</button>
   </div>
 
-  <div style="background:#f4f4f8;border-radius:13px;padding:10px;border:2px solid #ddd;">
-    <div style="font-family:'Fredoka One',cursive;font-size:15px;color:#3949ab;margin-bottom:8px;">🏅 Medallas</div>
-    <div class="ach-grid" id="ach-grid"></div>
+  <div id="padres-prog" class="padres-panel active">
+    <div class="stat-grid-p" id="stat-grid-p"></div>
+    <div class="streak-wrap-p">
+      <div><div style="font-size:26px;">🔥</div><div class="streak-num-p" id="streak-num-p">0</div></div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:800;">Días seguidos practicando</div>
+        <div style="font-size:11px;opacity:.85;margin-top:2px;" id="streak-sub-p"></div>
+        <div class="streak-days-p" id="streak-days-p"></div>
+      </div>
+    </div>
+    <div style="font-weight:800;font-size:13px;color:#444;margin-bottom:8px;">🎵 Canciones completadas</div>
+    <div id="song-log-p"></div>
+  </div>
+
+  <div id="padres-stats" class="padres-panel">
+    <div class="chart-wrap-p">
+      <div style="font-size:12px;font-weight:800;color:#444;margin-bottom:10px;">Notas tocadas esta semana</div>
+      <div class="bar-chart-p" id="weekly-chart-p"></div>
+    </div>
+    <div class="chart-wrap-p">
+      <div style="font-size:12px;font-weight:800;color:#444;margin-bottom:10px;">🎹 Notas más tocadas</div>
+      <div id="notes-chart-p"></div>
+    </div>
+  </div>
+
+  <div id="padres-lecc" class="padres-panel">
+    <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;" id="padres-lecc-tabs">
+      <button onclick="showPadresLecc('notas',this)" style="background:#1a237e;color:white;border:2px solid #1a237e;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">🎵 Notas</button>
+      <button onclick="showPadresLecc('may',this)" style="background:white;color:#1a237e;border:2px solid #1a237e;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">🎸 Mayores</button>
+      <button onclick="showPadresLecc('men',this)" style="background:white;color:#1a237e;border:2px solid #1a237e;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">🎻 Menores</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:7px;margin-bottom:10px;" id="padres-lecc-grid"></div>
+    <div style="background:#f4f4f8;border-radius:12px;padding:10px 14px;border:2px solid #e0e0f0;font-size:12px;color:#666;font-weight:600;line-height:1.9;" id="padres-lecc-summary"></div>
+  </div>
+
+  <div id="padres-cfg" class="padres-panel">
+    <div style="margin-bottom:12px;">
+      <div style="font-size:13px;font-weight:800;color:#444;margin-bottom:8px;">⏱ Límite de práctica diaria</div>
+      <div class="config-row-p">
+        <div class="config-lbl-p">Tiempo máximo por día</div>
+        <input type="range" style="accent-color:#1a237e;width:110px;cursor:pointer;" id="time-slider" min="5" max="60" step="5" value="30" oninput="document.getElementById('time-val').textContent=this.value+' min'">
+        <span style="font-family:'Fredoka One',cursive;font-size:15px;color:#1a237e;min-width:50px;text-align:center;" id="time-val">30 min</span>
+        <label class="toggle"><input type="checkbox" id="time-enabled"><div class="toggle-slider"></div></label>
+      </div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:13px;font-weight:800;color:#444;margin-bottom:8px;">🎵 Géneros permitidos</div>
+      <div style="padding:10px;background:#f4f4f8;border-radius:12px;border:2px solid #e0e0f0;">
+        <div id="genre-chips-p"></div>
+      </div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:13px;font-weight:800;color:#444;margin-bottom:8px;">🎯 Dificultad máxima</div>
+      <div class="config-row-p">
+        <div class="config-lbl-p">Canciones visibles</div>
+        <select id="max-diff-p" style="background:#e8eaf6;color:#1a237e;border:2px solid #9090c8;border-radius:9px;padding:6px 10px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;outline:none;">
+          <option value="easy">Solo fáciles</option><option value="medium" selected>Fácil y medio</option><option value="hard">Todas</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding-top:12px;border-top:2px solid #eee;">
+      <div style="font-size:13px;font-weight:800;color:#c62828;margin-bottom:8px;">⚠️ Zona de peligro</div>
+      <div class="config-row-p">
+        <div class="config-lbl-p">Borrar todo el progreso</div>
+        <button onclick="confirmReset()" style="background:white;color:#c62828;border:2px solid #c62828;border-radius:9px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;cursor:pointer;">🗑 Borrar</button>
+      </div>
+    </div>
   </div>
 </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
 <script>
-// ═══ CONSTANTES ═══
+// ════════════════════════════════════════════
+// CONSTANTES
+// ════════════════════════════════════════════
 const NOTE_ES={'C':'Do','D':'Re','E':'Mi','F':'Fa','G':'Sol','A':'La','B':'Si','C#':'Do#','D#':'Re#','F#':'Fa#','G#':'Sol#','A#':'La#'};
 const NOTE_EN={'C':'C','D':'D','E':'E','F':'F','G':'G','A':'A','B':'B','C#':'C#','D#':'D#','F#':'F#','G#':'G#','A#':'A#'};
 const NOTE_COLORS={C:'#FF6B6B',D:'#FF9F43',E:'#d4a000',F:'#0099bb',G:'#1DD1A1',A:'#54A0FF',B:'#A29BFE'};
@@ -473,93 +651,21 @@ const BLACK_FINGER={'C#3':2,'D#3':3,'F#3':2,'G#3':3,'A#3':4,'C#4':2,'D#4':3,'F#4
 const FINGER_NAMES=['','Pulgar','Índice','Medio','Anular','Meñique'];
 const CHORD_F={C:[1,3,5],D:[1,3,5],E:[1,3,5],F:[1,3,5],G:[1,3,5],A:[1,3,5],B:[1,3,5]};
 const GENRE_LABELS={argentina:'🇦🇷 Argentina',clasica:'🎻 Clásica',infantil:'👶 Infantil',disney:'✨ Disney',navidad:'🎄 Navidad',pop:'🎤 Pop'};
+const LEVELS=[
+  {name:'Principiante',xp:0,color:'#4caf50',notes:['C4','D4','E4','F4','G4'],seqLen:2,tempo:.9},
+  {name:'Explorador',xp:100,color:'#00bcd4',notes:['C4','D4','E4','F4','G4','A4'],seqLen:3,tempo:.85},
+  {name:'Músico',xp:300,color:'#3949ab',notes:['C4','D4','E4','F4','G4','A4','B4'],seqLen:4,tempo:.8},
+  {name:'Virtuoso',xp:600,color:'#9c27b0',notes:['C4','D4','E4','F4','G4','A4','B4','C5','D5','E5'],seqLen:5,tempo:.7},
+  {name:'Maestro',xp:1000,color:'#e91e63',notes:['C4','D4','E4','F4','G4','A4','B4','C5','D5','E5','F5','G5'],seqLen:6,tempo:.6},
+];
 
-// ═══════════════════════════════════════
-// LOCALSTORAGE — PERSISTENCIA
-// ═══════════════════════════════════════
-const STORAGE_KEY = 'pianokids_progress_v1';
-let saveTimer = null;
-
-function loadProgress() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch(e) { return null; }
-}
-
-function saveProgress() {
-  // Indicador visual de guardado
-  const dot = document.getElementById('save-dot');
-  const lbl = document.getElementById('save-status');
-  dot.classList.add('saving');
-  lbl.textContent = 'Guardando...';
-
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    try {
-      const data = {
-        stars,
-        notesPlayed,
-        songsCompleted,
-        lessonsCompleted,
-        achievements: ACHS.map(a => a.ok),
-        lessonsNotes: LESSONS_NOTES.map(l => ({ stars: l.stars, locked: l.locked })),
-        lessonsMaj: LESSONS_MAJ.map(l => ({ stars: l.stars, locked: l.locked })),
-        lessonsMen: LESSONS_MEN.map(l => ({ stars: l.stars, locked: l.locked })),
-        lastSaved: new Date().toISOString()
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      dot.classList.remove('saving');
-      lbl.textContent = 'Guardado';
-    } catch(e) {
-      lbl.textContent = 'Error al guardar';
-    }
-  }, 800);
-}
-
-function applyProgress(data) {
-  if (!data) return;
-  stars = data.stars || 0;
-  notesPlayed = data.notesPlayed || 0;
-  songsCompleted = data.songsCompleted || 0;
-  lessonsCompleted = data.lessonsCompleted || 0;
-
-  if (data.achievements) data.achievements.forEach((ok, i) => { if (ACHS[i]) ACHS[i].ok = ok; });
-  if (data.lessonsNotes) data.lessonsNotes.forEach((s, i) => { if (LESSONS_NOTES[i]) { LESSONS_NOTES[i].stars = s.stars; LESSONS_NOTES[i].locked = s.locked; } });
-  if (data.lessonsMaj)  data.lessonsMaj.forEach((s, i)  => { if (LESSONS_MAJ[i])  { LESSONS_MAJ[i].stars  = s.stars; LESSONS_MAJ[i].locked  = s.locked;  } });
-  if (data.lessonsMen)  data.lessonsMen.forEach((s, i)  => { if (LESSONS_MEN[i])  { LESSONS_MEN[i].stars  = s.stars; LESSONS_MEN[i].locked  = s.locked;  } });
-
-  updateStatsUI();
-}
-
-function confirmReset() {
-  if (confirm('¿Borrar todo el progreso? Esta acción no se puede deshacer.')) {
-    localStorage.removeItem(STORAGE_KEY);
-    stars=0;notesPlayed=0;songsCompleted=0;lessonsCompleted=0;
-    ACHS.forEach(a=>a.ok=false);
-    LESSONS_NOTES.forEach((l,i)=>{l.stars=0;l.locked=i>1?true:false;});
-    LESSONS_MAJ.forEach((l,i)=>{l.stars=0;l.locked=i>0;});
-    LESSONS_MEN.forEach((l,i)=>{l.stars=0;l.locked=i>0;});
-    updateStatsUI();buildLessonGrid();buildAchievements();
-    showToast('Progreso borrado 🗑️');
-  }
-}
-
-function updateStatsUI() {
-  document.getElementById('sc-stars').textContent = stars;
-  document.getElementById('sc-streak').textContent = streak;
-  document.getElementById('sc-level').textContent = 'Nivel ' + (Math.floor(stars/20)+1);
-}
-
-// Contadores adicionales de progreso
-let songsCompleted = 0;
-let lessonsCompleted = 0;
-
-// ═══ STATE ═══
+// ════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════
 let notation='es',showKb=false,showFingers=false;
 let pianoSynth=null,currentSound='piano';
-let stars=0,streak=0,notesPlayed=0;
+let stars=0,streak=0,notesPlayed=0,songsCompleted=0,lessonsCompleted=0;
+let playerXP=0,totalScore=0;
 let pressedKeys=new Set();
 let micActive=false,audioCtx=null,analyser=null,micStream=null,pitchInterval=null;
 let lessonCat='notas',currentLesson=null,lessonStep=0,chordPressed=new Set(),waitingChordFull=false;
@@ -569,82 +675,126 @@ let fifthActive=false,fifthSeq=[],fifthStep=0,fifthScore=0;
 let metroBpm=80,metroSig=4,metroBeat=0,metroActive=false;
 let metroInterval=null,pendFrame=null,tapArr=[],metroSound='click',metroSynth=null;
 let staffHistory=[];
+let saveTimer=null;
+let songHistory=[];
+let noteFrequency={};
+let memoriaRecord=0;
+// Juegos nuevos
+let karaokeActive=false,karaokeStep=0,karaokeScore=0,karaokeCombo=0,karaokeSong=null;
+let dictadoActive=false,dictadoSeq=[],dictadoStep=0,dictadoRound=1,dictadoScore=0,dictadoListened=false,dictadoPlaying=false;
+let memoriaActive=false,memoriaSeq=[],memoriaStep=0,memoriaRound=1,memoriaScore=0;
+let activeGame='';
+let rankings={};
 
 const nb=n=>n.replace(/\d/g,'');
 const nc=n=>NOTE_COLORS[nb(n).replace('#','')]||'#3949ab';
 const nl=n=>(notation==='es'?NOTE_ES:NOTE_EN)[nb(n)]||nb(n);
 const showToast=msg=>{const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);};
+function btnOn(el){el.style.background='#3949ab';el.style.color='white';}
+function btnOff(el){el.style.background='white';el.style.color='#3949ab';}
 
-// ═══ PWA ═══
-let deferredPrompt = null;
-
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  // Mostrar banner solo si no fue descartado antes
-  if (!localStorage.getItem('pwa_dismissed')) {
-    document.getElementById('install-banner').classList.add('show');
+// ════════════════════════════════════════════
+// LOCALSTORAGE
+// ════════════════════════════════════════════
+const SKEY='pianokids_progress_v1';
+function saveProgress(){
+  const dot=document.getElementById('save-dot'),lbl=document.getElementById('save-status');
+  dot.classList.add('saving');lbl.textContent='Guardando...';
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    try{
+      localStorage.setItem(SKEY,JSON.stringify({
+        stars,notesPlayed,songsCompleted,lessonsCompleted,playerXP,totalScore,
+        songHistory,noteFrequency,memoriaRecord,rankings,
+        achievements:ACHS.map(a=>a.ok),
+        lessonsNotes:LESSONS_NOTES.map(l=>({stars:l.stars,locked:l.locked})),
+        lessonsMaj:LESSONS_MAJ.map(l=>({stars:l.stars,locked:l.locked})),
+        lessonsMen:LESSONS_MEN.map(l=>({stars:l.stars,locked:l.locked})),
+      }));
+      dot.classList.remove('saving');lbl.textContent='Guardado';
+    }catch(e){lbl.textContent='Error';}
+  },800);
+}
+function loadProgress(){
+  try{
+    const d=JSON.parse(localStorage.getItem(SKEY)||'null');if(!d)return;
+    stars=d.stars||0;notesPlayed=d.notesPlayed||0;songsCompleted=d.songsCompleted||0;
+    lessonsCompleted=d.lessonsCompleted||0;playerXP=d.playerXP||0;totalScore=d.totalScore||0;
+    songHistory=d.songHistory||[];noteFrequency=d.noteFrequency||{};
+    memoriaRecord=d.memoriaRecord||0;rankings=d.rankings||{};
+    if(d.achievements)d.achievements.forEach((ok,i)=>{if(ACHS[i])ACHS[i].ok=ok;});
+    if(d.lessonsNotes)d.lessonsNotes.forEach((s,i)=>{if(LESSONS_NOTES[i]){LESSONS_NOTES[i].stars=s.stars;LESSONS_NOTES[i].locked=s.locked;}});
+    if(d.lessonsMaj)d.lessonsMaj.forEach((s,i)=>{if(LESSONS_MAJ[i]){LESSONS_MAJ[i].stars=s.stars;LESSONS_MAJ[i].locked=s.locked;}});
+    if(d.lessonsMen)d.lessonsMen.forEach((s,i)=>{if(LESSONS_MEN[i]){LESSONS_MEN[i].stars=s.stars;LESSONS_MEN[i].locked=s.locked;}});
+  }catch(e){}
+}
+function confirmReset(){
+  if(confirm('¿Borrar todo el progreso? No se puede deshacer.')){
+    localStorage.removeItem(SKEY);location.reload();
   }
-});
-
-function installPWA() {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  deferredPrompt.userChoice.then(result => {
-    if (result.outcome === 'accepted') {
-      showToast('¡PianoKids instalado! 📲🎉');
-    }
-    deferredPrompt = null;
-    document.getElementById('install-banner').classList.remove('show');
-  });
 }
-
-function dismissInstall() {
-  document.getElementById('install-banner').classList.remove('show');
-  localStorage.setItem('pwa_dismissed', '1');
+function updateStatsUI(){
+  document.getElementById('sc-stars').textContent=stars;
+  document.getElementById('sc-streak').textContent=streak;
+  document.getElementById('sc-level').textContent='Nivel '+(Math.floor(stars/20)+1);
+  updateLevelBar();
 }
-
-window.addEventListener('appinstalled', () => {
-  document.getElementById('install-banner').classList.remove('show');
-  showToast('¡App instalada! 🎉');
-});
-
-// Registrar Service Worker
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('[PianoKids] SW registrado:', reg.scope))
-      .catch(err => console.log('[PianoKids] SW error:', err));
-  });
+function getCurrentLvl(){let l=0;for(let i=0;i<LEVELS.length;i++){if(playerXP>=LEVELS[i].xp)l=i;}return l;}
+function getLvlData(){return LEVELS[getCurrentLvl()];}
+function updateLevelBar(){
+  const lv=getCurrentLvl(),cur=LEVELS[lv],nxt=LEVELS[lv+1];
+  const pct=nxt?Math.round((playerXP-cur.xp)/(nxt.xp-cur.xp)*100):100;
+  const fill=document.getElementById('level-fill');if(fill){fill.style.width=pct+'%';fill.style.background=`linear-gradient(90deg,${cur.color},${nxt?nxt.color:cur.color})`;}
+  const ln=document.getElementById('level-name-j');if(ln)ln.textContent=cur.name;
 }
+function addXP(amt){playerXP+=amt;updateLevelBar();}
 
-// ═══ SYNTH ═══
+// ════════════════════════════════════════════
+// PWA
+// ════════════════════════════════════════════
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;if(!localStorage.getItem('pwa_dismissed'))document.getElementById('install-banner').classList.add('show');});
+function installPWA(){if(!deferredPrompt)return;deferredPrompt.prompt();deferredPrompt.userChoice.then(r=>{if(r.outcome==='accepted')showToast('¡PianoKids instalado! 📲🎉');deferredPrompt=null;document.getElementById('install-banner').classList.remove('show');});}
+function dismissInstall(){document.getElementById('install-banner').classList.remove('show');localStorage.setItem('pwa_dismissed','1');}
+window.addEventListener('appinstalled',()=>{document.getElementById('install-banner').classList.remove('show');});
+if('serviceWorker'in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{});});}
+
+// ════════════════════════════════════════════
+// SYNTH
+// ════════════════════════════════════════════
 function buildSynth(type){if(pianoSynth){try{pianoSynth.dispose();}catch(e){}pianoSynth=null;}const vol=new Tone.Volume(-6).toDestination();const opts={piano:{oscillator:{type:'triangle'},envelope:{attack:.02,decay:.1,sustain:.3,release:1}},organ:{oscillator:{type:'sine'},envelope:{attack:.01,decay:.01,sustain:1,release:.1}},bells:{oscillator:{type:'sine'},envelope:{attack:.001,decay:.8,sustain:0,release:.5}},bass:{oscillator:{type:'sawtooth'},envelope:{attack:.05,decay:.3,sustain:.4,release:.8}},synth:{oscillator:{type:'square'},envelope:{attack:.05,decay:.1,sustain:.5,release:.6}}};pianoSynth=new Tone.PolySynth(Tone.Synth,opts[type]||opts.piano).connect(vol);}
 function changeSound(val){currentSound=val;buildSynth(val);const L={piano:'Piano',organ:'Órgano',bells:'Campanas',bass:'Bajo',synth:'Synth'};document.getElementById('sc-sound').textContent='🎵 '+L[val];unlockAch(8);}
 function ensureSynth(){if(!pianoSynth)buildSynth(currentSound);}
 
-// ═══ PIANO ═══
+// ════════════════════════════════════════════
+// PIANO
+// ════════════════════════════════════════════
 function buildPiano(id){
   const c=document.getElementById(id);if(!c)return;c.innerHTML='';
   WHITE_NOTES.forEach((note,i)=>{
-    const base=nb(note);const k=document.createElement('div');k.className='wk';k.id='k-'+id+'-'+note;k.dataset.note=note;
+    const k=document.createElement('div');k.className='wk';k.id='k-'+id+'-'+note;k.dataset.note=note;
     const lbl=document.createElement('div');lbl.className='wk-label';lbl.textContent=nl(note);k.appendChild(lbl);
-    if(showKb){const kbMap={C4:'A',D4:'S',E4:'D',F4:'F',G4:'G',A4:'H',B4:'J',C5:'K',D5:'L'};if(kbMap[note]){const kl=document.createElement('div');kl.className='wk-kb';kl.textContent=kbMap[note];k.appendChild(kl);}}
-    k.addEventListener('mousedown',ev=>{ev.preventDefault();pianoPlay(note,k,id);});k.addEventListener('mouseup',()=>pianoStop(note,k));k.addEventListener('mouseleave',()=>{if(pressedKeys.has(note))pianoStop(note,k);});k.addEventListener('touchstart',ev=>{ev.preventDefault();pianoPlay(note,k,id);},{passive:false});k.addEventListener('touchend',ev=>{ev.preventDefault();pianoStop(note,k);});
+    if(showKb){const kbM={C4:'A',D4:'S',E4:'D',F4:'F',G4:'G',A4:'H',B4:'J',C5:'K',D5:'L'};if(kbM[note]){const kl=document.createElement('div');kl.className='wk-kb';kl.textContent=kbM[note];k.appendChild(kl);}}
+    k.addEventListener('mousedown',ev=>{ev.preventDefault();pianoPlay(note,k,id);});
+    k.addEventListener('mouseup',()=>pianoStop(note,k));
+    k.addEventListener('mouseleave',()=>{if(pressedKeys.has(note))pianoStop(note,k);});
+    k.addEventListener('touchstart',ev=>{ev.preventDefault();pianoPlay(note,k,id);},{passive:false});
+    k.addEventListener('touchend',ev=>{ev.preventDefault();pianoStop(note,k);});
     c.appendChild(k);
   });
   BLACK_DEFS.forEach(({n,p})=>{
     const k=document.createElement('div');k.className='bk';k.id='k-'+id+'-'+n;k.dataset.note=n;k.style.left=(p*KW+KW*.62)+'px';
     const lbl=document.createElement('div');lbl.className='bk-label';lbl.textContent=nl(n);k.appendChild(lbl);
-    if(showKb){const kbB={'C#4':'W','D#4':'E','F#4':'T','G#4':'Y','A#4':'U','C#5':'O','D#5':'P'};if(kbB[n]){const kl=document.createElement('div');kl.className='bk-kb';kl.textContent=kbB[n];k.appendChild(kl);}}
-    k.addEventListener('mousedown',ev=>{ev.preventDefault();pianoPlay(n,k,id);});k.addEventListener('mouseup',()=>pianoStop(n,k));k.addEventListener('touchstart',ev=>{ev.preventDefault();pianoPlay(n,k,id);},{passive:false});k.addEventListener('touchend',ev=>{ev.preventDefault();pianoStop(n,k);});
+    if(showKb){const kbB={'C#4':'W','D#4':'E','F#4':'T','G#4':'Y','A#4':'U','C#5':'O','D#5':'P'};if(kbB[n]){const kl=document.createElement('div');kl.className='wk-kb';kl.style.color='rgba(255,255,255,.4)';kl.textContent=kbB[n];k.appendChild(kl);}}
+    k.addEventListener('mousedown',ev=>{ev.preventDefault();pianoPlay(n,k,id);});
+    k.addEventListener('mouseup',()=>pianoStop(n,k));
+    k.addEventListener('touchstart',ev=>{ev.preventDefault();pianoPlay(n,k,id);},{passive:false});
+    k.addEventListener('touchend',ev=>{ev.preventDefault();pianoStop(n,k);});
     c.appendChild(k);
   });
 }
-function clearHL(id){document.querySelectorAll('#'+id+' .wk,#'+id+' .bk').forEach(k=>{k.classList.remove('hl');k.style.background='';k.style.borderColor='';});}
+function clearHL(id){document.querySelectorAll('#'+id+' .wk,#'+id+' .bk').forEach(k=>{k.classList.remove('hl');k.style.background='';});}
 function hlKey(id,note){const el=document.getElementById('k-'+id+'-'+note);if(el)el.classList.add('hl');}
-
-// ═══ AUDIO ═══
 function pianoPlay(note,el,pid){
   if(pressedKeys.has(note))return;pressedKeys.add(note);
   ensureSynth();Tone.start().then(()=>{try{pianoSynth.triggerAttack(note);}catch(e){}});
@@ -656,52 +806,95 @@ function pianoPlay(note,el,pid){
   const wi=WHITE_NOTES.indexOf(note);const finger=wi>=0?WHITE_FINGER[wi]:(BLACK_FINGER[note]||null);
   if(showFingers&&finger)activateFinger(finger,false);
   notesPlayed++;stars++;streak++;
+  noteFrequency[note]=(noteFrequency[note]||0)+1;
   updateStatsUI();
   if(notesPlayed===1)unlockAch(0);if(streak>=5)unlockAch(1);if(stars>=10)unlockAch(6);
   saveProgress();
   onNote(note,pid);
 }
 function pianoStop(note,el){pressedKeys.delete(note);try{if(pianoSynth)pianoSynth.triggerRelease(note);}catch(e){}if(el){el.classList.remove('pressed');if(!el.classList.contains('hl'))el.style.background='';}if(showFingers)clearFingers();}
-function onNote(note,pid){if(pid==='piano-staff')updateStaff(note);if(pid==='piano-songs')checkSong(note);if(pid==='piano-lesson')checkLessonNote(note);if(pid==='piano-fifth')checkFifthNote(note);}
+function onNote(note,pid){
+  if(pid==='piano-staff')updateStaff(note);
+  if(pid==='piano-songs')checkSong(note);
+  if(pid==='piano-lesson')checkLessonNote(note);
+  if(pid==='piano-fifth')checkFifthNote(note);
+  if(pid==='piano-karaoke')checkKaraoke(note);
+  if(pid==='piano-dictado')checkDictado(note);
+  if(pid==='piano-memoria')checkMemoria(note);
+}
 
-// ═══ TECLADO PC ═══
+// ════════════════════════════════════════════
+// TECLADO PC
+// ════════════════════════════════════════════
 const KB_MAP={a:'C4',w:'C#4',s:'D4',e:'D#4',d:'E4',f:'F4',t:'F#4',g:'G4',y:'G#4',h:'A4',u:'A#4',j:'B4',k:'C5',o:'C#5',l:'D5',p:'D#5'};
-document.addEventListener('keydown',ev=>{if(ev.repeat)return;const n=KB_MAP[ev.key.toLowerCase()];if(!n)return;const aid=document.querySelector('.panel.active')?.id||'';const pid=aid==='tab-staff'?'piano-staff':aid==='tab-canciones'?'piano-songs':aid==='tab-lecciones'?'piano-lesson':aid==='tab-juegos'?'piano-fifth':'piano-libre';const el=document.getElementById('k-'+pid+'-'+n);pianoPlay(n,el,pid);});
+document.addEventListener('keydown',ev=>{
+  if(ev.repeat)return;const n=KB_MAP[ev.key.toLowerCase()];if(!n)return;
+  const aid=document.querySelector('.panel.active')?.id||'';
+  let pid='piano-libre';
+  if(aid==='tab-staff')pid='piano-staff';
+  else if(aid==='tab-canciones')pid='piano-songs';
+  else if(aid==='tab-lecciones')pid='piano-lesson';
+  else if(aid==='tab-juegos'){
+    if(karaokeActive)pid='piano-karaoke';
+    else if(dictadoActive)pid='piano-dictado';
+    else if(memoriaActive)pid='piano-memoria';
+    else pid='piano-fifth';
+  }
+  const el=document.getElementById('k-'+pid+'-'+n);pianoPlay(n,el,pid);
+});
 document.addEventListener('keyup',ev=>{const n=KB_MAP[ev.key.toLowerCase()];if(n)document.querySelectorAll(`[id$="-${n}"]`).forEach(el=>pianoStop(n,el));});
 
-// ═══ HELPERS BOTONES ═══
-function btnOn(el){el.style.background='#3949ab';el.style.color='white';}
-function btnOff(el){el.style.background='white';el.style.color='#3949ab';}
-
-// ═══ TOGGLES ═══
+// ════════════════════════════════════════════
+// TOGGLES
+// ════════════════════════════════════════════
 function setNotation(n){notation=n;const es=document.getElementById('btn-es'),en=document.getElementById('btn-en');n==='es'?(btnOn(es),btnOff(en)):(btnOff(es),btnOn(en));rebuildAll();if(n==='en')unlockAch(9);}
 function toggleKb(){showKb=!showKb;const b=document.getElementById('btn-kb');showKb?btnOn(b):btnOff(b);rebuildAll();}
 function toggleFingers(){showFingers=!showFingers;const b=document.getElementById('btn-fingers');showFingers?btnOn(b):btnOff(b);document.getElementById('finger-legend').classList.toggle('show',showFingers);document.getElementById('hand-diagram').classList.toggle('show',showFingers);rebuildAll();}
-function rebuildAll(){['piano-libre','piano-staff','piano-songs','piano-lesson','piano-fifth'].forEach(id=>{if(document.getElementById(id))buildPiano(id);});if(currentLesson!==null)showLessonStep();if(currentSong!==null)showSongStep();}
+function rebuildAll(){['piano-libre','piano-staff','piano-songs','piano-lesson','piano-fifth','piano-karaoke','piano-dictado','piano-memoria'].forEach(id=>{if(document.getElementById(id))buildPiano(id);});if(currentLesson!==null)showLessonStep();if(currentSong!==null)showSongStep();}
 function activateFinger(f,chord){[1,2,3,4,5].forEach(n=>{document.getElementById('hf-'+n)?.classList.toggle(chord?'chord-active':'active',n===f);document.getElementById('hb-'+n)?.classList.toggle(chord?'chord-active':'active',n===f);});}
 function activateChordFingers(fs){[1,2,3,4,5].forEach(n=>{const on=fs.includes(n);document.getElementById('hf-'+n)?.classList.toggle('chord-active',on);document.getElementById('hb-'+n)?.classList.toggle('chord-active',on);});}
 function clearFingers(){[1,2,3,4,5].forEach(n=>{document.getElementById('hf-'+n)?.setAttribute('class','hfnum');document.getElementById('hb-'+n)?.setAttribute('class','hfbar');});}
 
-// ═══ TABS ═══
-function switchTab(tab,btn){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+tab).classList.add('active');btn.classList.add('active');streak=0;document.getElementById('sc-streak').textContent='0';if(tab==='logros')buildAchievements();}
+// ════════════════════════════════════════════
+// TABS
+// ════════════════════════════════════════════
+function switchTab(tab,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');btn.classList.add('active');
+  streak=0;document.getElementById('sc-streak').textContent='0';
+  if(tab==='logros')buildAchievements();
+  if(tab==='padres'){renderPadresProgreso();renderPadresStats();showPadresLecc('notas',document.querySelector('#padres-lecc-tabs button'));}
+}
+function switchPadresTab(tab,btn){
+  document.querySelectorAll('.padres-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.padres-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('padres-'+tab).classList.add('active');btn.classList.add('active');
+}
 
-// ═══ METRÓNOMO ═══
+// ════════════════════════════════════════════
+// METRÓNOMO
+// ════════════════════════════════════════════
 function getMetroSynth(){if(!metroSynth)metroSynth=new Tone.Synth({oscillator:{type:'sine'},envelope:{attack:.001,decay:.06,sustain:0,release:.04},volume:-8}).toDestination();return metroSynth;}
 function setBpm(v){metroBpm=parseInt(v);document.getElementById('bpm-val').textContent=metroBpm;document.getElementById('bpm-slider').value=metroBpm;const t=[[40,'Largo'],[60,'Larghetto'],[66,'Adagio'],[76,'Andante'],[108,'Moderato'],[132,'Allegro'],[156,'Vivace'],[168,'Presto']];let name='';for(const[b,n]of t)if(metroBpm>=b)name=n;document.getElementById('tempo-name').textContent=name;if(metroActive){stopMetro();startMetro();}}
 function setSig(n,btn){metroSig=n;metroBeat=0;document.querySelectorAll('#sig-btns button').forEach(b=>btnOff(b));btnOn(btn);buildBeatDots();if(metroActive){stopMetro();startMetro();}}
 function setMetroSound(s,btn){metroSound=s;document.querySelectorAll('#sound-metro-btns button').forEach(b=>btnOff(b));btnOn(btn);}
-function buildBeatDots(){const d=document.getElementById('beat-dots');d.innerHTML='';const count=Math.min(metroSig,6);for(let i=0;i<count;i++){const dot=document.createElement('div');dot.className='beat-dot'+(i===0?' accent':'');dot.id='bd-'+i;d.appendChild(dot);}}
+function buildBeatDots(){const d=document.getElementById('beat-dots');d.innerHTML='';for(let i=0;i<Math.min(metroSig,6);i++){const dot=document.createElement('div');dot.className='beat-dot'+(i===0?' accent':'');dot.id='bd-'+i;d.appendChild(dot);}}
 function toggleMetro(){metroActive?stopMetro():startMetro();}
 function startMetro(){metroActive=true;document.getElementById('metro-play-btn').textContent='⏸';document.getElementById('metro-play-btn').classList.add('active');metroBeat=0;tickMetro();metroInterval=setInterval(tickMetro,60000/metroBpm);animPend();}
-function stopMetro(){metroActive=false;clearInterval(metroInterval);if(pendFrame)cancelAnimationFrame(pendFrame);document.getElementById('metro-play-btn').textContent='▶';document.getElementById('metro-play-btn').classList.remove('active');document.querySelectorAll('.beat-dot').forEach(d=>d.classList.remove('on'));document.getElementById('pend-line')?.setAttribute('x2','65');document.getElementById('pend-line')?.setAttribute('y2','18');document.getElementById('pend-ball')?.setAttribute('cx','65');document.getElementById('pend-ball')?.setAttribute('cy','20');}
+function stopMetro(){metroActive=false;clearInterval(metroInterval);if(pendFrame)cancelAnimationFrame(pendFrame);document.getElementById('metro-play-btn').textContent='▶';document.getElementById('metro-play-btn').classList.remove('active');document.querySelectorAll('.beat-dot').forEach(d=>d.classList.remove('on'));}
 function tickMetro(){const count=Math.min(metroSig,6),b=metroBeat%count;document.querySelectorAll('.beat-dot').forEach(d=>d.classList.remove('on'));document.getElementById('bd-'+b)?.classList.add('on');Tone.start().then(()=>{try{const s=getMetroSynth();const freqs={click:b===0?1200:900,wood:b===0?600:400,beep:b===0?1000:700,bell:b===0?1400:1000};const durs={click:'64n',wood:'32n',beep:'16n',bell:'8n'};s.triggerAttackRelease(freqs[metroSound]||900,durs[metroSound]||'32n');}catch(e){}});metroBeat++;}
 function animPend(){const amp=28,speed=metroBpm/60*Math.PI;let t0=null;function frame(ts){if(!t0)t0=ts;const t=(ts-t0)/1000,ang=amp*Math.sin(t*speed)*Math.PI/180,x=65+104*Math.sin(ang),y=20+104*(1-Math.cos(ang))*.08;document.getElementById('pend-line')?.setAttribute('x2',x.toFixed(1));document.getElementById('pend-line')?.setAttribute('y2',y.toFixed(1));document.getElementById('pend-ball')?.setAttribute('cx',x.toFixed(1));document.getElementById('pend-ball')?.setAttribute('cy',y.toFixed(1));if(metroActive)pendFrame=requestAnimationFrame(frame);}pendFrame=requestAnimationFrame(frame);}
 function tapTempo(){const now=Date.now();tapArr.push(now);if(tapArr.length>1){const diffs=tapArr.slice(-5).map((t,i,a)=>i>0?t-a[i-1]:null).filter(Boolean);setBpm(Math.min(200,Math.max(40,Math.round(60000/(diffs.reduce((a,b)=>a+b)/diffs.length)))));}if(tapArr.length>8)tapArr=tapArr.slice(-8);}
 
-// ═══ PENTAGRAMA ═══
-function updateStaff(note){const base=nb(note),esn=NOTE_ES[base]||base,enn=NOTE_EN[base]||base,color=NOTE_COLORS[base.replace('#','')]||'#3949ab',isSharp=note.includes('#');const y=STAFF_Y[note];document.getElementById('staff-note-name').textContent=(notation==='es'?esn:enn)+' ('+( notation==='es'?enn:esn)+')';document.getElementById('staff-note-name').style.color=color;document.getElementById('staff-note-info').textContent=note+(isSharp?' — tecla negra':' — tecla blanca');const cg=document.getElementById('staff-current');cg.innerHTML='';if(y!==undefined){if(note==='C4'||note==='B3'){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1','116');l.setAttribute('y1','110');l.setAttribute('x2','148');l.setAttribute('y2','110');l.setAttribute('stroke','#aaa');l.setAttribute('stroke-width','1.5');cg.appendChild(l);}const circ=document.createElementNS('http://www.w3.org/2000/svg','ellipse');circ.setAttribute('cx','132');circ.setAttribute('cy',y);circ.setAttribute('rx','13');circ.setAttribute('ry','9');circ.setAttribute('fill',color);circ.setAttribute('opacity','.9');cg.appendChild(circ);if(isSharp){const sh=document.createElementNS('http://www.w3.org/2000/svg','text');sh.setAttribute('x','113');sh.setAttribute('y',y+5);sh.setAttribute('font-size','16');sh.setAttribute('fill',color);sh.setAttribute('font-weight','bold');sh.textContent='#';cg.appendChild(sh);}const stem=document.createElementNS('http://www.w3.org/2000/svg','line');stem.setAttribute('x1','145');stem.setAttribute('y1',y);stem.setAttribute('x2','145');stem.setAttribute('y2',y>74?y-38:y+38);stem.setAttribute('stroke',color);stem.setAttribute('stroke-width','2');cg.appendChild(stem);const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');lbl.setAttribute('x','132');lbl.setAttribute('y',y+4);lbl.setAttribute('text-anchor','middle');lbl.setAttribute('font-size','10');lbl.setAttribute('fill','white');lbl.setAttribute('font-weight','800');lbl.setAttribute('font-family','Nunito,sans-serif');lbl.textContent=(notation==='es'?esn:enn).replace('#','');cg.appendChild(lbl);}staffHistory.push({note,y,color});if(staffHistory.length>6)staffHistory.shift();const sh=document.getElementById('staff-history');sh.innerHTML='';[58,73,88,103,118].forEach((xp,i)=>{const h=staffHistory.slice(-5)[i];if(!h||!h.y)return;const c2=document.createElementNS('http://www.w3.org/2000/svg','ellipse');c2.setAttribute('cx',xp);c2.setAttribute('cy',h.y);c2.setAttribute('rx','10');c2.setAttribute('ry','7');c2.setAttribute('fill',h.color);c2.setAttribute('opacity','.22');sh.appendChild(c2);});}
+// ════════════════════════════════════════════
+// PENTAGRAMA
+// ════════════════════════════════════════════
+function updateStaff(note){const base=nb(note),esn=NOTE_ES[base]||base,enn=NOTE_EN[base]||base,color=NOTE_COLORS[base.replace('#','')]||'#3949ab',isSharp=note.includes('#');const y=STAFF_Y[note];document.getElementById('staff-note-name').textContent=(notation==='es'?esn:enn)+' ('+(notation==='es'?enn:esn)+')';document.getElementById('staff-note-name').style.color=color;document.getElementById('staff-note-info').textContent=note+(isSharp?' — tecla negra':' — tecla blanca');const cg=document.getElementById('staff-current');cg.innerHTML='';if(y!==undefined){if(note==='C4'||note==='B3'){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1','116');l.setAttribute('y1','110');l.setAttribute('x2','148');l.setAttribute('y2','110');l.setAttribute('stroke','#aaa');l.setAttribute('stroke-width','1.5');cg.appendChild(l);}const circ=document.createElementNS('http://www.w3.org/2000/svg','ellipse');circ.setAttribute('cx','132');circ.setAttribute('cy',y);circ.setAttribute('rx','13');circ.setAttribute('ry','9');circ.setAttribute('fill',color);circ.setAttribute('opacity','.9');cg.appendChild(circ);if(isSharp){const sh=document.createElementNS('http://www.w3.org/2000/svg','text');sh.setAttribute('x','113');sh.setAttribute('y',y+5);sh.setAttribute('font-size','16');sh.setAttribute('fill',color);sh.setAttribute('font-weight','bold');sh.textContent='#';cg.appendChild(sh);}const stem=document.createElementNS('http://www.w3.org/2000/svg','line');stem.setAttribute('x1','145');stem.setAttribute('y1',y);stem.setAttribute('x2','145');stem.setAttribute('y2',y>74?y-38:y+38);stem.setAttribute('stroke',color);stem.setAttribute('stroke-width','2');cg.appendChild(stem);const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');lbl.setAttribute('x','132');lbl.setAttribute('y',y+4);lbl.setAttribute('text-anchor','middle');lbl.setAttribute('font-size','10');lbl.setAttribute('fill','white');lbl.setAttribute('font-weight','800');lbl.setAttribute('font-family','Nunito,sans-serif');lbl.textContent=(notation==='es'?esn:enn).replace('#','');cg.appendChild(lbl);}staffHistory.push({note,y,color});if(staffHistory.length>6)staffHistory.shift();const sh=document.getElementById('staff-history');sh.innerHTML='';[58,73,88,103,118].forEach((xp,i)=>{const h=staffHistory.slice(-5)[i];if(!h||!h.y)return;const c2=document.createElementNS('http://www.w3.org/2000/svg','ellipse');c2.setAttribute('cx',xp);c2.setAttribute('cy',h.y);c2.setAttribute('rx','10');c2.setAttribute('ry','7');c2.setAttribute('fill',h.color);c2.setAttribute('opacity','.22');sh.appendChild(c2);});}
 
-// ═══ LECCIONES ═══
+// ════════════════════════════════════════════
+// LECCIONES
+// ════════════════════════════════════════════
 const CHORDS_MAJ=[{name:'Do Mayor',nameEn:'C Major',root:'C',notes:['C4','E4','G4'],type:'major',formula:'Do+Mi+Sol / C+E+G',emoji:'🔴',color:'#FF6B6B'},{name:'Re Mayor',nameEn:'D Major',root:'D',notes:['D4','F#4','A4'],type:'major',formula:'Re+Fa#+La / D+F#+A',emoji:'🟠',color:'#FF9F43'},{name:'Mi Mayor',nameEn:'E Major',root:'E',notes:['E4','G#4','B4'],type:'major',formula:'Mi+Sol#+Si / E+G#+B',emoji:'🟡',color:'#d4a000'},{name:'Fa Mayor',nameEn:'F Major',root:'F',notes:['F4','A4','C5'],type:'major',formula:'Fa+La+Do / F+A+C',emoji:'🩵',color:'#0099bb'},{name:'Sol Mayor',nameEn:'G Major',root:'G',notes:['G4','B4','D5'],type:'major',formula:'Sol+Si+Re / G+B+D',emoji:'🟢',color:'#1DD1A1'},{name:'La Mayor',nameEn:'A Major',root:'A',notes:['A4','C#5','E5'],type:'major',formula:'La+Do#+Mi / A+C#+E',emoji:'🔵',color:'#54A0FF'},{name:'Si Mayor',nameEn:'B Major',root:'B',notes:['B4','D#5','F#5'],type:'major',formula:'Si+Re#+Fa# / B+D#+F#',emoji:'🟣',color:'#A29BFE'}];
 const CHORDS_MEN=[{name:'Do menor',nameEn:'C minor',root:'C',notes:['C4','D#4','G4'],type:'minor',formula:'Do+Re#+Sol / C+Eb+G',emoji:'🔴',color:'#FF6B6B'},{name:'Re menor',nameEn:'D minor',root:'D',notes:['D4','F4','A4'],type:'minor',formula:'Re+Fa+La / D+F+A',emoji:'🟠',color:'#FF9F43'},{name:'Mi menor',nameEn:'E minor',root:'E',notes:['E4','G4','B4'],type:'minor',formula:'Mi+Sol+Si / E+G+B',emoji:'🟡',color:'#d4a000'},{name:'Fa menor',nameEn:'F minor',root:'F',notes:['F4','G#4','C5'],type:'minor',formula:'Fa+Sol#+Do / F+Ab+C',emoji:'🩵',color:'#0099bb'},{name:'Sol menor',nameEn:'G minor',root:'G',notes:['G4','A#4','D5'],type:'minor',formula:'Sol+La#+Re / G+Bb+D',emoji:'🟢',color:'#1DD1A1'},{name:'La menor',nameEn:'A minor',root:'A',notes:['A4','C5','E5'],type:'minor',formula:'La+Do+Mi / A+C+E',emoji:'🔵',color:'#54A0FF'},{name:'Si menor',nameEn:'B minor',root:'B',notes:['B4','D5','F#5'],type:'minor',formula:'Si+Re+Fa# / B+D+F#',emoji:'🟣',color:'#A29BFE'}];
 const LESSONS_NOTES=[{name:'El Do',nameEn:'Note C',emoji:'🔴',tag:'notas',steps:[{type:'note',note:'C4',esn:'Do',enn:'C',hint:'Primera tecla blanca ✨',finger:1}],stars:0,locked:false},{name:'Re y Mi',nameEn:'D and E',emoji:'🟠',tag:'notas',steps:[{type:'note',note:'D4',esn:'Re',enn:'D',hint:'Segunda blanca',finger:2},{type:'note',note:'E4',esn:'Mi',enn:'E',hint:'Tercera blanca',finger:3}],stars:0,locked:false},{name:'Fa y Sol',nameEn:'F and G',emoji:'🟡',tag:'notas',steps:[{type:'note',note:'F4',esn:'Fa',enn:'F',hint:'Antes del grupo de 3 negras',finger:1},{type:'note',note:'G4',esn:'Sol',enn:'G',hint:'Segunda del grupo de 3',finger:2}],stars:0,locked:true},{name:'La y Si',nameEn:'A and B',emoji:'🟢',tag:'notas',steps:[{type:'note',note:'A4',esn:'La',enn:'A',hint:'Sexta blanca',finger:3},{type:'note',note:'B4',esn:'Si',enn:'B',hint:'Séptima blanca',finger:4}],stars:0,locked:true},{name:'Notas negras',nameEn:'Black keys',emoji:'⚫',tag:'notas',steps:[{type:'note',note:'C#4',esn:'Do#',enn:'C#',hint:'Primera tecla negra',finger:2},{type:'note',note:'F#4',esn:'Fa#',enn:'F#',hint:'Cuarta tecla negra',finger:2}],stars:0,locked:true}];
@@ -711,14 +904,16 @@ function getLessonList(){return lessonCat==='notas'?LESSONS_NOTES:lessonCat==='a
 function setLessonCat(cat,btn){lessonCat=cat;document.querySelectorAll('#lesson-cat-btns button').forEach(b=>btnOff(b));btnOn(btn);buildLessonGrid();}
 function buildLessonGrid(){const g=document.getElementById('lesson-grid');g.innerHTML='';getLessonList().forEach((l,i)=>{const card=document.createElement('div');card.className='lesson-card'+(l.locked?' locked':'')+(l.stars>0?' completed':'');const dn=notation==='es'?l.name:l.nameEn;card.innerHTML=`<div class="lesson-emoji">${l.emoji}</div><div class="lesson-name">${dn}</div><div class="lesson-stars">${'★'.repeat(l.stars)}${'☆'.repeat(3-l.stars)}</div><div class="lesson-tag">${l.tag==='notas'?'Notas':l.tag.includes('may')?'Mayor':'Menor'}</div>`;if(!l.locked)card.onclick=()=>startLesson(i);g.appendChild(card);});}
 function startLesson(idx){currentLesson=idx;lessonStep=0;chordPressed=new Set();waitingChordFull=false;const l=getLessonList()[idx];document.getElementById('lesson-select').style.display='none';document.getElementById('lesson-playing').classList.add('active');document.getElementById('lesson-title').textContent=l.emoji+' '+(notation==='es'?l.name:l.nameEn);buildPiano('piano-lesson');showLessonStep();}
-function showLessonStep(){const l=getLessonList()[currentLesson],step=l.steps[lessonStep];if(!step){finishLesson();return;}const prog=document.getElementById('lesson-progress');prog.innerHTML='';l.steps.forEach((_,i)=>{const d=document.createElement('div');d.className='progress-dot'+(i<lessonStep?' done':i===lessonStep?' current':'');prog.appendChild(d);});clearHL('piano-lesson');document.getElementById('chord-diagram-area').innerHTML='';if(step.type==='note'){const nm=notation==='es'?step.esn:step.enn;document.getElementById('prompt-label').textContent='Tocá esta nota:';document.getElementById('prompt-main').textContent=nm;document.getElementById('prompt-sub').textContent=step.hint+(step.finger?' · Dedo '+step.finger+' ('+FINGER_NAMES[step.finger]+')':'');document.getElementById('chord-visual').style.display='none';hlKey('piano-lesson',step.note);if(showFingers&&step.finger)activateFinger(step.finger,false);}else if(step.type==='chord_note'){const ch=l.chord,nm=notation==='es'?step.esn:step.enn,labels=['1ra nota — tónica','2da nota — 3ra','3ra nota — 5ta'];document.getElementById('prompt-label').textContent=labels[step.stepIdx]||'Tocá:';document.getElementById('prompt-main').textContent=nm;document.getElementById('prompt-sub').textContent='Del acorde '+(notation==='es'?ch.name:ch.nameEn)+(step.finger?' · Dedo '+step.finger+' ('+FINGER_NAMES[step.finger]+')':'');document.getElementById('chord-visual').style.display='none';hlKey('piano-lesson',step.note);showChordDiagram(ch,step.stepIdx);if(showFingers&&step.finger)activateFinger(step.finger,false);}else if(step.type==='chord_full'){chordPressed=new Set();waitingChordFull=true;const ch=l.chord,chName=notation==='es'?ch.name:ch.nameEn;document.getElementById('prompt-label').textContent='¡Tocá las 3 notas juntas!';document.getElementById('prompt-main').textContent=chName;const cv=document.getElementById('chord-visual');cv.style.display='flex';cv.innerHTML=ch.notes.map(n=>{const b=nb(n),c=NOTE_COLORS[b]||'#3949ab',nm=nl(n);return`<div class="chord-pill" style="background:${c}">${nm}</div>`;}).join('');document.getElementById('prompt-sub').textContent='Dedos: '+step.fingers.map(f=>f+' ('+FINGER_NAMES[f]+')').join(' · ');ch.notes.forEach(n=>hlKey('piano-lesson',n));showChordDiagram(ch,-1);if(showFingers)activateChordFingers(step.fingers);ensureSynth();Tone.start().then(()=>{try{pianoSynth.triggerAttackRelease(ch.notes,'1');}catch(e){}});}document.getElementById('nd-lesson').innerHTML='';}
+function showLessonStep(){const l=getLessonList()[currentLesson],step=l.steps[lessonStep];if(!step){finishLesson();return;}const prog=document.getElementById('lesson-progress');prog.innerHTML='';l.steps.forEach((_,i)=>{const d=document.createElement('div');d.className='progress-dot'+(i<lessonStep?' done':i===lessonStep?' current':'');prog.appendChild(d);});clearHL('piano-lesson');document.getElementById('chord-diagram-area').innerHTML='';if(step.type==='note'){const nm=notation==='es'?step.esn:step.enn;document.getElementById('prompt-label').textContent='Tocá esta nota:';document.getElementById('prompt-main').textContent=nm;document.getElementById('prompt-sub').textContent=step.hint+(step.finger?' · Dedo '+step.finger+' ('+FINGER_NAMES[step.finger]+')':'');document.getElementById('chord-visual').style.display='none';hlKey('piano-lesson',step.note);if(showFingers&&step.finger)activateFinger(step.finger,false);}else if(step.type==='chord_note'){const ch=l.chord,nm=notation==='es'?step.esn:step.enn,labels=['1ra nota — tónica','2da nota — 3ra','3ra nota — 5ta'];document.getElementById('prompt-label').textContent=labels[step.stepIdx]||'Tocá:';document.getElementById('prompt-main').textContent=nm;document.getElementById('prompt-sub').textContent='Del acorde '+(notation==='es'?ch.name:ch.nameEn)+(step.finger?' · Dedo '+step.finger+' ('+FINGER_NAMES[step.finger]+')':'');document.getElementById('chord-visual').style.display='none';hlKey('piano-lesson',step.note);showChordDiagram(ch,step.stepIdx);}else if(step.type==='chord_full'){chordPressed=new Set();waitingChordFull=true;const ch=l.chord,chName=notation==='es'?ch.name:ch.nameEn;document.getElementById('prompt-label').textContent='¡Tocá las 3 notas juntas!';document.getElementById('prompt-main').textContent=chName;const cv=document.getElementById('chord-visual');cv.style.display='flex';cv.innerHTML=ch.notes.map(n=>`<div class="chord-pill" style="background:${NOTE_COLORS[nb(n)]||'#3949ab'}">${nl(n)}</div>`).join('');document.getElementById('prompt-sub').textContent='Dedos: '+step.fingers.map(f=>f+' ('+FINGER_NAMES[f]+')').join(' · ');ch.notes.forEach(n=>hlKey('piano-lesson',n));showChordDiagram(ch,-1);ensureSynth();Tone.start().then(()=>{try{pianoSynth.triggerAttackRelease(ch.notes,'1');}catch(e){}});}document.getElementById('nd-lesson').innerHTML='';}
 function showChordDiagram(chord,activeIdx){const tl=chord.type==='major'?'Mayor':'Menor';const fing=chord.notes.map((n,i)=>{const b=nb(n),c=NOTE_COLORS[b]||'#3949ab',nm=nl(n),active=activeIdx===-1||activeIdx===i,fi=CHORD_F[chord.root]?.[i]||'';return`<div class="fnb"><div class="fnb-circle" style="background:${active?c:'#ccc'}">${nm}</div><div class="fnb-label">${i===0?'Tónica':i===1?'3ra':'5ta'}</div><div class="fnb-label" style="color:${active?'#3949ab':'#ccc'}">Dedo ${fi}</div></div>`;}).join('');document.getElementById('chord-diagram-area').innerHTML=`<div class="chord-diagram"><div class="chord-diagram-title">🎸 Acorde ${tl}</div><div class="chord-fingers-row">${fing}</div><div class="chord-formula">${chord.formula}</div></div>`;}
 function checkLessonNote(note){if(currentLesson===null)return;const l=getLessonList()[currentLesson],step=l.steps[lessonStep];if(!step)return;if(step.type==='note'&&note===step.note){unlockAch(2);advanceLessonStep();}else if(step.type==='chord_note'&&note===step.note){advanceLessonStep();}else if(step.type==='chord_full'&&waitingChordFull&&step.notes.includes(note)){chordPressed.add(note);if(chordPressed.size===step.notes.length){waitingChordFull=false;unlockAch(3);advanceLessonStep();}}}
 function advanceLessonStep(){document.getElementById('nd-lesson').innerHTML='<span class="note-bubble" style="background:linear-gradient(135deg,#26a69a,#00695c)">¡Correcto! 🎉</span>';stars+=3;updateStatsUI();lessonStep++;setTimeout(()=>{document.getElementById('nd-lesson').innerHTML='';showLessonStep();},700);}
-function finishLesson(){const l=getLessonList();l[currentLesson].stars=3;if(currentLesson+1<l.length)l[currentLesson+1].locked=false;lessonsCompleted++;showToast('¡Lección completada! +3 ⭐');unlockAch(4);saveProgress();exitLesson();buildLessonGrid();}
+function finishLesson(){const l=getLessonList();l[currentLesson].stars=3;if(currentLesson+1<l.length)l[currentLesson+1].locked=false;lessonsCompleted++;addXP(30);showToast('¡Lección completada! +3 ⭐');unlockAch(4);saveProgress();exitLesson();buildLessonGrid();}
 function exitLesson(){currentLesson=null;chordPressed=new Set();waitingChordFull=false;clearFingers();document.getElementById('lesson-select').style.display='block';document.getElementById('lesson-playing').classList.remove('active');}
 
-// ═══ CANCIONES ═══
+// ════════════════════════════════════════════
+// CANCIONES
+// ════════════════════════════════════════════
 const SONGS=[
   {name:'Cumpleaños Feliz',emoji:'🎂',diff:'easy',genre:'infantil',notes:['C4','C4','D4','C4','F4','E4','C4','C4','D4','C4','G4','F4','C4','C4','C5','A4','F4','E4','D4','A#4','A#4','A4','F4','G4','F4']},
   {name:'Estrellita dónde estás',emoji:'⭐',diff:'easy',genre:'infantil',notes:['C4','C4','G4','G4','A4','A4','G4','F4','F4','E4','E4','D4','D4','C4','G4','G4','F4','F4','E4','E4','D4','G4','G4','F4','F4','E4','E4','D4','C4','C4','G4','G4','A4','A4','G4','F4','F4','E4','E4','D4','D4','C4']},
@@ -734,109 +929,184 @@ const SONGS=[
   {name:'Noche de Paz',emoji:'🌟',diff:'easy',genre:'navidad',notes:['G4','A4','G4','E4','G4','A4','G4','E4','D5','D5','B4','C5','C5','G4','A4','A4','C5','B4','A4','G4','A4','G4','E4','D5','D5','E5','C5','B4','C5','G4']},
   {name:'La Bamba',emoji:'🎸',diff:'medium',genre:'pop',notes:['C4','D4','F4','G4','A4','G4','F4','D4','C4','C4','D4','F4','G4','A4','G4','F4','G4','A4','G4','F4','E4','D4','C4']},
   {name:'Despacito (intro)',emoji:'🌴',diff:'medium',genre:'pop',notes:['B4','A4','G4','A4','B4','G4','A4','B4','A4','G4','F#4','E4','F#4','G4','A4','G4','F#4','E4','D4','E4','F#4','G4','A4']},
-  {name:'Bella Ciao',emoji:'✊',diff:'medium',genre:'pop',notes:['A4','A4','A4','F4','A4','C5','A4','F4','E4','A4','A4','G4','F4','E4','A4','C5','A4','G4','F4','G4','A4','F4','D4','F4','A4']}
+  {name:'Bella Ciao',emoji:'✊',diff:'medium',genre:'pop',notes:['A4','A4','A4','F4','A4','C5','A4','F4','E4','A4','A4','G4','F4','E4','A4','C5','A4','G4','F4','G4','A4','F4','D4','F4','A4']},
 ];
-
-// Historial de canciones completadas
-let songHistory = [];
-
 function setFilter(f,btn){songFilter=f;document.querySelectorAll('#song-filter-btns button').forEach(b=>btnOff(b));btnOn(btn);renderSongs();}
-function renderSongs(){const list=document.getElementById('song-list');list.innerHTML='';SONGS.filter(s=>songFilter==='all'||s.genre===songFilter).forEach(song=>{const idx=SONGS.indexOf(song),playing=currentSong===idx;const dl=song.diff==='easy'?'Fácil':song.diff==='medium'?'Medio':'Difícil';const card=document.createElement('div');card.className='song-card'+(playing?' playing':'');card.id='sc2-'+idx;card.innerHTML=`<div class="s-emoji">${song.emoji}</div><div><div class="s-name">${song.name}</div><div class="s-meta"><span class="badge ${song.diff}">${dl}</span><span class="genre-tag">${GENRE_LABELS[song.genre]||song.genre}</span><span style="font-size:9px;color:#aaa;font-weight:700;">${song.notes.length} notas</span></div><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" id="spf-${idx}" style="width:${playing?Math.round(songStep/song.notes.length*100):0}%"></div></div><div class="prog-label" id="spl-${idx}">${playing?'Nota '+(songStep+1)+' de '+song.notes.length:''}</div></div></div><div style="display:flex;justify-content:flex-end;align-items:center;"><button style="background:${playing?'#c62828':'#3949ab'};color:white;border:none;border-radius:20px;padding:9px 15px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;white-space:nowrap;" id="spb-${idx}">${playing?'⏹ Parar':'▶ Tocar'}</button></div>`;card.querySelector('button').addEventListener('click',ev=>{ev.stopPropagation();playing?stopSong():startSong(idx);});list.appendChild(card);});}
+function renderSongs(){const list=document.getElementById('song-list');list.innerHTML='';SONGS.filter(s=>songFilter==='all'||s.genre===songFilter).forEach(song=>{const idx=SONGS.indexOf(song),playing=currentSong===idx;const dl=song.diff==='easy'?'Fácil':song.diff==='medium'?'Medio':'Difícil';const card=document.createElement('div');card.className='song-card'+(playing?' playing':'');card.id='sc2-'+idx;card.innerHTML=`<div class="s-emoji">${song.emoji}</div><div><div class="s-name">${song.name}</div><div class="s-meta"><span class="badge ${song.diff}">${dl}</span><span class="genre-tag">${GENRE_LABELS[song.genre]||song.genre}</span><span style="font-size:9px;color:#aaa;font-weight:700;">${song.notes.length} notas</span></div><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" id="spf-${idx}" style="width:${playing?Math.round(songStep/song.notes.length*100):0}%"></div></div><div class="prog-label" id="spl-${idx}">${playing?'Nota '+(songStep+1)+' de '+song.notes.length:''}</div></div></div><div style="display:flex;justify-content:flex-end;align-items:center;"><button style="background:${playing?'#c62828':'#3949ab'};color:white;border:none;border-radius:20px;padding:9px 15px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;white-space:nowrap;">${playing?'⏹ Parar':'▶ Tocar'}</button></div>`;card.querySelector('button').addEventListener('click',ev=>{ev.stopPropagation();playing?stopSong():startSong(idx);});list.appendChild(card);});}
 function startSong(idx){if(currentSong!==null)_clearSong();currentSong=idx;songStep=0;document.getElementById('song-active-panel').style.display='block';document.getElementById('song-active-name').textContent=SONGS[idx].emoji+' '+SONGS[idx].name;document.getElementById('song-status').textContent='🎹 Tocá la nota que brilla en el teclado.';renderSongs();showSongStep();}
 function showSongStep(){if(currentSong===null)return;const song=SONGS[currentSong];if(songStep>=song.notes.length){finishSong();return;}const note=song.notes[songStep],pct=Math.round(songStep/song.notes.length*100);document.getElementById('main-prog-fill').style.width=pct+'%';document.getElementById('main-step-lbl').textContent='Nota '+(songStep+1)+' de '+song.notes.length+' — tocá: '+nl(note);if(document.getElementById('spf-'+currentSong))document.getElementById('spf-'+currentSong).style.width=pct+'%';if(document.getElementById('spl-'+currentSong))document.getElementById('spl-'+currentSong).textContent='Nota '+(songStep+1)+' de '+song.notes.length;clearHL('piano-songs');hlKey('piano-songs',note);}
 function checkSong(played){if(currentSong===null)return;if(nb(played)===nb(SONGS[currentSong].notes[songStep])){songStep++;stars+=2;updateStatsUI();setTimeout(showSongStep,120);}}
-function finishSong(){
-  const song=SONGS[currentSong];
-  showToast('¡Canción completa! 🎵🎉');
-  unlockAch(5);
-  songsCompleted++;
-  // Guardar en historial
-  const alreadyIn = songHistory.find(s=>s.name===song.name);
-  if(!alreadyIn) songHistory.push({emoji:song.emoji,name:song.name,date:new Date().toLocaleDateString('es-AR')});
-  saveProgress();
-  clearHL('piano-songs');
-  setTimeout(()=>{document.getElementById('song-active-panel').style.display='none';},2000);
-  _clearSong();
-}
+function finishSong(){const song=SONGS[currentSong];showToast('¡Canción completa! 🎵🎉');unlockAch(5);songsCompleted++;addXP(50);const already=songHistory.find(s=>s.name===song.name);if(!already)songHistory.push({emoji:song.emoji,name:song.name,date:new Date().toLocaleDateString('es-AR')});saveProgress();clearHL('piano-songs');setTimeout(()=>{document.getElementById('song-active-panel').style.display='none';},2000);_clearSong();}
 function stopSong(){clearHL('piano-songs');document.getElementById('song-active-panel').style.display='none';document.getElementById('song-status').textContent='🎹 Elegí una canción y tocá las notas que brillan.';_clearSong();}
 function _clearSong(){currentSong=null;songStep=0;renderSongs();}
 
-// ═══ JUEGOS ═══
-const GAMES=[{name:'¿Qué nota es?',emoji:'🎵',desc:'Escuchá y adiviná',type:'quiz'},{name:'Mayor o menor',emoji:'🎸',desc:'Identificá el acorde',type:'chord_quiz'},{name:'Círculo de Quintas',emoji:'🌀',desc:'3 notas en orden',type:'fifths_3'},{name:'Quintas Avanzado',emoji:'⚡',desc:'4 notas, más difícil',type:'fifths_4'}];
-function buildGameGrid(){const g=document.getElementById('game-grid');g.innerHTML='';GAMES.forEach((game,i)=>{const card=document.createElement('div');card.className='game-card';card.innerHTML=`<div class="game-icon">${game.emoji}</div><div class="game-name">${game.name}</div><div class="game-desc">${game.desc}</div>`;card.onclick=()=>startGame(i);g.appendChild(card);});}
-function startGame(idx){currentGame=GAMES[idx];gameScore=0;document.getElementById('game-score').textContent='0';if(currentGame.type.startsWith('fifths')){startFifthGame(currentGame.type==='fifths_4'?4:3);return;}document.getElementById('game-area').classList.add('active');document.getElementById('game-feedback').textContent='';nextQuestion();}
-function makeGameBtn(label,ok,container){const btn=document.createElement('button');btn.textContent=label;btn.style.cssText='background:white;color:#3949ab;border:2px solid #3949ab;border-radius:12px;padding:9px 18px;font-size:14px;font-weight:800;cursor:pointer;font-family:Nunito,sans-serif;';btn.className='game-opt';btn.onclick=()=>answerGame(ok,btn,container);return btn;}
-function nextQuestion(){const allN=['C4','D4','E4','F4','G4','A4','B4','C5'],allEs=['Do','Re','Mi','Fa','Sol','La','Si','Do'],allEn=['C','D','E','F','G','A','B','C'];if(currentGame.type==='chord_quiz'){const all=[...CHORDS_MAJ,...CHORDS_MEN],ci=Math.floor(Math.random()*all.length),ch=all[ci];ensureSynth();Tone.start().then(()=>{try{pianoSynth.triggerAttackRelease(ch.notes,'.6');}catch(e){}});document.getElementById('game-q').textContent='¿Este acorde es Mayor o menor? 🎸';const c=document.getElementById('game-opts');c.innerHTML='';[{l:'Mayor',ok:ch.type==='major'},{l:'menor',ok:ch.type==='minor'}].sort(()=>Math.random()-.5).forEach(opt=>c.appendChild(makeGameBtn(opt.l,opt.ok,c)));}else{const idx=Math.floor(Math.random()*allN.length),correct={note:allN[idx],label:notation==='es'?allEs[idx]:allEn[idx]};ensureSynth();Tone.start().then(()=>{try{pianoSynth.triggerAttackRelease(correct.note,'.5');}catch(e){}});document.getElementById('game-q').textContent='¿Cómo se llama esta nota? 🎵';const c=document.getElementById('game-opts');c.innerHTML='';const wrong=allN.map((_,i)=>i).filter(i=>i!==idx).sort(()=>Math.random()-.5).slice(0,3);[{l:correct.label,ok:true},...wrong.map(i=>({l:notation==='es'?allEs[i]:allEn[i],ok:false}))].sort(()=>Math.random()-.5).forEach(opt=>c.appendChild(makeGameBtn(opt.l,opt.ok,c)));}}
-function answerGame(ok,btn,c){c.querySelectorAll('.game-opt').forEach(b=>b.disabled=true);btn.classList.add(ok?'correct':'wrong');document.getElementById('game-feedback').textContent=ok?'¡Correcto! 🎉':'¡Casi! 😅';if(ok){gameScore++;document.getElementById('game-score').textContent=gameScore;stars+=5;updateStatsUI();unlockAch(6);saveProgress();}setTimeout(()=>{document.getElementById('game-feedback').textContent='';nextQuestion();},1100);}
+// ════════════════════════════════════════════
+// JUEGOS — selector
+// ════════════════════════════════════════════
+const GAMES_DEF=[
+  {name:'¿Qué nota es?',emoji:'🎵',desc:'Escuchá y adiviná',type:'quiz'},
+  {name:'Mayor o menor',emoji:'🎸',desc:'Identificá el acorde',type:'chord_quiz'},
+  {name:'Círculo de Quintas',emoji:'🌀',desc:'3 notas en orden',type:'fifths_3'},
+  {name:'Quintas Avanzado',emoji:'⚡',desc:'4 notas, más difícil',type:'fifths_4'},
+  {name:'Karaoke',emoji:'🎤',desc:'Tocá con letra sincronizada',type:'karaoke',isNew:true},
+  {name:'Dictado Melódico',emoji:'🎧',desc:'Escuchá y repetí la secuencia',type:'dictado',isNew:true},
+  {name:'Memoria Musical',emoji:'🧠',desc:'Secuencias que se alargan',type:'memoria',isNew:true},
+];
+function buildGameGrid(){const g=document.getElementById('game-grid');g.innerHTML='';GAMES_DEF.forEach((game,i)=>{const card=document.createElement('div');card.className='game-card';card.innerHTML=`<div class="game-icon">${game.emoji}</div><div class="game-name">${game.name}</div><div class="game-desc">${game.desc}</div>${game.isNew?'<div class="game-badge">¡NUEVO!</div>':''}`;card.onclick=()=>startGameType(game.type);g.appendChild(card);});}
+
+function startGameType(type){
+  // Ocultar todas las áreas de juego
+  ['game-area','fifth-area','karaoke-area','dictado-area','memoria-area'].forEach(id=>{document.getElementById(id).classList.remove('active');});
+  if(type==='quiz'||type==='chord_quiz'){currentGame=type;gameScore=0;document.getElementById('game-score').textContent='0';document.getElementById('game-area').classList.add('active');document.getElementById('game-feedback').textContent='';nextQuestion();}
+  else if(type.startsWith('fifths')){startFifthGame(type==='fifths_4'?4:3);}
+  else if(type==='karaoke'){openKaraokeSelector();}
+  else if(type==='dictado'){startDictado();}
+  else if(type==='memoria'){startMemoriaGame();}
+}
+
+// ════ QUIZ ════
+function makeGameBtn(label,ok,container){const btn=document.createElement('button');btn.textContent=label;btn.style.cssText='background:white;color:#3949ab;border:2px solid #3949ab;border-radius:12px;padding:9px 18px;font-size:14px;font-weight:800;cursor:pointer;font-family:Nunito,sans-serif;transition:all .2s;';btn.className='game-opt';btn.onclick=()=>answerGame(ok,btn,container);return btn;}
+function nextQuestion(){const allN=['C4','D4','E4','F4','G4','A4','B4','C5'],allEs=['Do','Re','Mi','Fa','Sol','La','Si','Do'],allEn=['C','D','E','F','G','A','B','C'];if(currentGame==='chord_quiz'){const all=[...CHORDS_MAJ,...CHORDS_MEN],ci=Math.floor(Math.random()*all.length),ch=all[ci];ensureSynth();Tone.start().then(()=>{try{pianoSynth.triggerAttackRelease(ch.notes,'.6');}catch(e){}});document.getElementById('game-q').textContent='¿Este acorde es Mayor o menor? 🎸';const c=document.getElementById('game-opts');c.innerHTML='';[{l:'Mayor',ok:ch.type==='major'},{l:'menor',ok:ch.type==='minor'}].sort(()=>Math.random()-.5).forEach(opt=>c.appendChild(makeGameBtn(opt.l,opt.ok,c)));}else{const idx=Math.floor(Math.random()*allN.length),correct={note:allN[idx],label:notation==='es'?allEs[idx]:allEn[idx]};ensureSynth();Tone.start().then(()=>{try{pianoSynth.triggerAttackRelease(correct.note,'.5');}catch(e){}});document.getElementById('game-q').textContent='¿Cómo se llama esta nota? 🎵';const c=document.getElementById('game-opts');c.innerHTML='';const wrong=allN.map((_,i)=>i).filter(i=>i!==idx).sort(()=>Math.random()-.5).slice(0,3);[{l:correct.label,ok:true},...wrong.map(i=>({l:notation==='es'?allEs[i]:allEn[i],ok:false}))].sort(()=>Math.random()-.5).forEach(opt=>c.appendChild(makeGameBtn(opt.l,opt.ok,c)));}}
+function answerGame(ok,btn,c){c.querySelectorAll('.game-opt').forEach(b=>b.disabled=true);btn.classList.add(ok?'correct':'wrong');document.getElementById('game-feedback').textContent=ok?'¡Correcto! 🎉':'¡Casi! 😅';if(ok){gameScore++;document.getElementById('game-score').textContent=gameScore;stars+=5;updateStatsUI();addXP(10);saveProgress();}setTimeout(()=>{document.getElementById('game-feedback').textContent='';nextQuestion();},1100);}
 function stopGame(){currentGame=null;document.getElementById('game-area').classList.remove('active');showToast('Terminado · '+gameScore+' pts');}
+
+// ════ QUINTAS ════
 const COF=['C','G','D','A','E','B','F#','C#','Ab','Eb','Bb','F'],COF_ES={C:'Do',G:'Sol',D:'Re',A:'La',E:'Mi',B:'Si','F#':'Fa#','C#':'Do#',Ab:'Lab',Eb:'Mib',Bb:'Sib',F:'Fa'},COF_EN={C:'C',G:'G',D:'D',A:'A',E:'E',B:'B','F#':'F#','C#':'C#',Ab:'Ab',Eb:'Eb',Bb:'Bb',F:'F'},COF_NOTE={C:'C4',G:'G4',D:'D4',A:'A4',E:'E4',B:'B4','F#':'F#4','C#':'C#4',Ab:'G#4',Eb:'D#4',Bb:'A#4',F:'F4'};
 function startFifthGame(len){fifthActive=true;fifthScore=0;fifthStep=0;document.getElementById('fifth-score').textContent='0';document.getElementById('fifth-area').classList.add('active');buildPiano('piano-fifth');genFifthSeq(len);}
-function genFifthSeq(len){const start=Math.floor(Math.random()*COF.length);fifthSeq=[];for(let i=0;i<len;i++)fifthSeq.push(COF[(start+i)%COF.length]);fifthStep=0;const seqEl=document.getElementById('fifth-seq');seqEl.innerHTML=fifthSeq.map((n,i)=>`<div id="fb-${i}" style="width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;background:${i===0?'#3949ab':'white'};color:${i===0?'white':'#3949ab'};border:3px solid #3949ab;margin:2px;transition:all .3s;">${notation==='es'?(COF_ES[n]||n):(COF_EN[n]||n)}</div>`).join('');document.getElementById('fifth-hint').textContent='Orden: '+fifthSeq.map(n=>notation==='es'?(COF_ES[n]||n):(COF_EN[n]||n)).join(' → ');document.getElementById('nd-fifth').innerHTML='';clearHL('piano-fifth');const first=COF_NOTE[fifthSeq[0]];if(first)hlKey('piano-fifth',first);ensureSynth();Tone.start().then(()=>{fifthSeq.forEach((n,i)=>{const note=COF_NOTE[n];if(note)setTimeout(()=>{try{pianoSynth.triggerAttackRelease(note,'.35');}catch(e){}},i*440);});});}
-function checkFifthNote(note){if(!fifthActive||fifthStep>=fifthSeq.length)return;const exp=COF_NOTE[fifthSeq[fifthStep]];const norm=n=>n.replace(/\d/g,'').replace('Ab','G#').replace('Eb','D#').replace('Bb','A#');if(norm(note)===norm(exp||'')){const sb=document.getElementById('fb-'+fifthStep);if(sb){sb.style.background='#26a69a';sb.style.color='white';sb.style.borderColor='#26a69a';}fifthStep++;stars+=4;fifthScore++;document.getElementById('fifth-score').textContent=fifthScore;updateStatsUI();clearHL('piano-fifth');if(fifthStep<fifthSeq.length){const next=COF_NOTE[fifthSeq[fifthStep]];if(next)hlKey('piano-fifth',next);const nb2=document.getElementById('fb-'+fifthStep);if(nb2){nb2.style.background='#3949ab';nb2.style.color='white';}document.getElementById('nd-fifth').innerHTML='<span class="note-bubble" style="background:#26a69a">¡Correcto! +4⭐</span>';}else{document.getElementById('nd-fifth').innerHTML='<span class="note-bubble" style="background:#3949ab">¡Secuencia completa! 🌀</span>';unlockAch(7);saveProgress();setTimeout(()=>genFifthSeq(fifthSeq.length),1500);}}else{const sb=document.getElementById('fb-'+fifthStep);if(sb){sb.style.background='#c62828';sb.style.color='white';setTimeout(()=>{sb.style.background='#3949ab';sb.style.color='white';},500);}document.getElementById('nd-fifth').innerHTML='<span class="note-bubble" style="background:#c62828">¡Casi! 😅</span>';}}
+function genFifthSeq(len){const start=Math.floor(Math.random()*COF.length);fifthSeq=[];for(let i=0;i<len;i++)fifthSeq.push(COF[(start+i)%COF.length]);fifthStep=0;document.getElementById('fifth-seq').innerHTML=fifthSeq.map((n,i)=>`<div id="fb-${i}" style="width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;background:${i===0?'#3949ab':'white'};color:${i===0?'white':'#3949ab'};border:3px solid #3949ab;margin:2px;transition:all .3s;">${notation==='es'?(COF_ES[n]||n):(COF_EN[n]||n)}</div>`).join('');document.getElementById('fifth-hint').textContent='Orden: '+fifthSeq.map(n=>notation==='es'?(COF_ES[n]||n):(COF_EN[n]||n)).join(' → ');document.getElementById('nd-fifth').innerHTML='';clearHL('piano-fifth');const first=COF_NOTE[fifthSeq[0]];if(first)hlKey('piano-fifth',first);ensureSynth();Tone.start().then(()=>{fifthSeq.forEach((n,i)=>{const note=COF_NOTE[n];if(note)setTimeout(()=>{try{pianoSynth.triggerAttackRelease(note,'.35');}catch(e){}},i*440);});});}
+function checkFifthNote(note){if(!fifthActive||fifthStep>=fifthSeq.length)return;const exp=COF_NOTE[fifthSeq[fifthStep]];const norm=n=>n.replace(/\d/g,'').replace('Ab','G#').replace('Eb','D#').replace('Bb','A#');if(norm(note)===norm(exp||'')){const sb=document.getElementById('fb-'+fifthStep);if(sb){sb.style.background='#26a69a';sb.style.color='white';sb.style.borderColor='#26a69a';}fifthStep++;stars+=4;fifthScore++;updateStatsUI();clearHL('piano-fifth');if(fifthStep<fifthSeq.length){const next=COF_NOTE[fifthSeq[fifthStep]];if(next)hlKey('piano-fifth',next);const nb2=document.getElementById('fb-'+fifthStep);if(nb2){nb2.style.background='#3949ab';nb2.style.color='white';}document.getElementById('nd-fifth').innerHTML='<span class="note-bubble" style="background:#26a69a">¡Correcto! +4⭐</span>';}else{document.getElementById('nd-fifth').innerHTML='<span class="note-bubble" style="background:#3949ab">¡Secuencia completa! 🌀</span>';addXP(30);saveProgress();setTimeout(()=>genFifthSeq(fifthSeq.length),1500);}}else{const sb=document.getElementById('fb-'+fifthStep);if(sb){sb.style.background='#c62828';sb.style.color='white';setTimeout(()=>{sb.style.background='white';sb.style.color='#3949ab';},500);}document.getElementById('nd-fifth').innerHTML='<span class="note-bubble" style="background:#c62828">¡Casi! 😅</span>';}}
 function stopFifthGame(){fifthActive=false;document.getElementById('fifth-area').classList.remove('active');showToast('Quintas · '+fifthScore+' pts');}
 
-// ═══ MIC ═══
-async function toggleMic(){if(micActive){stopMic();return;}try{micStream=await navigator.mediaDevices.getUserMedia({audio:true});audioCtx=new(window.AudioContext||window.webkitAudioContext)();analyser=audioCtx.createAnalyser();analyser.fftSize=2048;audioCtx.createMediaStreamSource(micStream).connect(analyser);micActive=true;document.getElementById('mic-btn').style.background='#26a69a';document.getElementById('mic-btn').textContent='🔴';document.getElementById('mic-status').textContent='Escuchando... tocá una nota real';pitchInterval=setInterval(detectPitch,100);}catch(e){document.getElementById('mic-status').textContent='No se pudo acceder al micrófono';}}
+// ════ KARAOKE ════
+const KARAOKE_SONGS=[
+  {name:'Cumpleaños Feliz',emoji:'🎂',diff:0,notes:['C4','C4','D4','C4','F4','E4','C4','C4','D4','C4','G4','F4','C4','C4','C5','A4','F4','E4','D4','A#4','A#4','A4','F4','G4','F4'],lyrics:['Cum','ple','a','ños','fe','liz','Cum','ple','a','ños','fe','liz','Cum','ple','a','ños','que','ri','do','a','mi','go','fe','liz']},
+  {name:'Estrellita',emoji:'⭐',diff:0,notes:['C4','C4','G4','G4','A4','A4','G4','F4','F4','E4','E4','D4','D4','C4'],lyrics:['Es','tre','lli','ta','dón','de','es','tás','me','pre','gun','to','qué','se','rás']},
+  {name:'Himno de la Alegría',emoji:'🎻',diff:1,notes:['E4','E4','F4','G4','G4','F4','E4','D4','C4','C4','D4','E4','E4','D4','D4'],lyrics:['A','le','grí','a','a','le','grí','a','can','ta','y','bai','la','con','nos']},
+  {name:'Jingle Bells',emoji:'🔔',diff:0,notes:['E4','E4','E4','E4','E4','E4','E4','G4','C4','D4','E4'],lyrics:['Jin','gle','bells','jin','gle','bells','jin','gle','all','the','way']},
+  {name:'Let It Go',emoji:'❄️',diff:1,notes:['G4','A4','C5','A4','C5','D5','C5','G4','A4','C5','D5','E5','D5','C5','A4'],lyrics:['Let','it','go','let','it','go','can\'t','hold','it','back','a','ny','mo','re','now']},
+];
+function openKaraokeSelector(){
+  document.getElementById('karaoke-area').classList.add('active');
+  // Mostrar selector de canción en el área del juego
+  const lc=document.getElementById('lyrics-content');
+  lc.innerHTML='<div style="padding:8px 0;"><div style="font-family:Fredoka One,cursive;font-size:16px;color:white;margin-bottom:12px;">Elegí una canción:</div>'+KARAOKE_SONGS.map((s,i)=>`<button onclick="startKaraoke(${i})" style="display:block;width:100%;background:rgba(255,255,255,.15);color:white;border:2px solid rgba(255,255,255,.4);border-radius:10px;padding:8px 14px;margin-bottom:6px;font-size:12px;font-weight:800;cursor:pointer;font-family:Nunito,sans-serif;text-align:left;">${s.emoji} ${s.name} <span style="font-size:9px;opacity:.7;">·${s.notes.length} notas</span></button>`).join('')+'</div>';
+  document.getElementById('k-step').textContent='Elegí una canción arriba';
+}
+function startKaraoke(idx){
+  karaokeSong=KARAOKE_SONGS[idx];karaokeStep=0;karaokeScore=0;karaokeCombo=0;karaokeActive=true;
+  document.getElementById('k-song-name').textContent=karaokeSong.emoji+' '+karaokeSong.name;
+  document.getElementById('k-score').textContent='0';document.getElementById('k-combo').textContent='';
+  document.getElementById('karaoke-fill').style.width='0%';
+  buildPiano('piano-karaoke');
+  // Renderizar letra
+  const lc=document.getElementById('lyrics-content');
+  lc.innerHTML=karaokeSong.lyrics.map((w,i)=>`<span class="lyrics-word upcoming" id="lw-${i}">${w}</span>`).join(' ');
+  showKaraokeStep();
+}
+function showKaraokeStep(){if(!karaokeActive)return;const song=karaokeSong;if(karaokeStep>=song.notes.length){finishKaraoke();return;}const note=song.notes[karaokeStep];document.getElementById('karaoke-fill').style.width=Math.round(karaokeStep/song.notes.length*100)+'%';document.getElementById('k-step').textContent='Tocá: '+nl(note)+' ('+(karaokeStep+1)+'/'+song.notes.length+')';clearHL('piano-karaoke');hlKey('piano-karaoke',note);song.lyrics.forEach((_,i)=>{const el=document.getElementById('lw-'+i);if(el)el.className='lyrics-word '+(i<karaokeStep?'done':i===karaokeStep?'current':'upcoming');});}
+function checkKaraoke(played){if(!karaokeActive)return;const expected=karaokeSong.notes[karaokeStep];if(nb(played)===nb(expected)){karaokeCombo++;const pts=10*(karaokeCombo>=3?2:1);karaokeScore+=pts;document.getElementById('k-score').textContent=karaokeScore;if(karaokeCombo>=3)document.getElementById('k-combo').textContent='🔥 x'+karaokeCombo+' Combo!';else document.getElementById('k-combo').textContent='';if(karaokeCombo===5){const f=document.createElement('div');f.className='perfect-flash';f.textContent='🎉 PERFECTO!';f.style.cssText='color:#FFD700;text-shadow:0 0 20px #FFD700;';document.getElementById('lyrics-content').appendChild(f);setTimeout(()=>f.remove(),600);}karaokeStep++;setTimeout(showKaraokeStep,150);}else{karaokeCombo=0;document.getElementById('k-combo').textContent='';}}
+function finishKaraoke(){karaokeActive=false;const total=karaokeScore+Math.floor(karaokeScore*.2);stars+=Math.floor(total/10);addXP(Math.floor(total/5));updateStatsUI();saveProgress();showToast('🎤 ¡Canción completa! +'+total+' pts');setTimeout(()=>{document.getElementById('karaoke-area').classList.remove('active');},1500);}
+function stopKaraoke(){karaokeActive=false;document.getElementById('karaoke-area').classList.remove('active');clearHL('piano-karaoke');}
+
+// ════ DICTADO ════
+function startDictado(){dictadoActive=false;dictadoRound=1;dictadoScore=0;dictadoListened=false;dictadoPlaying=false;document.getElementById('dictado-area').classList.add('active');buildPiano('piano-dictado');newDictadoRound();}
+function newDictadoRound(){const lv=getLvlData(),len=lv.seqLen,pool=lv.notes;dictadoSeq=Array.from({length:len},()=>pool[Math.floor(Math.random()*pool.length)]);dictadoStep=0;dictadoListened=false;dictadoPlaying=false;dictadoActive=false;document.getElementById('dictado-seq').innerHTML=dictadoSeq.map((_,i)=>`<div class="note-pill" id="dp-${i}" style="background:#ddd;color:#888;border-color:#bbb;">${i+1}</div>`).join('');document.getElementById('dictado-status').textContent='Presioná Escuchar';document.getElementById('listen-btn').classList.remove('playing');clearHL('piano-dictado');}
+function playDictadoSeq(){if(dictadoPlaying)return;dictadoPlaying=true;dictadoListened=true;document.getElementById('listen-btn').classList.add('playing');document.getElementById('dictado-status').textContent='🎵 Escuchando...';const lv=getLvlData(),delay=lv.tempo*600;Tone.start().then(()=>{ensureSynth();dictadoSeq.forEach((note,i)=>{setTimeout(()=>{dictadoSeq.forEach((_,j)=>{const p=document.getElementById('dp-'+j);if(p){p.style.background='#ddd';p.style.color='#888';p.style.transform='';}});const pill=document.getElementById('dp-'+i);if(pill){pill.style.background=nc(note);pill.style.color='white';pill.style.transform='scale(1.2)';}clearHL('piano-dictado');hlKey('piano-dictado',note);try{pianoSynth.triggerAttackRelease(note,'8n');}catch(e){}if(i===dictadoSeq.length-1){setTimeout(()=>{clearHL('piano-dictado');dictadoSeq.forEach((_,j)=>{const p=document.getElementById('dp-'+j);if(p){p.style.background='#ddd';p.style.color='#888';p.style.transform='';}});dictadoPlaying=false;dictadoActive=true;dictadoStep=0;document.getElementById('dictado-status').textContent='¡Ahora tocá la secuencia!';document.getElementById('listen-btn').classList.remove('playing');},delay);}},i*delay);});});}
+function checkDictado(note){if(!dictadoActive)return;const expected=dictadoSeq[dictadoStep];const pill=document.getElementById('dp-'+dictadoStep);if(nb(note)===nb(expected)){if(pill){pill.style.background=nc(expected);pill.style.color='white';}dictadoStep++;if(dictadoStep===dictadoSeq.length){const pts=dictadoSeq.length*20*dictadoRound;dictadoScore+=pts;dictadoRound++;document.getElementById('dictado-score').textContent=dictadoScore;document.getElementById('dictado-round').textContent=dictadoRound;document.getElementById('dictado-status').textContent='✅ ¡Correcto! +'+pts+' pts';stars+=Math.floor(pts/10);addXP(dictadoSeq.length*5);updateStatsUI();saveProgress();setTimeout(newDictadoRound,1200);}else{document.getElementById('dictado-status').textContent='✅ Bien! Seguí…';}}else{if(pill){pill.style.background='#c62828';pill.style.color='white';}document.getElementById('dictado-status').textContent='❌ Era '+nl(expected)+'. Escuchá de nuevo.';setTimeout(()=>{dictadoActive=false;newDictadoRound();},1000);}}
+function stopDictado(){dictadoActive=false;document.getElementById('dictado-area').classList.remove('active');showToast('Dictado terminado · '+dictadoScore+' pts');}
+
+// ════ MEMORIA ════
+function startMemoriaGame(){memoriaActive=false;memoriaSeq=[];memoriaStep=0;memoriaRound=1;memoriaScore=0;document.getElementById('mem-round').textContent='1';document.getElementById('mem-score').textContent='0';document.getElementById('mem-record').textContent=memoriaRecord;document.getElementById('mem-play-btn').textContent='⏸ Jugando';document.getElementById('memoria-area').classList.add('active');buildPiano('piano-memoria');nextMemoriaRound();}
+function nextMemoriaRound(){const lv=getLvlData(),pool=lv.notes;memoriaSeq.push(pool[Math.floor(Math.random()*pool.length)]);memoriaStep=0;memoriaActive=false;document.getElementById('mem-round').textContent=memoriaRound;document.getElementById('mem-status').textContent='👀 Mirá y escuchá...';renderMemoriaSeq(false);Tone.start().then(()=>{ensureSynth();const delay=Math.max(400,getLvlData().tempo*600);memoriaSeq.forEach((note,i)=>{setTimeout(()=>{renderMemoriaSeq(false,i);clearHL('piano-memoria');hlKey('piano-memoria',note);try{pianoSynth.triggerAttackRelease(note,'8n');}catch(e){}if(i===memoriaSeq.length-1){setTimeout(()=>{memoriaActive=true;clearHL('piano-memoria');renderMemoriaSeq(true);document.getElementById('mem-status').textContent='🎹 ¡Repetí la secuencia!';},delay);}},i*delay);});})}
+function renderMemoriaSeq(hidden=false,activeIdx=-1){const seq=document.getElementById('mem-seq');seq.innerHTML=memoriaSeq.map((note,i)=>{const c=nc(note),isActive=i===activeIdx,isDone=memoriaStep>i&&!hidden;if(hidden&&!isActive)return`<div class="mem-pill" style="background:#ddd;color:#888;">?</div>`;return`<div class="mem-pill" id="mp-${i}" style="background:${isActive||isDone?c:'#ddd'};color:${isActive||isDone?'white':'#888'};transform:${isActive?'scale(1.25)':'scale(1)'};">${isDone?'✓':nl(note)}</div>`;}).join('');}
+function checkMemoria(note){if(!memoriaActive)return;const expected=memoriaSeq[memoriaStep];const pill=document.getElementById('mp-'+memoriaStep);if(nb(note)===nb(expected)){if(pill){pill.style.background=nc(expected);pill.style.color='white';}memoriaStep++;if(memoriaStep===memoriaSeq.length){const pts=memoriaRound*15;memoriaScore+=pts;memoriaRound++;document.getElementById('mem-score').textContent=memoriaScore;document.getElementById('mem-status').textContent='🎉 ¡Perfecto! +'+pts+' pts';stars+=Math.floor(pts/10);addXP(memoriaRound*3);updateStatsUI();if(memoriaScore>memoriaRecord){memoriaRecord=memoriaScore;document.getElementById('mem-record').textContent=memoriaRecord;showToast('🏆 ¡Nuevo récord! '+memoriaRecord);}saveProgress();setTimeout(nextMemoriaRound,1000);}else{document.getElementById('mem-status').textContent='✅ Bien! Seguí…';}}else{if(pill){pill.style.background='#c62828';pill.style.color='white';}document.getElementById('mem-status').textContent='❌ ¡Error! Era '+nl(expected)+'. Fin del juego.';memoriaActive=false;document.getElementById('mem-play-btn').textContent='▶ Jugar de nuevo';addXP(Math.max(1,memoriaRound*2));saveProgress();setTimeout(()=>{document.getElementById('mem-status').textContent='Llegaste a la ronda '+(memoriaRound-1)+' · '+memoriaScore+' pts. ¡Intentá de nuevo!';},1000);}}
+function stopMemoria(){memoriaActive=false;document.getElementById('memoria-area').classList.remove('active');document.getElementById('mem-play-btn').textContent='▶ Jugar';memoriaSeq=[];memoriaRound=1;memoriaScore=0;document.getElementById('mem-seq').innerHTML='';showToast('Memoria · '+memoriaScore+' pts');}
+
+// ════════════════════════════════════════════
+// MIC
+// ════════════════════════════════════════════
+async function toggleMic(){if(micActive){stopMic();return;}try{micStream=await navigator.mediaDevices.getUserMedia({audio:true});audioCtx=new(window.AudioContext||window.webkitAudioContext)();analyser=audioCtx.createAnalyser();analyser.fftSize=2048;audioCtx.createMediaStreamSource(micStream).connect(analyser);micActive=true;document.getElementById('mic-btn').style.background='#26a69a';document.getElementById('mic-btn').textContent='🔴';document.getElementById('mic-status').textContent='Escuchando...';pitchInterval=setInterval(detectPitch,100);}catch(e){document.getElementById('mic-status').textContent='No se pudo acceder al micrófono';}}
 function stopMic(){micActive=false;if(micStream)micStream.getTracks().forEach(t=>t.stop());if(pitchInterval)clearInterval(pitchInterval);if(audioCtx)audioCtx.close();document.getElementById('mic-btn').style.background='#c62828';document.getElementById('mic-btn').textContent='🎙️';document.getElementById('mic-status').textContent='Activá el micrófono para detectar notas';document.getElementById('mic-detected').textContent='';document.getElementById('pitch-bar').style.width='0%';}
 function detectPitch(){if(!analyser)return;const buf=new Float32Array(analyser.fftSize);analyser.getFloatTimeDomainData(buf);const freq=autoCorrelate(buf,audioCtx.sampleRate);if(freq>80&&freq<1200){const nr=freqToNote(freq),pct=Math.min(100,((Math.log(freq)-Math.log(80))/(Math.log(1200)-Math.log(80)))*100);document.getElementById('pitch-bar').style.width=Math.round(pct)+'%';const base=nr.midi.replace(/\d/g,'');document.getElementById('mic-detected').textContent=(notation==='es'?(NOTE_ES[base]||base):(NOTE_EN[base]||base))+' ('+Math.round(freq)+' Hz)';document.getElementById('mic-status').textContent='✅ Nota detectada';document.querySelectorAll('#piano-libre .wk,#piano-libre .bk').forEach(k=>k.classList.remove('hl'));document.getElementById('k-piano-libre-'+nr.midi)?.classList.add('hl');}else{document.getElementById('pitch-bar').style.width='0%';}}
 function autoCorrelate(buf,sr){let rms=0;for(let i=0;i<buf.length;i++)rms+=buf[i]*buf[i];rms=Math.sqrt(rms/buf.length);if(rms<0.01)return -1;let r1=0,r2=buf.length-1,th=0.2;for(let i=0;i<buf.length/2;i++){if(Math.abs(buf[i])<th){r1=i;break;}}for(let i=1;i<buf.length/2;i++){if(Math.abs(buf[buf.length-i])<th){r2=buf.length-i;break;}}buf=buf.slice(r1,r2);let SIZE=buf.length;let c=new Array(SIZE).fill(0);for(let i=0;i<SIZE;i++)for(let j=0;j<SIZE-i;j++)c[i]+=buf[j]*buf[j+i];let d=0;while(c[d]>c[d+1])d++;let maxval=-1,maxpos=-1;for(let i=d;i<SIZE;i++){if(c[i]>maxval){maxval=c[i];maxpos=i;}}let T0=maxpos,x1=c[T0-1],x2=c[T0],x3=c[T0+1],a=(x1+x3-2*x2)/2,b2=(x3-x1)/2;if(a)T0=T0-b2/(2*a);return sr/T0;}
 function freqToNote(freq){const NOTES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];const sem=Math.round(12*Math.log2(freq/440));const midi=69+sem;return{midi:NOTES[((midi%12)+12)%12]+Math.floor(midi/12-1)};}
 
-// ═══ LOGROS ═══
+// ════════════════════════════════════════════
+// LOGROS
+// ════════════════════════════════════════════
 const ACHS=[
-  {n:'Primera nota',e:'🎵',ok:false},
-  {n:'Racha de 5',e:'🔥',ok:false},
-  {n:'Primera nota acorde',e:'🎸',ok:false},
-  {n:'Acorde completo',e:'🏅',ok:false},
-  {n:'Primera lección',e:'📚',ok:false},
-  {n:'Primera canción',e:'🎂',ok:false},
-  {n:'10 estrellas',e:'⭐',ok:false},
-  {n:'Quintas master',e:'🌀',ok:false},
-  {n:'Cambió el sonido',e:'🎺',ok:false},
-  {n:'Notación americana',e:'🇺🇸',ok:false}
+  {n:'Primera nota',e:'🎵',ok:false},{n:'Racha de 5',e:'🔥',ok:false},
+  {n:'Primera nota acorde',e:'🎸',ok:false},{n:'Acorde completo',e:'🏅',ok:false},
+  {n:'Primera lección',e:'📚',ok:false},{n:'Primera canción',e:'🎂',ok:false},
+  {n:'10 estrellas',e:'⭐',ok:false},{n:'Quintas master',e:'🌀',ok:false},
+  {n:'Cambió el sonido',e:'🎺',ok:false},{n:'Notación americana',e:'🇺🇸',ok:false},
 ];
 function unlockAch(i){if(i<ACHS.length&&!ACHS[i].ok){ACHS[i].ok=true;showToast('¡Logro! '+ACHS[i].e+' '+ACHS[i].n);saveProgress();}}
-
 function buildAchievements(){
-  // Panel de progreso
-  const pg=document.getElementById('progress-grid');
-  pg.innerHTML=`
-    <div class="progress-card"><div class="progress-num">${stars}</div><div class="progress-lbl">⭐ Estrellas</div></div>
-    <div class="progress-card"><div class="progress-num">${Math.floor(stars/20)+1}</div><div class="progress-lbl">🏆 Nivel actual</div></div>
-    <div class="progress-card"><div class="progress-num">${lessonsCompleted}</div><div class="progress-lbl">📚 Lecciones</div></div>
-    <div class="progress-card"><div class="progress-num">${songsCompleted}</div><div class="progress-lbl">🎵 Canciones</div></div>
-    <div class="progress-card"><div class="progress-num">${notesPlayed}</div><div class="progress-lbl">🎹 Notas tocadas</div></div>
-    <div class="progress-card"><div class="progress-num">${ACHS.filter(a=>a.ok).length}/${ACHS.length}</div><div class="progress-lbl">🏅 Logros</div></div>
-  `;
-
-  // Historial canciones
-  const sl=document.getElementById('song-history-list');
-  if(songHistory.length===0){
-    sl.innerHTML='<div style="font-size:11px;color:#aaa;padding:4px 0;">Todavía no completaste ninguna canción.</div>';
-  } else {
-    sl.innerHTML=songHistory.slice(-5).reverse().map(s=>`
-      <div class="song-hist-item">
-        <span style="font-size:18px;">${s.emoji}</span>
-        <span style="flex:1;font-weight:700;">${s.name}</span>
-        <span style="color:#aaa;font-size:10px;">${s.date}</span>
-      </div>`).join('');
-  }
-
-  // Medallas
-  const g=document.getElementById('ach-grid');g.innerHTML='';
-  ACHS.forEach(a=>{const el=document.createElement('div');el.className='ach-item'+(a.ok?'':' locked');el.innerHTML=`<div class="ach-icon">${a.e}</div><div class="ach-name">${a.n}</div>`;g.appendChild(el);});
+  const g=document.getElementById('ach-grid');g.innerHTML='';ACHS.forEach(a=>{const el=document.createElement('div');el.className='ach-item'+(a.ok?'':' locked');el.innerHTML=`<div class="ach-icon">${a.e}</div><div class="ach-name">${a.n}</div>`;g.appendChild(el);});
+  document.getElementById('progress-stats').innerHTML=[
+    {icon:'⭐',val:stars,lbl:'Estrellas'},{icon:'🏆',val:'Nivel '+(Math.floor(stars/20)+1),lbl:'Nivel'},
+    {icon:'🎵',val:songsCompleted,lbl:'Canciones'},{icon:'📚',val:lessonsCompleted,lbl:'Lecciones'},
+    {icon:'🎹',val:notesPlayed,lbl:'Notas tocadas'},{icon:'🏅',val:ACHS.filter(a=>a.ok).length+'/'+ACHS.length,lbl:'Logros'},
+  ].map(s=>`<div style="background:#f4f4f8;border-radius:9px;padding:9px;text-align:center;border:2px solid #ddd;"><div style="font-size:18px;">${s.icon}</div><div style="font-family:'Fredoka One',cursive;font-size:18px;color:#3949ab;">${s.val}</div><div style="font-size:10px;color:#888;font-weight:600;">${s.lbl}</div></div>`).join('');
 }
 
-// ═══ INIT ═══
-// 1. Cargar datos guardados ANTES de construir la UI
-const savedData = loadProgress();
-if(savedData) applyProgress(savedData);
+// ════════════════════════════════════════════
+// PANEL PADRES
+// ════════════════════════════════════════════
+function renderPadresProgreso(){
+  const level=Math.floor(stars/20)+1;const achCount=ACHS.filter(a=>a.ok).length;
+  document.getElementById('stat-grid-p').innerHTML=[
+    {icon:'⭐',num:stars,lbl:'Estrellas'},{icon:'🏆',num:'Nivel '+level,lbl:'Nivel'},
+    {icon:'🎵',num:songsCompleted,lbl:'Canciones'},{icon:'📚',num:lessonsCompleted,lbl:'Lecciones'},
+    {icon:'🎹',num:notesPlayed,lbl:'Notas tocadas'},{icon:'🏅',num:achCount+'/10',lbl:'Logros'},
+  ].map(s=>`<div class="stat-card-p"><div style="font-size:20px;">${s.icon}</div><div class="stat-num-p">${s.num}</div><div class="stat-lbl-p">${s.lbl}</div></div>`).join('');
+  // Streak (demo para visualización)
+  document.getElementById('streak-num-p').textContent=5;
+  document.getElementById('streak-sub-p').textContent='¡5 días seguidos! ¡Fantástico!';
+  const days=['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
+  document.getElementById('streak-days-p').innerHTML=[true,true,true,true,true,false,true].map((a,i)=>`<div class="streak-day-p ${a?'active':'empty'}"><span>${days[i]}</span><span style="font-size:11px;">${a?'✓':'·'}</span></div>`).join('');
+  // Canciones
+  const log=document.getElementById('song-log-p');
+  log.innerHTML=songHistory.length===0?'<div style="font-size:12px;color:#bbb;padding:8px;text-align:center;">Todavía no completó ninguna canción.</div>':songHistory.slice().reverse().map(s=>`<div class="song-log-item"><span style="font-size:20px;">${s.emoji||'🎵'}</span><span style="flex:1;font-size:12px;font-weight:700;color:#333;">${s.name}</span><span style="font-size:10px;color:#aaa;">${s.date}</span></div>`).join('');
+}
+function renderPadresStats(){
+  const days=['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
+  const weekly=[42,0,88,55,72,20,35];// demo
+  const maxW=Math.max(...weekly,1);
+  const colors=['#3949ab','#1976d2','#0288d1','#0097a7','#00897b','#43a047','#7cb342'];
+  document.getElementById('weekly-chart-p').innerHTML=weekly.map((v,i)=>`<div class="bar-col-p"><div class="bar-val-p">${v||''}</div><div class="bar-p" style="height:${Math.round(v/maxW*70)+4}px;background:${colors[i]};"></div><div class="bar-lbl-p">${days[i]}</div></div>`).join('');
+  const noteColors={C:'#FF6B6B',D:'#FF9F43',E:'#d4a000',F:'#0099bb',G:'#1DD1A1',A:'#54A0FF',B:'#A29BFE'};
+  const noteNames={C:'Do',D:'Re',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si'};
+  const freq=Object.keys(noteFrequency).length>0?noteFrequency:{C4:88,E4:72,G4:65,D4:44,F4:38,A4:22};
+  const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,7);
+  const maxN=sorted[0]?sorted[0][1]:1;
+  document.getElementById('notes-chart-p').innerHTML=sorted.map(([note,count])=>{const base=note.replace(/\d/g,'').replace('#','');const c=noteColors[base]||'#3949ab';return`<div class="note-row-p"><div class="note-name-p" style="color:${c};">${noteNames[base]||base}</div><div class="note-bar-wrap-p"><div class="note-bar-p" style="width:${Math.round(count/maxN*100)}%;background:${c};"></div></div><div class="note-count-p">${count}</div></div>`;}).join('');
+}
+function showPadresLecc(cat,btn){
+  if(!btn)return;
+  document.querySelectorAll('#padres-lecc-tabs button').forEach(b=>{b.style.background='white';b.style.color='#1a237e';});
+  btn.style.background='#1a237e';btn.style.color='white';
+  const lessons=cat==='notas'?LESSONS_NOTES:cat==='may'?LESSONS_MAJ:LESSONS_MEN;
+  document.getElementById('padres-lecc-grid').innerHTML=lessons.map(l=>`<div style="background:${l.stars>0?'#e8f8f5':'#f4f4f8'};border-radius:10px;padding:8px;text-align:center;border:2px solid ${l.stars>0?'#26a69a':'#e0e0f0'};${l.locked?'opacity:.4':''}"><div style="font-size:18px;">${l.emoji}</div><div style="font-size:9px;font-weight:700;color:#444;margin-top:2px;">${l.name}</div><div style="font-size:10px;color:#fb8c00;">${'★'.repeat(l.stars||0)}${'☆'.repeat(3-(l.stars||0))}</div>${l.locked?'<div style="font-size:9px;color:#aaa;">🔒</div>':''}</div>`).join('');
+  const done=lessons.filter(l=>l.stars>0).length,total=lessons.length,unlocked=lessons.filter(l=>!l.locked).length;
+  document.getElementById('padres-lecc-summary').innerHTML=`✅ Completadas: <strong>${done}/${total}</strong><br>🔓 Desbloqueadas: <strong>${unlocked}/${total}</strong><br>⭐ Estrellas: <strong>${lessons.reduce((a,l)=>a+(l.stars||0),0)}</strong> de ${total*3}`;
+}
+// Config padres
+const GENRES_P=[{key:'infantil',label:'👶 Infantil'},{key:'clasica',label:'🎻 Clásica'},{key:'argentina',label:'🇦🇷 Argentina'},{key:'disney',label:'✨ Disney'},{key:'navidad',label:'🎄 Navidad'},{key:'pop',label:'🎤 Pop'}];
+function buildGenreChips(){const c=document.getElementById('genre-chips-p');if(!c)return;const cfg=JSON.parse(localStorage.getItem('pianokids_config_v1')||'{}');const allowed=cfg.allowedGenres||GENRES_P.map(g=>g.key);c.innerHTML=GENRES_P.map(g=>`<label class="genre-chip ${allowed.includes(g.key)?'':'off'}" id="gcp-${g.key}"><input type="checkbox" ${allowed.includes(g.key)?'checked':''} onchange="toggleGenreP('${g.key}',this.checked)" style="display:none;">${g.label}</label>`).join('');}
+function toggleGenreP(key,checked){document.getElementById('gcp-'+key).classList.toggle('off',!checked);}
 
-// 2. Construir UI
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+// Cargar datos guardados
+loadProgress();
+// Construir UI
 buildSynth('piano');
 buildPiano('piano-libre');buildPiano('piano-staff');buildPiano('piano-songs');
 buildLessonGrid();renderSongs();buildGameGrid();buildAchievements();
-buildBeatDots();setBpm(80);
+buildBeatDots();setBpm(80);updateStatsUI();buildGenreChips();
 </script>
 </body>
 </html>
