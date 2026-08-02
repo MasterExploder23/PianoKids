@@ -137,6 +137,15 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
 .cof-texto b{color:#1a237e;}
 .cof-nodo{transition:all .2s;}
 .cof-nodo.on circle{stroke:#fb8c00;stroke-width:3.5;}
+.perfil{display:flex;align-items:center;gap:8px;background:white;border:2px solid #e8e8f4;border-radius:11px;padding:7px 9px;margin-bottom:6px;}
+.perfil.activo{border-color:#1a237e;background:#eef0ff;}
+.perfil-avatar{font-size:24px;cursor:pointer;line-height:1;}
+.perfil-nombre{flex:1;min-width:0;border:none;background:transparent;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;color:#333;outline:none;border-bottom:1px dashed #ccc;padding:2px 0;}
+.perfil-badge{font-size:9px;font-weight:800;color:white;background:#1a237e;border-radius:20px;padding:3px 9px;white-space:nowrap;}
+.perfil-btn{background:white;color:#1a237e;border:2px solid #1a237e;border-radius:8px;padding:4px 10px;font-family:'Nunito',sans-serif;font-weight:800;font-size:10px;cursor:pointer;}
+.perfil-btn.del{color:#c62828;border-color:#c62828;padding:4px 8px;}
+.perfil-add{width:100%;background:#f4f4f8;color:#1a237e;border:2px dashed #9090c8;border-radius:11px;padding:8px;font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;cursor:pointer;margin-top:2px;}
+.cof-nota{background:#f3f0ff;border-left:4px solid #7c6df2;border-radius:8px;padding:7px 9px;font-size:11px !important;}
 .lesson-card{background:#f4f4f8;border-radius:12px;padding:9px;text-align:center;cursor:pointer;border:2px solid #ddd;transition:all .2s;}
 .lesson-card:hover:not(.locked){transform:translateY(-3px);box-shadow:0 6px 16px rgba(57,73,171,.15);border-color:#9090c8;}
 .lesson-card.completed{border-color:#26a69a;background:#e8f8f5;}
@@ -324,6 +333,7 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
   <div class="stat-chip">⭐ <span id="sc-stars">0</span></div>
   <div class="stat-chip">🔥 <span id="sc-streak">0</span></div>
   <div class="stat-chip">🏆 <span id="sc-level">Nivel 1</span></div>
+  <div class="stat-chip" id="sc-perfil" title="Perfil en uso">🐱 Jugador 1</div>
   <div class="stat-chip" id="sc-avatar" title="Tu avatar">🐱</div>
   <div class="stat-chip" id="sc-sound">🎹 Piano</div>
   <div class="stat-chip" id="midi-chip" style="display:none;background:#2e7d32;" title="Teclado MIDI conectado">🎹 MIDI</div>
@@ -540,6 +550,7 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
         <div class="cof-titulo">¿Qué es el círculo de quintas?</div>
         <p>Es un <b>mapa de las notas</b>. Empezá en el <b>Do</b> de arriba y contá <b>cinco notas</b> hacia la derecha: llegás al <b>Sol</b>. Contá cinco desde Sol y llegás al <b>Re</b>. Y así, hasta dar toda la vuelta y volver al Do.</p>
         <p>Las notas que están <b>al lado</b> en el círculo suenan muy bien juntas. Por eso un montón de canciones usan Do, Sol y Fa: son vecinas 🎶</p>
+        <p class="cof-nota">🔑 Algunas teclas tienen <b>dos nombres</b>: <b>Lab</b> y <b>Sol#</b> son la misma tecla negra. Por eso las ves escritas de las dos formas.</p>
       </div>
     </div>
     <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;" id="fifth-seq"></div>
@@ -695,6 +706,27 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
       </div>
     </div>
     <div style="margin-top:16px;padding-top:12px;border-top:2px solid #eee;">
+      <div style="font-size:13px;font-weight:800;color:#1a237e;margin-bottom:4px;">👥 Perfiles</div>
+      <div style="font-size:11px;color:#888;font-weight:600;margin-bottom:8px;">
+        Cada chico tiene su propio progreso, racha y estrellas. Tocá un avatar para cambiar de perfil.
+      </div>
+      <div id="perfiles-lista"></div>
+    </div>
+
+    <div style="margin-top:16px;padding-top:12px;border-top:2px solid #eee;">
+      <div style="font-size:13px;font-weight:800;color:#1a237e;margin-bottom:4px;">💾 Copia de seguridad</div>
+      <div style="font-size:11px;color:#888;font-weight:600;margin-bottom:8px;">
+        El progreso se guarda <b>solo en este dispositivo</b>. Si borrás los datos del navegador o cambiás
+        de teléfono, se pierde. Descargá un archivo cada tanto para no perder nada.
+      </div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;">
+        <button onclick="descargarBackup()" style="background:#1a237e;color:white;border:none;border-radius:9px;padding:7px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;cursor:pointer;">⬇ Descargar copia</button>
+        <button onclick="document.getElementById('backup-file').click()" style="background:white;color:#1a237e;border:2px solid #1a237e;border-radius:9px;padding:7px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;cursor:pointer;">⬆ Restaurar</button>
+        <input type="file" id="backup-file" accept="application/json,.json" style="display:none;" onchange="importarArchivo(this)">
+      </div>
+    </div>
+
+    <div style="margin-top:16px;padding-top:12px;border-top:2px solid #eee;">
       <div style="font-size:13px;font-weight:800;color:#c62828;margin-bottom:8px;">⚠️ Zona de peligro</div>
       <div class="config-row-p">
         <div class="config-lbl-p">Borrar todo el progreso</div>
@@ -826,26 +858,38 @@ function last7Days(){
 // LOCALSTORAGE
 // ════════════════════════════════════════════
 const SKEY='pianokids_progress_v1';
+// Con perfiles, cada uno guarda en su propia clave. Antes de que existan
+// (durante el arranque) cae en la clave legacy.
+function claveActual(){return (typeof perfilActivo!=='undefined'&&perfilActivo)?claveDe(perfilActivo):SKEY;}
+// saveProgress usa debounce de 800ms para no escribir en cada tecla. Al cambiar
+// de perfil o exportar hace falta escribir YA, si no se pierde lo último.
+function saveProgressAhora(){
+  clearTimeout(saveTimer);
+  try{localStorage.setItem(claveActual(),JSON.stringify(snapshotProgreso()));}catch(e){}
+}
+function snapshotProgreso(){
+  return {
+        stars,notesPlayed,songsCompleted,lessonsCompleted,playerXP,totalScore,
+        songHistory,noteFrequency,memoriaRecord,rankings,
+        dayStreak,activeDays,dailyNotes,
+        achievements:ACHS.map(a=>a.ok),
+        modProgress,misionEstado,hitosCobrados,comprados,temaActivo,avatarActivo,
+      };
+}
 function saveProgress(){
   const dot=document.getElementById('save-dot'),lbl=document.getElementById('save-status');
   dot.classList.add('saving');lbl.textContent='Guardando...';
   clearTimeout(saveTimer);
   saveTimer=setTimeout(()=>{
     try{
-      localStorage.setItem(SKEY,JSON.stringify({
-        stars,notesPlayed,songsCompleted,lessonsCompleted,playerXP,totalScore,
-        songHistory,noteFrequency,memoriaRecord,rankings,
-        dayStreak,activeDays,dailyNotes,
-        achievements:ACHS.map(a=>a.ok),
-        modProgress,misionEstado,hitosCobrados,comprados,temaActivo,avatarActivo,
-      }));
+      localStorage.setItem(claveActual(),JSON.stringify(snapshotProgreso()));
       dot.classList.remove('saving');lbl.textContent='Guardado';
     }catch(e){lbl.textContent='Error';}
   },800);
 }
 function loadProgress(){
   try{
-    const d=JSON.parse(localStorage.getItem(SKEY)||'null');if(!d)return;
+    const d=JSON.parse(localStorage.getItem(claveActual())||'null');if(!d)return;
     stars=d.stars||0;notesPlayed=d.notesPlayed||0;songsCompleted=d.songsCompleted||0;
     lessonsCompleted=d.lessonsCompleted||0;playerXP=d.playerXP||0;totalScore=d.totalScore||0;
     songHistory=d.songHistory||[];noteFrequency=d.noteFrequency||{};
@@ -1595,6 +1639,183 @@ const MODULOS=[
 ];
 
 // ════════════════════════════════════════════
+// PERFILES (v1.7)
+// ════════════════════════════════════════════
+// Hasta v1.6 todo el progreso vivía en UNA sola clave de localStorage, así que
+// dos hermanos en la misma tablet compartían racha, estrellas y estadísticas.
+// Ahora cada perfil guarda en su propia clave: pianokids_progress_v1__<id>.
+// Sigue siendo todo local: no hay cuentas, ni servidor, ni datos de chicos
+// saliendo del dispositivo.
+const PKEY='pianokids_perfiles_v1';
+const MAX_PERFILES=4;
+const AVATARES_PERFIL=['🐱','🐶','🐼','🐲','🦄','🐰','🦊','🐨','🐵','🦁'];
+let perfiles=[],perfilActivo=null;
+
+function claveDe(id){return SKEY+'__'+id;}
+function perfilPorId(id){return perfiles.find(p=>p.id===id)||null;}
+function perfilCorriente(){return perfilPorId(perfilActivo);}
+function nuevoId(){return 'p'+Date.now().toString(36)+Math.floor(Math.random()*1000).toString(36);}
+
+function guardarIndicePerfiles(){
+  try{localStorage.setItem(PKEY,JSON.stringify({activo:perfilActivo,perfiles}));}catch(e){}
+}
+function cargarIndicePerfiles(){
+  try{
+    const d=JSON.parse(localStorage.getItem(PKEY)||'null');
+    if(d&&Array.isArray(d.perfiles)&&d.perfiles.length){
+      perfiles=d.perfiles.slice(0,MAX_PERFILES);
+      perfilActivo=perfilPorId(d.activo)?d.activo:perfiles[0].id;
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+// Deja el estado en memoria como recién instalado. Sin esto, al cambiar de
+// perfil quedarían mezclados los datos del anterior.
+function resetEstado(){
+  stars=0;combo=0;notesPlayed=0;songsCompleted=0;lessonsCompleted=0;
+  playerXP=0;totalScore=0;songHistory=[];noteFrequency={};memoriaRecord=0;rankings={};
+  dayStreak=0;activeDays=[];dailyNotes={};
+  modProgress={};misionEstado={fecha:'',progreso:{},cobradas:[]};hitosCobrados=[];
+  comprados=['clasico','gato'];temaActivo='clasico';avatarActivo='gato';
+  ACHS.forEach(a=>{a.ok=false;});
+}
+
+function crearPerfil(nombre,avatar){
+  if(perfiles.length>=MAX_PERFILES)return null;
+  const p={id:nuevoId(),nombre:(nombre||'Jugador').slice(0,14),avatar:avatar||AVATARES_PERFIL[perfiles.length%AVATARES_PERFIL.length],creado:new Date().toISOString()};
+  perfiles.push(p);guardarIndicePerfiles();
+  return p;
+}
+function cambiarPerfil(id){
+  if(!perfilPorId(id)||id===perfilActivo)return false;
+  saveProgressAhora();          // no perder lo que estaba sin guardar
+  perfilActivo=id;guardarIndicePerfiles();
+  resetEstado();loadProgress();
+  aplicarTema();aplicarAvatar();updateStatsUI();
+  buildLessonGrid();renderHome();rebuildAll();
+  showToast('Hola '+perfilCorriente().nombre+' '+perfilCorriente().avatar);
+  return true;
+}
+function borrarPerfil(id){
+  if(perfiles.length<=1)return false;   // siempre queda al menos uno
+  const i=perfiles.findIndex(p=>p.id===id);if(i<0)return false;
+  perfiles.splice(i,1);
+  try{localStorage.removeItem(claveDe(id));}catch(e){}
+  if(perfilActivo===id){
+    perfilActivo=perfiles[0].id;
+    resetEstado();loadProgress();aplicarTema();aplicarAvatar();updateStatsUI();
+  }
+  guardarIndicePerfiles();renderPerfiles();
+  return true;
+}
+function renombrarPerfil(id,nombre){
+  const p=perfilPorId(id);if(!p)return false;
+  p.nombre=(nombre||p.nombre).slice(0,14);guardarIndicePerfiles();renderPerfiles();
+  return true;
+}
+
+// Arranque: crea el primer perfil y se lleva el progreso que ya existía.
+function iniciarPerfiles(){
+  if(cargarIndicePerfiles())return;
+  const p=crearPerfil('Jugador 1',AVATARES_PERFIL[0]);
+  perfilActivo=p.id;
+  // Migración: el progreso de v1.6 estaba en SKEY sin sufijo. Lo mudamos al
+  // primer perfil en vez de descartarlo.
+  try{
+    const viejo=localStorage.getItem(SKEY);
+    if(viejo&&!localStorage.getItem(claveDe(p.id)))localStorage.setItem(claveDe(p.id),viejo);
+  }catch(e){}
+  guardarIndicePerfiles();
+}
+
+// ── Backup a archivo ────────────────────────
+// Sin servidor, la única red de seguridad real es un archivo que el padre
+// guarda donde quiera. Borrar los datos del sitio deja de ser catastrófico.
+const BACKUP_VERSION=1;
+function armarBackup(){
+  const datos={};
+  perfiles.forEach(p=>{
+    try{const raw=localStorage.getItem(claveDe(p.id));if(raw)datos[p.id]=JSON.parse(raw);}catch(e){}
+  });
+  return {app:'PianoKids',version:BACKUP_VERSION,fecha:new Date().toISOString(),activo:perfilActivo,perfiles,datos};
+}
+function validarBackup(b){
+  if(!b||typeof b!=='object')return 'El archivo no tiene el formato esperado';
+  if(b.app!=='PianoKids')return 'Ese archivo no es un backup de PianoKids';
+  if(typeof b.version!=='number'||b.version>BACKUP_VERSION)return 'El backup es de una versión más nueva de la app';
+  if(!Array.isArray(b.perfiles)||!b.perfiles.length)return 'El backup no tiene perfiles';
+  if(!b.datos||typeof b.datos!=='object')return 'El backup no tiene datos de progreso';
+  return null;
+}
+function aplicarBackup(b){
+  const err=validarBackup(b);
+  if(err)return {ok:false,msg:err};
+  saveProgressAhora();
+  perfiles=b.perfiles.slice(0,MAX_PERFILES).map(p=>({id:p.id,nombre:String(p.nombre||'Jugador').slice(0,14),avatar:p.avatar||'🐱',creado:p.creado||new Date().toISOString()}));
+  perfiles.forEach(p=>{
+    const d=b.datos[p.id];
+    if(d)try{localStorage.setItem(claveDe(p.id),JSON.stringify(d));}catch(e){}
+  });
+  perfilActivo=perfilPorId(b.activo)?b.activo:perfiles[0].id;
+  guardarIndicePerfiles();
+  resetEstado();loadProgress();
+  aplicarTema();aplicarAvatar();updateStatsUI();buildLessonGrid();renderHome();rebuildAll();renderPerfiles();
+  return {ok:true,msg:'Se restauraron '+perfiles.length+' perfil(es)'};
+}
+function descargarBackup(){
+  try{
+    const txt=JSON.stringify(armarBackup(),null,2);
+    const blob=new Blob([txt],{type:'application/json'});
+    const url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download='pianokids-backup-'+todayKey()+'.json';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    showToast('Backup descargado 💾');
+  }catch(e){showToast('No se pudo descargar el backup');}
+}
+function importarArchivo(input){
+  const f=input&&input.files&&input.files[0];if(!f)return;
+  const fr=new FileReader();
+  fr.onload=()=>{
+    let b=null;
+    try{b=JSON.parse(fr.result);}catch(e){showToast('El archivo está dañado');input.value='';return;}
+    if(!confirm('Esto va a reemplazar TODOS los perfiles de este dispositivo. ¿Seguro?')){input.value='';return;}
+    const r=aplicarBackup(b);
+    showToast(r.ok?'✅ '+r.msg:'⚠️ '+r.msg);
+    input.value='';
+  };
+  fr.readAsText(f);
+}
+
+// ── UI ──────────────────────────────────────
+function renderPerfiles(){
+  const c=document.getElementById('perfiles-lista');if(!c)return;
+  c.innerHTML=perfiles.map(p=>`<div class="perfil${p.id===perfilActivo?' activo':''}">
+      <div class="perfil-avatar" onclick="cambiarPerfil('${p.id}')">${p.avatar}</div>
+      <input class="perfil-nombre" value="${p.nombre.replace(/"/g,'&quot;')}" maxlength="14"
+        onchange="renombrarPerfil('${p.id}',this.value)">
+      ${p.id===perfilActivo?'<span class="perfil-badge">En uso</span>':`<button class="perfil-btn" onclick="cambiarPerfil('${p.id}')">Usar</button>`}
+      ${perfiles.length>1?`<button class="perfil-btn del" onclick="confirmarBorrarPerfil('${p.id}')">🗑</button>`:''}
+    </div>`).join('')
+    +(perfiles.length<MAX_PERFILES?`<button class="perfil-add" onclick="agregarPerfil()">➕ Agregar perfil (${perfiles.length}/${MAX_PERFILES})</button>`:'');
+  const chip=document.getElementById('sc-perfil'),p=perfilCorriente();
+  if(chip&&p)chip.textContent=p.avatar+' '+p.nombre;
+}
+function agregarPerfil(){
+  const n=prompt('¿Cómo se llama?','Jugador '+(perfiles.length+1));
+  if(n===null)return;
+  const p=crearPerfil(n.trim()||('Jugador '+(perfiles.length+1)));
+  if(!p){showToast('Ya hay '+MAX_PERFILES+' perfiles');return;}
+  renderPerfiles();cambiarPerfil(p.id);
+}
+function confirmarBorrarPerfil(id){
+  const p=perfilPorId(id);if(!p)return;
+  if(confirm('¿Borrar el perfil de '+p.nombre+'? Se pierde todo su progreso.'))borrarPerfil(id);
+}
+
+// ════════════════════════════════════════════
 // MISIONES DIARIAS, RACHA Y TIENDA (v1.6)
 // ════════════════════════════════════════════
 // Objetivo: que haya un motivo concreto para volver mañana.
@@ -2039,6 +2260,15 @@ function stopGame(){currentGame=null;document.getElementById('game-area').classL
 
 // ════ QUINTAS ════
 const COF=['C','G','D','A','E','B','F#','C#','Ab','Eb','Bb','F'],COF_ES={C:'Do',G:'Sol',D:'Re',A:'La',E:'Mi',B:'Si','F#':'Fa#','C#':'Do#',Ab:'Lab',Eb:'Mib',Bb:'Sib',F:'Fa'},COF_EN={C:'C',G:'G',D:'D',A:'A',E:'E',B:'B','F#':'F#','C#':'C#',Ab:'Ab',Eb:'Eb',Bb:'Bb',F:'F'},COF_NOTE={C:'C4',G:'G4',D:'D4',A:'A4',E:'E4',B:'B4','F#':'F#4','C#':'C#4',Ab:'G#4',Eb:'D#4',Bb:'A#4',F:'F4'};
+// Las 3 tonalidades bemoles del círculo caen sobre la misma tecla que un
+// sostenido: Lab es Sol#, Mib es Re#, Sib es La#. El teclado sólo rotula
+// sostenidos, así que sin el segundo nombre el chico busca "Lab" y no lo
+// encuentra. Mostramos los dos y de paso aprende qué es una enarmonía.
+const COF_ALT={Ab:{es:'Sol#',en:'G#'},Eb:{es:'Re#',en:'D#'},Bb:{es:'La#',en:'A#'}};
+function cofNombre(n){return (notation==='es'?COF_ES:COF_EN)[n]||n;}
+function cofAlterno(n){const a=COF_ALT[n];return a?a[notation==='es'?'es':'en']:null;}
+function cofNombreCompleto(n){const alt=cofAlterno(n);return cofNombre(n)+(alt?' ('+alt+')':'');}
+
 // Dibuja el círculo de quintas. Se genera por código y no como imagen: escala
 // sin pixelarse, respeta la notación elegida y no suma un asset que cachear.
 function renderCoF(resaltar){
@@ -2048,16 +2278,23 @@ function renderCoF(resaltar){
     const ang=(-90+i*30)*Math.PI/180;
     const x=cx+R*Math.cos(ang),y=cy+R*Math.sin(ang);
     const color=NOTE_COLORS[n.replace('b','').replace('#','')]||'#3949ab';
-    const nombre=(notation==='es'?COF_ES:COF_EN)[n]||n;
+    const nombre=cofNombre(n),alt=cofAlterno(n);
     const on=Array.isArray(resaltar)&&resaltar.includes(n);
+    // Con dos nombres el texto va en dos renglones dentro del mismo círculo.
+    const texto=alt
+      ?`<text x="${x.toFixed(1)}" y="${(y-1).toFixed(1)}" text-anchor="middle" font-size="11"
+          font-weight="800" fill="white" font-family="Nunito,sans-serif">${nombre}</text>
+        <text x="${x.toFixed(1)}" y="${(y+10).toFixed(1)}" text-anchor="middle" font-size="8.5"
+          font-weight="700" fill="white" opacity=".8" font-family="Nunito,sans-serif">${alt}</text>`
+      :`<text x="${x.toFixed(1)}" y="${(y+4.5).toFixed(1)}" text-anchor="middle" font-size="${nombre.length>2?11:13}"
+          font-weight="800" fill="white" font-family="Nunito,sans-serif">${nombre}</text>`;
     return `<g class="cof-nodo${on?' on':''}">
       <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="${color}" opacity="${on?1:.88}"/>
-      <text x="${x.toFixed(1)}" y="${(y+4.5).toFixed(1)}" text-anchor="middle" font-size="${nombre.length>2?11:13}"
-        font-weight="800" fill="white" font-family="Nunito,sans-serif">${nombre}</text>
+      ${texto}
     </g>`;
   }).join('');
   cont.innerHTML=`<svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" role="img"
-      aria-label="Círculo de quintas: ${COF.map(n=>COF_ES[n]||n).join(', ')}">
+      aria-label="Círculo de quintas: ${COF.map(n=>cofNombreCompleto(n)).join(', ')}">
     <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#e4e4f2" stroke-width="2"/>
     <path d="M ${cx+34} ${cy-16} A 38 38 0 0 1 ${cx+34} ${cy+16}" fill="none" stroke="#bdbdd8" stroke-width="2.5"
       marker-end="url(#cof-flecha)"/>
@@ -2071,7 +2308,7 @@ function renderCoF(resaltar){
   </svg>`;
 }
 function startFifthGame(len){fifthActive=true;fifthScore=0;fifthStep=0;document.getElementById('fifth-score').textContent='0';document.getElementById('fifth-area').classList.add('active');buildPiano('piano-fifth');renderCoF();genFifthSeq(len);}
-function genFifthSeq(len){const start=Math.floor(Math.random()*COF.length);fifthSeq=[];for(let i=0;i<len;i++)fifthSeq.push(COF[(start+i)%COF.length]);fifthStep=0;renderCoF(fifthSeq);document.getElementById('fifth-seq').innerHTML=fifthSeq.map((n,i)=>`<div id="fb-${i}" style="width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;background:${i===0?'#3949ab':'white'};color:${i===0?'white':'#3949ab'};border:3px solid #3949ab;margin:2px;transition:all .3s;">${notation==='es'?(COF_ES[n]||n):(COF_EN[n]||n)}</div>`).join('');document.getElementById('fifth-hint').textContent='Orden: '+fifthSeq.map(n=>notation==='es'?(COF_ES[n]||n):(COF_EN[n]||n)).join(' → ');document.getElementById('nd-fifth').innerHTML='';clearHL('piano-fifth');const first=COF_NOTE[fifthSeq[0]];if(first)hlKey('piano-fifth',first);ensureSynth();Tone.start().then(()=>{fifthSeq.forEach((n,i)=>{const note=COF_NOTE[n];if(note)setTimeout(()=>{try{pianoSynth.triggerAttackRelease(note,'.35');}catch(e){}},i*440);});});}
+function genFifthSeq(len){const start=Math.floor(Math.random()*COF.length);fifthSeq=[];for(let i=0;i<len;i++)fifthSeq.push(COF[(start+i)%COF.length]);fifthStep=0;renderCoF(fifthSeq);document.getElementById('fifth-seq').innerHTML=fifthSeq.map((n,i)=>`<div id="fb-${i}" style="width:48px;height:48px;border-radius:50%;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;font-weight:800;font-size:11px;background:${i===0?'#3949ab':'white'};color:${i===0?'white':'#3949ab'};border:3px solid #3949ab;margin:2px;transition:all .3s;">${cofNombre(n)}${cofAlterno(n)?`<span style="font-size:8px;font-weight:700;opacity:.75;">${cofAlterno(n)}</span>`:''}</div>`).join('');document.getElementById('fifth-hint').textContent='Orden: '+fifthSeq.map(cofNombreCompleto).join(' → ');document.getElementById('nd-fifth').innerHTML='';clearHL('piano-fifth');const first=COF_NOTE[fifthSeq[0]];if(first)hlKey('piano-fifth',first);ensureSynth();Tone.start().then(()=>{fifthSeq.forEach((n,i)=>{const note=COF_NOTE[n];if(note)setTimeout(()=>{try{pianoSynth.triggerAttackRelease(note,'.35');}catch(e){}},i*440);});});}
 function checkFifthNote(note){if(!fifthActive||fifthStep>=fifthSeq.length)return;const exp=COF_NOTE[fifthSeq[fifthStep]];const norm=n=>n.replace(/\d/g,'').replace('Ab','G#').replace('Eb','D#').replace('Bb','A#');if(norm(note)===norm(exp||'')){const sb=document.getElementById('fb-'+fifthStep);if(sb){sb.style.background='#26a69a';sb.style.color='white';sb.style.borderColor='#26a69a';}fifthStep++;stars+=4;fifthScore++;updateStatsUI();clearHL('piano-fifth');if(fifthStep<fifthSeq.length){const next=COF_NOTE[fifthSeq[fifthStep]];if(next)hlKey('piano-fifth',next);const nb2=document.getElementById('fb-'+fifthStep);if(nb2){nb2.style.background='#3949ab';nb2.style.color='white';}document.getElementById('nd-fifth').innerHTML='<span class="note-bubble" style="background:#26a69a">¡Correcto! +4⭐</span>';}else{document.getElementById('nd-fifth').innerHTML='<span class="note-bubble" style="background:#3949ab">¡Secuencia completa! 🌀</span>';addXP(30);saveProgress();setTimeout(()=>genFifthSeq(fifthSeq.length),1500);}}else{const sb=document.getElementById('fb-'+fifthStep);if(sb){sb.style.background='#c62828';sb.style.color='white';setTimeout(()=>{sb.style.background='white';sb.style.color='#3949ab';},500);}document.getElementById('nd-fifth').innerHTML='<span class="note-bubble" style="background:#c62828">¡Casi! 😅</span>';}}
 function stopFifthGame(){fifthActive=false;document.getElementById('fifth-area').classList.remove('active');showToast('Quintas · '+fifthScore+' pts');}
 
@@ -2218,6 +2455,7 @@ function toggleGenreP(key,checked){document.getElementById('gcp-'+key).classList
 // INIT
 // ════════════════════════════════════════════
 // Cargar datos guardados
+iniciarPerfiles();
 loadProgress();
 // Construir UI
 buildSynth('piano');
@@ -2226,7 +2464,7 @@ buildLessonGrid();renderSongs();buildGameGrid();buildAchievements();
 buildBeatDots();setBpm(80);updateStatsUI();buildGenreChips();
 // Teclado MIDI: si hay uno conectado aparece el chip verde en el encabezado.
 // En Safari/iOS no existe Web MIDI y simplemente no pasa nada.
-aplicarTema();aplicarAvatar();revisarHitos();renderHome();
+aplicarTema();aplicarAvatar();revisarHitos();renderHome();renderPerfiles();
 midiIniciar();
 </script>
 </body>

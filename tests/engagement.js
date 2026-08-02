@@ -308,6 +308,32 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
     app.fn.renderCoF(['C', 'G', 'D']);
     eq(doc.querySelectorAll('#cof-svg .cof-nodo.on').length, 3);
   });
+  test('Las tonalidades bemoles muestran también su nombre en sostenido', () => {
+    app.fn.renderCoF();
+    const txt = doc.getElementById('cof-svg').textContent;
+    [['Lab', 'Sol#'], ['Mib', 'Re#'], ['Sib', 'La#']].forEach(([bemol, sost]) => {
+      assert(txt.includes(bemol), `falta ${bemol}`);
+      assert(txt.includes(sost), `falta el nombre alterno ${sost}: el chico no encuentra la tecla`);
+    });
+  });
+  test('El nombre alterno coincide con la tecla que se resalta', () => {
+    // Ab suena en G#4: el nombre que mostramos tiene que ser el de esa tecla.
+    const PC = { 'C#': 1, 'D#': 3, 'F#': 6, 'G#': 8, 'A#': 10 };
+    const ES = { 'C#': 'Do#', 'D#': 'Re#', 'F#': 'Fa#', 'G#': 'Sol#', 'A#': 'La#' };
+    [['Ab', 'G#4'], ['Eb', 'D#4'], ['Bb', 'A#4']].forEach(([cof, tecla]) => {
+      const base = tecla.replace(/\d/, '');
+      eq(app.fn.cofAlterno(cof), ES[base], `${cof} suena en ${tecla} pero el nombre alterno no coincide`);
+    });
+  });
+  test('Las tonalidades sin enarmonía no muestran nombre doble', () => {
+    ['C', 'G', 'D', 'A', 'E', 'B', 'F', 'F#', 'C#'].forEach(n =>
+      eq(app.fn.cofAlterno(n), null, `${n} no debería tener nombre alterno`));
+  });
+  test('La explicación aclara que una tecla puede tener dos nombres', () => {
+    const t = doc.querySelector('.cof-texto').textContent;
+    assert(/dos nombres/i.test(t), 'no se explica el concepto de enarmonía');
+    assert(/Lab/.test(t) && /Sol#/.test(t), 'no se da el ejemplo concreto');
+  });
   test('Hay un texto explicativo de qué es el círculo', () => {
     const t = doc.querySelector('.cof-texto').textContent;
     assert(/mapa de las notas/i.test(t), 'falta la explicación');

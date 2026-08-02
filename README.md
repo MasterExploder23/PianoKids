@@ -17,7 +17,8 @@ pianokids/
 │   ├── v13.js      ← Pentagrama, teclas, arrastre y audio (35 tests)
 │   ├── midi.js     ← Teclado MIDI con puerto simulado (34 tests)
 │   ├── lecciones.js← Currículum, progresión y teoría musical (45 tests)
-│   └── engagement.js← Misiones, racha, tienda y círculo de quintas (54 tests)
+│   ├── engagement.js← Misiones, racha, tienda y círculo de quintas (58 tests)
+│   └── perfiles.js ← Perfiles y copia de seguridad (42 tests)
 └── README.md       ← Este archivo
 ```
 
@@ -107,7 +108,7 @@ canciones, juegos y pentagrama.
 
 Antes de cada push a producción:
 
-1. `npm test` (tiene que dar 238/238)
+1. `npm test` (tiene que dar 284/284)
 2. **Subí `BUILD` en `sw.js`** (línea 5). Es lo que invalida la caché vieja.
    Si no lo subís, los usuarios que ya instalaron la app siguen viendo la versión anterior.
 3. Commit → push → Vercel redeploya solo.
@@ -136,6 +137,8 @@ del 80% central. Herramienta útil: https://maskable.app
 - 🎮 7 mini juegos (incluye karaoke, dictado melódico y memoria musical)
 - 🎛️ Soporte de teclado MIDI real por USB, con dinámica por velocity
 - 🎙️ Detección de notas por micrófono
+- 👥 Hasta 4 perfiles con progreso separado, para hermanos
+- 💾 Copia de seguridad a archivo JSON (exportar / restaurar)
 - 💾 Progreso guardado automáticamente (localStorage)
 - 🎯 Misiones diarias y premios por racha (3/7/14/30 días)
 - 🛍️ Tienda: temas de teclado y avatares que se compran con estrellas

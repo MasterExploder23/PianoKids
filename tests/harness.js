@@ -17,6 +17,7 @@ const EXPOSED = [
   'STAFF_LINES', 'STAFF_TOP', 'STAFF_BOTTOM',
   'midiSoportado', 'midiEntradas', 'ACH_MIDI',
   'MODULOS', 'modProgress', 'FASES', 'modActual', 'lecActual', 'faseActual', 'pasoActual', 'erroresEval',
+  'perfiles', 'perfilActivo', 'PKEY', 'MAX_PERFILES', 'AVATARES_PERFIL', 'BACKUP_VERSION',
   'MISIONES', 'misionEstado', 'HITOS', 'hitosCobrados', 'TEMAS', 'AVATARES', 'comprados', 'temaActivo', 'avatarActivo', 'COF',
 ];
 const EXPOSED_FN = [
@@ -30,7 +31,10 @@ const EXPOSED_FN = [
   'migrarLeccionesViejas', 'showPadresLecc', 'buildPadresLeccTabs', 'mostrarFase',
   'misionesDeHoy', 'avanzarMision', 'renderMisiones', 'revisarHitos', 'renderHitos',
   'comprar', 'aplicar', 'estrellasDisponibles', 'estrellasGastadas', 'renderTienda', 'renderHome',
-  'renderCoF', 'semillaDelDia', 'misionCumplida',
+  'renderCoF', 'semillaDelDia', 'misionCumplida', 'cofNombre', 'cofAlterno', 'cofNombreCompleto',
+  'iniciarPerfiles', 'crearPerfil', 'cambiarPerfil', 'borrarPerfil', 'renombrarPerfil',
+  'perfilPorId', 'perfilCorriente', 'claveDe', 'claveActual', 'resetEstado', 'saveProgressAhora',
+  'armarBackup', 'validarBackup', 'aplicarBackup', 'renderPerfiles', 'snapshotProgreso',
 ];
 
 function boot(opts = {}) {
