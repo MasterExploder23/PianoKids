@@ -13,7 +13,8 @@ pianokids/
 ├── tests/
 │   ├── harness.js  ← Arranca la app en JSDOM con audio stubbeado
 │   ├── run.js      ← Suite de regresión (36 tests)
-│   └── smoke.js    ← Smoke funcional simulando uso real (32 tests)
+│   ├── smoke.js    ← Smoke funcional simulando uso real (32 tests)
+│   └── v13.js      ← Pentagrama, teclas, arrastre y audio (35 tests)
 └── README.md       ← Este archivo
 ```
 
@@ -86,7 +87,7 @@ El banner "Instalar" aparece automáticamente en Chrome/Edge/Android.
 
 Antes de cada push a producción:
 
-1. `npm test` (tiene que dar 68/68)
+1. `npm test` (tiene que dar 103/103)
 2. **Subí `BUILD` en `sw.js`** (línea 5). Es lo que invalida la caché vieja.
    Si no lo subís, los usuarios que ya instalaron la app siguen viendo la versión anterior.
 3. Commit → push → Vercel redeploya solo.

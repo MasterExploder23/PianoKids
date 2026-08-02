@@ -43,7 +43,7 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
 .tsep{width:1px;height:20px;background:#aaa;margin:0 2px;}
 
 /* PIANO */
-.piano-wrapper{width:100%;overflow-x:auto;padding:4px 0 8px;}
+.piano-wrapper{width:100%;overflow-x:auto;padding:4px 0 8px;touch-action:pan-x;overscroll-behavior-x:contain;cursor:grab;-webkit-overflow-scrolling:touch;}
 .piano{position:relative;display:flex;height:165px;width:max-content;min-width:100%;justify-content:center;padding:0 2px;}
 .wk{width:40px;height:155px;background:#FFFEF5;border:1.5px solid #ccc;border-bottom-left-radius:7px;border-bottom-right-radius:7px;position:relative;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:6px;box-shadow:0 4px 6px rgba(0,0,0,.1),inset 0 -3px 0 rgba(0,0,0,.08);user-select:none;z-index:1;transition:background .08s,transform .08s;}
 .wk:hover{background:#f0f0f0;}
@@ -382,7 +382,7 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
 <div id="tab-staff" class="panel">
   <div class="sec-title">🎼 Pentagrama en tiempo real</div>
   <div class="staff-wrap">
-    <svg width="100%" viewBox="0 0 520 130">
+    <svg width="100%" viewBox="0 0 520 170">
       <text x="6" y="90" font-size="92" fill="#9575cd" font-family="serif" opacity="0.25">𝄞</text>
       <line x1="55" y1="50" x2="512" y2="50" stroke="#ccc" stroke-width="1.2"/>
       <line x1="55" y1="62" x2="512" y2="62" stroke="#ccc" stroke-width="1.2"/>
@@ -642,7 +642,25 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
 const NOTE_ES={'C':'Do','D':'Re','E':'Mi','F':'Fa','G':'Sol','A':'La','B':'Si','C#':'Do#','D#':'Re#','F#':'Fa#','G#':'Sol#','A#':'La#'};
 const NOTE_EN={'C':'C','D':'D','E':'E','F':'F','G':'G','A':'A','B':'B','C#':'C#','D#':'D#','F#':'F#','G#':'G#','A#':'A#'};
 const NOTE_COLORS={C:'#FF6B6B',D:'#FF9F43',E:'#d4a000',F:'#0099bb',G:'#1DD1A1',A:'#54A0FF',B:'#A29BFE'};
-const STAFF_Y={'C3':134,'D3':128,'E3':122,'F3':116,'G3':110,'A3':104,'B3':98,'C4':110,'D4':104,'E4':98,'F4':92,'G4':86,'A4':80,'B4':74,'C5':68,'D5':62,'E5':56,'F5':50,'G5':44,'A5':38,'B5':32,'C6':26,'C#4':110,'D#4':104,'F#4':92,'G#4':86,'A#4':80,'C#5':68,'D#5':62,'F#5':50,'G#5':44,'A#5':38};
+// Clave de sol. Líneas del pentagrama en y = 98,86,74,62,50 (E4,G4,B4,D5,F5).
+// Un escalón diatónico = 6px. Un sostenido comparte posición con su nota natural.
+// OJO: hasta v1.2 la octava 3 estaba 18px (3 escalones) arriba de donde va y
+// colisionaba con C4-E4, así que el pentagrama mostraba notas equivocadas.
+const STAFF_LINES=[50,62,74,86,98];
+const STAFF_TOP=50,STAFF_BOTTOM=98,STAFF_STEP=6,STAFF_LINE_GAP=12;
+const STAFF_Y={
+  'C3':152,'C#3':152,'D3':146,'D#3':146,'E3':140,'F3':134,'F#3':134,'G3':128,'G#3':128,'A3':122,'A#3':122,'B3':116,
+  'C4':110,'C#4':110,'D4':104,'D#4':104,'E4':98,'F4':92,'F#4':92,'G4':86,'G#4':86,'A4':80,'A#4':80,'B4':74,
+  'C5':68,'C#5':68,'D5':62,'D#5':62,'E5':56,'F5':50,'F#5':50,'G5':44,'G#5':44,'A5':38,'A#5':38,'B5':32,
+  'C6':26
+};
+// Líneas adicionales necesarias para una nota fuera del pentagrama.
+function ledgerLinesFor(y){
+  const out=[];
+  if(y>STAFF_BOTTOM){for(let l=STAFF_BOTTOM+STAFF_LINE_GAP;l<=y;l+=STAFF_LINE_GAP)out.push(l);}
+  else if(y<STAFF_TOP){for(let l=STAFF_TOP-STAFF_LINE_GAP;l>=y;l-=STAFF_LINE_GAP)out.push(l);}
+  return out;
+}
 const WHITE_NOTES=['C3','D3','E3','F3','G3','A3','B3','C4','D4','E4','F4','G4','A4','B4','C5','D5','E5','F5','G5','A5','B5','C6'];
 const BLACK_DEFS=[{n:'C#3',p:0},{n:'D#3',p:1},{n:'F#3',p:3},{n:'G#3',p:4},{n:'A#3',p:5},{n:'C#4',p:7},{n:'D#4',p:8},{n:'F#4',p:10},{n:'G#4',p:11},{n:'A#4',p:12},{n:'C#5',p:14},{n:'D#5',p:15},{n:'F#5',p:17},{n:'G#5',p:18},{n:'A#5',p:19}];
 const KW=40;
@@ -820,36 +838,151 @@ if('serviceWorker'in navigator){window.addEventListener('load',()=>{
 // ════════════════════════════════════════════
 // SYNTH
 // ════════════════════════════════════════════
-function buildSynth(type){if(pianoSynth){try{pianoSynth.dispose();}catch(e){}pianoSynth=null;}const vol=new Tone.Volume(-6).toDestination();const opts={piano:{oscillator:{type:'triangle'},envelope:{attack:.02,decay:.1,sustain:.3,release:1}},organ:{oscillator:{type:'sine'},envelope:{attack:.01,decay:.01,sustain:1,release:.1}},bells:{oscillator:{type:'sine'},envelope:{attack:.001,decay:.8,sustain:0,release:.5}},bass:{oscillator:{type:'sawtooth'},envelope:{attack:.05,decay:.3,sustain:.4,release:.8}},synth:{oscillator:{type:'square'},envelope:{attack:.05,decay:.1,sustain:.5,release:.6}}};pianoSynth=new Tone.PolySynth(Tone.Synth,opts[type]||opts.piano).connect(vol);}
+// Hasta v1.2 los 5 instrumentos eran el MISMO Tone.Synth cambiando sólo el
+// oscilador: "piano" era una onda triangular y "órgano" y "campanas" eran ambos
+// senoidales. Por eso los nombres no se correspondían con lo que se escuchaba.
+// Ahora cada uno usa el tipo de síntesis que le corresponde.
+const INSTRUMENTOS={
+  // Piano: FM con ataque instantáneo y decaimiento continuo, sin sustain.
+  // Lo clave es que la nota se apague sola aunque mantengas la tecla.
+  piano:{voz:'FMSynth',opts:{harmonicity:2.5,modulationIndex:4.5,
+    oscillator:{type:'triangle'},modulation:{type:'sine'},
+    envelope:{attack:.002,decay:1.6,sustain:.04,release:1.1},
+    modulationEnvelope:{attack:.002,decay:.32,sustain:0,release:.3}},vol:-8},
+  // Órgano: sustain pleno mientras apretás, corte casi seco al soltar.
+  // Los armónicos fijos son lo que da el color de registro de órgano.
+  organ:{voz:'AMSynth',opts:{harmonicity:2,
+    oscillator:{type:'sine4'},modulation:{type:'sine'},
+    envelope:{attack:.02,decay:.02,sustain:1,release:.12},
+    modulationEnvelope:{attack:.02,decay:0,sustain:1,release:.1}},vol:-11},
+  // Campanas: FM inarmónica con cola larga. La inarmonicidad es lo que suena a metal.
+  bells:{voz:'FMSynth',opts:{harmonicity:3.01,modulationIndex:14,
+    oscillator:{type:'sine'},modulation:{type:'sine'},
+    envelope:{attack:.001,decay:2.6,sustain:0,release:1.8},
+    modulationEnvelope:{attack:.001,decay:.5,sustain:0,release:.5}},vol:-9},
+  // Bajo: filtro pasabajos que se cierra rápido sobre un diente de sierra.
+  bass:{voz:'MonoSynth',opts:{oscillator:{type:'sawtooth'},
+    filter:{type:'lowpass',rolloff:-24,Q:2},
+    envelope:{attack:.01,decay:.28,sustain:.55,release:.5},
+    filterEnvelope:{attack:.01,decay:.22,sustain:.18,release:.4,baseFrequency:90,octaves:2.6}},vol:-7},
+  // Synth: cuadrada con detune y filtro abierto, el color clásico de sintetizador.
+  synth:{voz:'MonoSynth',opts:{oscillator:{type:'square',detune:6},
+    filter:{type:'lowpass',rolloff:-12,Q:6},
+    envelope:{attack:.03,decay:.18,sustain:.6,release:.7},
+    filterEnvelope:{attack:.04,decay:.3,sustain:.5,release:.6,baseFrequency:320,octaves:3}},vol:-12}
+};
+function buildSynth(type){
+  if(pianoSynth){try{pianoSynth.dispose();}catch(e){}pianoSynth=null;}
+  const cfg=INSTRUMENTOS[type]||INSTRUMENTOS.piano;
+  const vol=new Tone.Volume(cfg.vol).toDestination();
+  try{
+    pianoSynth=new Tone.PolySynth(Tone[cfg.voz],cfg.opts).connect(vol);
+  }catch(e){
+    // Si una voz no está disponible en esta versión de Tone, no dejamos la app muda.
+    pianoSynth=new Tone.PolySynth(Tone.Synth,{oscillator:{type:'triangle'},
+      envelope:{attack:.02,decay:.1,sustain:.3,release:1}}).connect(vol);
+  }
+  pianoSynth.maxPolyphony=16;
+}
 function changeSound(val){currentSound=val;buildSynth(val);const L={piano:'Piano',organ:'Órgano',bells:'Campanas',bass:'Bajo',synth:'Synth'};document.getElementById('sc-sound').textContent='🎵 '+L[val];unlockAch(8);}
 function ensureSynth(){if(!pianoSynth)buildSynth(currentSound);}
 
 // ════════════════════════════════════════════
 // PIANO
 // ════════════════════════════════════════════
+// ════════════════════════════════════════════
+// EVENTOS DE TECLA
+// ════════════════════════════════════════════
+// Pointer Events unifican mouse/touch/lápiz y, sobre todo, disparan
+// 'pointercancel' cuando el navegador se queda con el gesto (scroll). Sin eso
+// la tecla quedaba pintada Y la nota no se podía volver a tocar nunca, porque
+// pianoPlay hace `if(pressedKeys.has(note))return`.
+const DRAG_UMBRAL=8; // px antes de considerar que el gesto es un arrastre
+function wireKey(k,note,id){
+  k.addEventListener('pointerdown',ev=>{
+    if(ev.pointerType==='mouse'&&ev.button!==0)return;
+    // No hacemos preventDefault: eso bloqueaba el scroll nativo del teclado en el celu.
+    k.dataset.px=ev.clientX;k.dataset.arrastrando='0';
+    pianoPlay(note,k,id);
+  });
+  k.addEventListener('pointermove',ev=>{
+    if(!pressedKeys.has(note)||k.dataset.arrastrando==='1')return;
+    if(Math.abs(ev.clientX-(+k.dataset.px))>DRAG_UMBRAL){
+      // El usuario está corriendo el teclado, no tocando: soltamos la nota.
+      k.dataset.arrastrando='1';pianoStop(note,k);
+    }
+  });
+  k.addEventListener('pointerup',()=>pianoStop(note,k));
+  k.addEventListener('pointercancel',()=>pianoStop(note,k));
+  k.addEventListener('pointerleave',()=>{if(pressedKeys.has(note))pianoStop(note,k);});
+  k.addEventListener('contextmenu',ev=>ev.preventDefault());
+}
+
+// Arrastrar el teclado con el dedo o con el mouse, sin usar la barra de scroll.
+// En touch lo resuelve el navegador (touch-action:pan-x en .piano-wrapper);
+// acá agregamos el equivalente para mouse en la compu.
+function wireDragScroll(wrap){
+  if(!wrap||wrap.dataset.dragOn==='1')return;
+  wrap.dataset.dragOn='1';
+  let activo=false,x0=0,scroll0=0;
+  wrap.addEventListener('pointerdown',ev=>{
+    if(ev.pointerType!=='mouse'||ev.button!==0)return;
+    activo=true;x0=ev.clientX;scroll0=wrap.scrollLeft;
+  });
+  wrap.addEventListener('pointermove',ev=>{
+    if(!activo)return;
+    const d=ev.clientX-x0;
+    if(Math.abs(d)<=DRAG_UMBRAL)return;
+    wrap.scrollLeft=scroll0-d;
+    wrap.style.cursor='grabbing';
+  });
+  const fin=()=>{activo=false;wrap.style.cursor='';};
+  wrap.addEventListener('pointerup',fin);
+  wrap.addEventListener('pointercancel',fin);
+  wrap.addEventListener('pointerleave',fin);
+}
+
+// Red de seguridad: suelta todo lo que haya quedado sonando o pintado.
+function releaseAllKeys(){
+  [...pressedKeys].forEach(n=>{
+    document.querySelectorAll('[id$="-'+n+'"]').forEach(el=>{
+      el.classList.remove('pressed');
+      if(!el.classList.contains('hl'))el.style.background='';
+    });
+  });
+  pressedKeys.clear();
+  try{if(pianoSynth&&pianoSynth.releaseAll)pianoSynth.releaseAll();}catch(e){}
+  document.querySelectorAll('.wk.pressed,.bk.pressed').forEach(el=>{
+    el.classList.remove('pressed');
+    if(!el.classList.contains('hl'))el.style.background='';
+  });
+  if(showFingers)clearFingers();
+}
+// Si el puntero se suelta fuera de la app, o la pestaña pierde el foco,
+// no llega ningún pointerup a la tecla. Sin esto quedaba trabada.
+window.addEventListener('pointerup',()=>{if(pressedKeys.size)setTimeout(releaseAllKeys,0);});
+window.addEventListener('blur',releaseAllKeys);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseAllKeys();});
+
 function buildPiano(id){
-  const c=document.getElementById(id);if(!c)return;c.innerHTML='';
+  const c=document.getElementById(id);if(!c)return;
+  releaseAllKeys(); // reconstruir el DOM sin soltar dejaba notas sonando para siempre
+  c.innerHTML='';
   WHITE_NOTES.forEach((note,i)=>{
     const k=document.createElement('div');k.className='wk';k.id='k-'+id+'-'+note;k.dataset.note=note;
     const lbl=document.createElement('div');lbl.className='wk-label';lbl.textContent=nl(note);k.appendChild(lbl);
     if(showKb){const kbM={C4:'A',D4:'S',E4:'D',F4:'F',G4:'G',A4:'H',B4:'J',C5:'K',D5:'L'};if(kbM[note]){const kl=document.createElement('div');kl.className='wk-kb';kl.textContent=kbM[note];k.appendChild(kl);}}
-    k.addEventListener('mousedown',ev=>{ev.preventDefault();pianoPlay(note,k,id);});
-    k.addEventListener('mouseup',()=>pianoStop(note,k));
-    k.addEventListener('mouseleave',()=>{if(pressedKeys.has(note))pianoStop(note,k);});
-    k.addEventListener('touchstart',ev=>{ev.preventDefault();pianoPlay(note,k,id);},{passive:false});
-    k.addEventListener('touchend',ev=>{ev.preventDefault();pianoStop(note,k);});
+    wireKey(k,note,id);
     c.appendChild(k);
   });
   BLACK_DEFS.forEach(({n,p})=>{
     const k=document.createElement('div');k.className='bk';k.id='k-'+id+'-'+n;k.dataset.note=n;k.style.left=(p*KW+KW*.62)+'px';
     const lbl=document.createElement('div');lbl.className='bk-label';lbl.textContent=nl(n);k.appendChild(lbl);
     if(showKb){const kbB={'C#4':'W','D#4':'E','F#4':'T','G#4':'Y','A#4':'U','C#5':'O','D#5':'P'};if(kbB[n]){const kl=document.createElement('div');kl.className='wk-kb';kl.style.color='rgba(255,255,255,.4)';kl.textContent=kbB[n];k.appendChild(kl);}}
-    k.addEventListener('mousedown',ev=>{ev.preventDefault();pianoPlay(n,k,id);});
-    k.addEventListener('mouseup',()=>pianoStop(n,k));
-    k.addEventListener('touchstart',ev=>{ev.preventDefault();pianoPlay(n,k,id);},{passive:false});
-    k.addEventListener('touchend',ev=>{ev.preventDefault();pianoStop(n,k);});
+    wireKey(k,n,id);
     c.appendChild(k);
   });
+  wireDragScroll(c.parentElement);
 }
 function clearHL(id){document.querySelectorAll('#'+id+' .wk,#'+id+' .bk').forEach(k=>{k.classList.remove('hl');k.style.background='';});}
 function hlKey(id,note){const el=document.getElementById('k-'+id+'-'+note);if(el)el.classList.add('hl');}
@@ -934,7 +1067,29 @@ function switchPadresTab(tab,btn){
 // ════════════════════════════════════════════
 // METRÓNOMO
 // ════════════════════════════════════════════
-function getMetroSynth(){if(!metroSynth)metroSynth=new Tone.Synth({oscillator:{type:'sine'},envelope:{attack:.001,decay:.06,sustain:0,release:.04},volume:-8}).toDestination();return metroSynth;}
+// Hasta v1.2 los 4 sonidos compartían un único Synth sine con decay .06 y
+// sustain 0: la envolvente mataba el sonido en 60ms, así que "campana" y "beep"
+// sonaban igual y sólo cambiaba la frecuencia. Ahora cada uno tiene su timbre.
+let metroVoices=null;
+function getMetroVoices(){
+  if(metroVoices)return metroVoices;
+  const out=new Tone.Volume(-6).toDestination();
+  metroVoices={
+    // Click seco: ruido blanco muy corto, sin altura definida.
+    click:new Tone.NoiseSynth({noise:{type:'white'},envelope:{attack:.001,decay:.018,sustain:0}}).connect(out),
+    // Madera: ruido rosa filtrado en banda, cuerpo corto y opaco.
+    wood:new Tone.NoiseSynth({noise:{type:'pink'},envelope:{attack:.001,decay:.05,sustain:0}})
+      .connect(new Tone.Filter({type:'bandpass',frequency:820,Q:3.5}).connect(out)),
+    // Beep electrónico: onda cuadrada, corta y con altura clara.
+    beep:new Tone.Synth({oscillator:{type:'square'},envelope:{attack:.001,decay:.07,sustain:0,release:.02}}).connect(out),
+    // Campana: FM con cola larga e inarmónica, que es lo que la hace sonar a metal.
+    bell:new Tone.FMSynth({harmonicity:3.4,modulationIndex:12,
+      oscillator:{type:'sine'},modulation:{type:'sine'},
+      envelope:{attack:.001,decay:1.4,sustain:0,release:.9},
+      modulationEnvelope:{attack:.001,decay:.35,sustain:0,release:.3}}).connect(out)
+  };
+  return metroVoices;
+}
 function setBpm(v){metroBpm=parseInt(v);document.getElementById('bpm-val').textContent=metroBpm;document.getElementById('bpm-slider').value=metroBpm;const t=[[40,'Largo'],[60,'Larghetto'],[66,'Adagio'],[76,'Andante'],[108,'Moderato'],[132,'Allegro'],[156,'Vivace'],[168,'Presto']];let name='';for(const[b,n]of t)if(metroBpm>=b)name=n;document.getElementById('tempo-name').textContent=name;if(metroActive){stopMetro();startMetro();}}
 function setSig(n,btn){metroSig=n;metroBeat=0;document.querySelectorAll('#sig-btns button').forEach(b=>btnOff(b));btnOn(btn);buildBeatDots();if(metroActive){stopMetro();startMetro();}}
 function setMetroSound(s,btn){metroSound=s;document.querySelectorAll('#sound-metro-btns button').forEach(b=>btnOff(b));btnOn(btn);}
@@ -942,14 +1097,26 @@ function buildBeatDots(){const d=document.getElementById('beat-dots');d.innerHTM
 function toggleMetro(){metroActive?stopMetro():startMetro();}
 function startMetro(){metroActive=true;document.getElementById('metro-play-btn').textContent='⏸';document.getElementById('metro-play-btn').classList.add('active');metroBeat=0;tickMetro();metroInterval=setInterval(tickMetro,60000/metroBpm);animPend();}
 function stopMetro(){metroActive=false;clearInterval(metroInterval);if(pendFrame)cancelAnimationFrame(pendFrame);document.getElementById('metro-play-btn').textContent='▶';document.getElementById('metro-play-btn').classList.remove('active');document.querySelectorAll('.beat-dot').forEach(d=>d.classList.remove('on'));}
-function tickMetro(){const count=Math.min(metroSig,6),b=metroBeat%count;document.querySelectorAll('.beat-dot').forEach(d=>d.classList.remove('on'));document.getElementById('bd-'+b)?.classList.add('on');Tone.start().then(()=>{try{const s=getMetroSynth();const freqs={click:b===0?1200:900,wood:b===0?600:400,beep:b===0?1000:700,bell:b===0?1400:1000};const durs={click:'64n',wood:'32n',beep:'16n',bell:'8n'};s.triggerAttackRelease(freqs[metroSound]||900,durs[metroSound]||'32n');}catch(e){}});metroBeat++;}
+function tickMetro(){const count=Math.min(metroSig,6),b=metroBeat%count;document.querySelectorAll('.beat-dot').forEach(d=>d.classList.remove('on'));document.getElementById('bd-'+b)?.classList.add('on');Tone.start().then(()=>{try{
+  const v=getMetroVoices(),fuerte=(b===0); // el primer tiempo del compás se acentúa
+  if(metroSound==='click'||metroSound==='wood'){
+    v[metroSound].volume.value=fuerte?0:-9;
+    v[metroSound].triggerAttackRelease(metroSound==='click'?.02:.06);
+  }else if(metroSound==='bell'){
+    v.bell.volume.value=fuerte?-4:-12;
+    v.bell.triggerAttackRelease(fuerte?1046.5:783.99,1.2);
+  }else{
+    v.beep.volume.value=fuerte?-3:-10;
+    v.beep.triggerAttackRelease(fuerte?1000:700,.07);
+  }
+}catch(e){}});metroBeat++;}
 function animPend(){const amp=28,speed=metroBpm/60*Math.PI;let t0=null;function frame(ts){if(!t0)t0=ts;const t=(ts-t0)/1000,ang=amp*Math.sin(t*speed)*Math.PI/180,x=65+104*Math.sin(ang),y=20+104*(1-Math.cos(ang))*.08;document.getElementById('pend-line')?.setAttribute('x2',x.toFixed(1));document.getElementById('pend-line')?.setAttribute('y2',y.toFixed(1));document.getElementById('pend-ball')?.setAttribute('cx',x.toFixed(1));document.getElementById('pend-ball')?.setAttribute('cy',y.toFixed(1));if(metroActive)pendFrame=requestAnimationFrame(frame);}pendFrame=requestAnimationFrame(frame);}
 function tapTempo(){const now=Date.now();tapArr.push(now);if(tapArr.length>1){const diffs=tapArr.slice(-5).map((t,i,a)=>i>0?t-a[i-1]:null).filter(Boolean);setBpm(Math.min(200,Math.max(40,Math.round(60000/(diffs.reduce((a,b)=>a+b)/diffs.length)))));}if(tapArr.length>8)tapArr=tapArr.slice(-8);}
 
 // ════════════════════════════════════════════
 // PENTAGRAMA
 // ════════════════════════════════════════════
-function updateStaff(note){const base=nb(note),esn=NOTE_ES[base]||base,enn=NOTE_EN[base]||base,color=NOTE_COLORS[base.replace('#','')]||'#3949ab',isSharp=note.includes('#');const y=STAFF_Y[note];document.getElementById('staff-note-name').textContent=(notation==='es'?esn:enn)+' ('+(notation==='es'?enn:esn)+')';document.getElementById('staff-note-name').style.color=color;document.getElementById('staff-note-info').textContent=note+(isSharp?' — tecla negra':' — tecla blanca');const cg=document.getElementById('staff-current');cg.innerHTML='';if(y!==undefined){if(note==='C4'||note==='B3'){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1','116');l.setAttribute('y1','110');l.setAttribute('x2','148');l.setAttribute('y2','110');l.setAttribute('stroke','#aaa');l.setAttribute('stroke-width','1.5');cg.appendChild(l);}const circ=document.createElementNS('http://www.w3.org/2000/svg','ellipse');circ.setAttribute('cx','132');circ.setAttribute('cy',y);circ.setAttribute('rx','13');circ.setAttribute('ry','9');circ.setAttribute('fill',color);circ.setAttribute('opacity','.9');cg.appendChild(circ);if(isSharp){const sh=document.createElementNS('http://www.w3.org/2000/svg','text');sh.setAttribute('x','113');sh.setAttribute('y',y+5);sh.setAttribute('font-size','16');sh.setAttribute('fill',color);sh.setAttribute('font-weight','bold');sh.textContent='#';cg.appendChild(sh);}const stem=document.createElementNS('http://www.w3.org/2000/svg','line');stem.setAttribute('x1','145');stem.setAttribute('y1',y);stem.setAttribute('x2','145');stem.setAttribute('y2',y>74?y-38:y+38);stem.setAttribute('stroke',color);stem.setAttribute('stroke-width','2');cg.appendChild(stem);const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');lbl.setAttribute('x','132');lbl.setAttribute('y',y+4);lbl.setAttribute('text-anchor','middle');lbl.setAttribute('font-size','10');lbl.setAttribute('fill','white');lbl.setAttribute('font-weight','800');lbl.setAttribute('font-family','Nunito,sans-serif');lbl.textContent=(notation==='es'?esn:enn).replace('#','');cg.appendChild(lbl);}staffHistory.push({note,y,color});if(staffHistory.length>6)staffHistory.shift();const sh=document.getElementById('staff-history');sh.innerHTML='';[58,73,88,103,118].forEach((xp,i)=>{const h=staffHistory.slice(-5)[i];if(!h||!h.y)return;const c2=document.createElementNS('http://www.w3.org/2000/svg','ellipse');c2.setAttribute('cx',xp);c2.setAttribute('cy',h.y);c2.setAttribute('rx','10');c2.setAttribute('ry','7');c2.setAttribute('fill',h.color);c2.setAttribute('opacity','.22');sh.appendChild(c2);});}
+function updateStaff(note){const base=nb(note),esn=NOTE_ES[base]||base,enn=NOTE_EN[base]||base,color=NOTE_COLORS[base.replace('#','')]||'#3949ab',isSharp=note.includes('#');const y=STAFF_Y[note];document.getElementById('staff-note-name').textContent=(notation==='es'?esn:enn)+' ('+(notation==='es'?enn:esn)+')';document.getElementById('staff-note-name').style.color=color;document.getElementById('staff-note-info').textContent=note+(isSharp?' — tecla negra':' — tecla blanca');const cg=document.getElementById('staff-current');cg.innerHTML='';if(y!==undefined){ledgerLinesFor(y).forEach(ly=>{const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1','114');l.setAttribute('y1',ly);l.setAttribute('x2','150');l.setAttribute('y2',ly);l.setAttribute('stroke','#aaa');l.setAttribute('stroke-width','1.5');cg.appendChild(l);});const circ=document.createElementNS('http://www.w3.org/2000/svg','ellipse');circ.setAttribute('cx','132');circ.setAttribute('cy',y);circ.setAttribute('rx','13');circ.setAttribute('ry','9');circ.setAttribute('fill',color);circ.setAttribute('opacity','.9');cg.appendChild(circ);if(isSharp){const sh=document.createElementNS('http://www.w3.org/2000/svg','text');sh.setAttribute('x','113');sh.setAttribute('y',y+5);sh.setAttribute('font-size','16');sh.setAttribute('fill',color);sh.setAttribute('font-weight','bold');sh.textContent='#';cg.appendChild(sh);}const stem=document.createElementNS('http://www.w3.org/2000/svg','line');stem.setAttribute('x1','145');stem.setAttribute('y1',y);stem.setAttribute('x2','145');stem.setAttribute('y2',y>74?y-38:y+38);stem.setAttribute('stroke',color);stem.setAttribute('stroke-width','2');cg.appendChild(stem);const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');lbl.setAttribute('x','132');lbl.setAttribute('y',y+4);lbl.setAttribute('text-anchor','middle');lbl.setAttribute('font-size','10');lbl.setAttribute('fill','white');lbl.setAttribute('font-weight','800');lbl.setAttribute('font-family','Nunito,sans-serif');lbl.textContent=(notation==='es'?esn:enn).replace('#','');cg.appendChild(lbl);}staffHistory.push({note,y,color});if(staffHistory.length>6)staffHistory.shift();const sh=document.getElementById('staff-history');sh.innerHTML='';[58,73,88,103,118].forEach((xp,i)=>{const h=staffHistory.slice(-5)[i];if(!h||!h.y)return;const c2=document.createElementNS('http://www.w3.org/2000/svg','ellipse');c2.setAttribute('cx',xp);c2.setAttribute('cy',h.y);c2.setAttribute('rx','10');c2.setAttribute('ry','7');c2.setAttribute('fill',h.color);c2.setAttribute('opacity','.22');sh.appendChild(c2);});}
 
 // ════════════════════════════════════════════
 // LECCIONES

@@ -13,11 +13,14 @@ const EXPOSED = [
   'SONGS', 'SKEY', 'LESSONS_NOTES', 'LESSONS_MAJ', 'LESSONS_MEN', 'ACHS', 'LEVELS',
   'KARAOKE_SONGS', 'stars', 'combo', 'notesPlayed', 'songsCompleted', 'lessonsCompleted',
   'dayStreak', 'activeDays', 'dailyNotes', 'noteFrequency', 'songHistory',
+  'STAFF_Y', 'WHITE_NOTES', 'BLACK_DEFS', 'INSTRUMENTOS', 'pressedKeys',
+  'STAFF_LINES', 'STAFF_TOP', 'STAFF_BOTTOM',
 ];
 const EXPOSED_FN = [
   'saveProgress', 'loadProgress', 'recomputeStreak', 'markActivityToday',
   'last7Days', 'pruneActivity', 'dayKeyOf', 'todayKey',
   'renderPadresProgreso', 'renderPadresStats', 'updateStatsUI',
+  'ledgerLinesFor', 'updateStaff', 'releaseAllKeys', 'buildPiano', 'rebuildAll',
 ];
 
 function boot(opts = {}) {
@@ -39,11 +42,15 @@ function boot(opts = {}) {
   const chain = {
     toDestination() { return this; }, connect() { return this; },
     triggerAttackRelease: noop, triggerAttack: noop, triggerRelease: noop,
-    set: noop, dispose: noop, volume: { value: 0 },
+    releaseAll: noop, set: noop, dispose: noop, volume: { value: 0 },
   };
+  const Voz = function () { return chain; };
   w.Tone = {
-    PolySynth: function () { return chain; }, Synth: function () { return chain; },
-    Volume: function () { return chain; }, start: () => Promise.resolve(),
+    // Todas las voces que usa la app. Si falta alguna, buildSynth cae al
+    // fallback y los tests dejarían de probar lo que creen probar.
+    PolySynth: Voz, Synth: Voz, Volume: Voz, NoiseSynth: Voz, FMSynth: Voz,
+    AMSynth: Voz, MonoSynth: Voz, Filter: Voz,
+    start: () => Promise.resolve(),
     now: () => 0, context: { state: 'running', resume: () => Promise.resolve() },
     Destination: chain, getDestination: () => chain,
   };

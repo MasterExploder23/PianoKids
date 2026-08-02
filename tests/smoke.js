@@ -5,8 +5,17 @@ const { boot, test, assert, eq, report } = require('./harness');
 
 const fire = (el, tipo) => { assert(el, 'elemento inexistente'); el.dispatchEvent(new el.ownerDocument.defaultView.MouseEvent(tipo, { bubbles: true, cancelable: true })); };
 const click = el => fire(el, 'click');
-// Las teclas del piano responden a mousedown/mouseup, no a click.
-const tocar = k => { fire(k, 'mousedown'); fire(k, 'mouseup'); };
+// Desde v1.3 las teclas usan Pointer Events (unifican mouse/touch y dan
+// pointercancel, que es lo que evita que la tecla quede trabada).
+// JSDOM no trae el constructor PointerEvent, así que armamos el evento a mano.
+const puntero = (el, tipo, extra = {}) => {
+  assert(el, 'elemento inexistente');
+  const w = el.ownerDocument.defaultView;
+  const ev = new w.Event(tipo, { bubbles: true, cancelable: true });
+  Object.assign(ev, { pointerId: 1, pointerType: 'mouse', button: 0, clientX: 0, clientY: 0 }, extra);
+  el.dispatchEvent(ev);
+};
+const tocar = k => { puntero(k, 'pointerdown'); puntero(k, 'pointerup'); };
 
 // ═══════════════════════════════════════════════════════════
 // Recorrido: usuario nuevo toca 6 teclas en el piano libre
