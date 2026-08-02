@@ -196,11 +196,55 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
     eq(app.TEMAS.filter(t => t.precio === 0).length, 1);
     eq(app.AVATARES.filter(a => a.precio === 0).length, 1);
   });
+  test('La tienda completa cuesta lo suficiente para durar semanas', () => {
+    const total = [...app.TEMAS, ...app.AVATARES].reduce((n, i) => n + i.precio, 0);
+    assert(total >= 8000,
+      `la tienda entera cuesta ${total} estrellas: se desbloquea en una sola sesión`);
+  });
+  test('El primer ítem pago ya cuesta más de una sesión', () => {
+    const primerPago = Math.min(...[...app.TEMAS, ...app.AVATARES].filter(i => i.precio > 0).map(i => i.precio));
+    assert(primerPago >= 250, `el más barato sale ${primerPago}: se compra el primer día`);
+  });
+  test('Cada escalón de precio es un salto real, no un centavo más', () => {
+    [app.TEMAS, app.AVATARES].forEach(lista => {
+      const pagos = lista.filter(i => i.precio > 0).map(i => i.precio);
+      pagos.slice(1).forEach((p, i) =>
+        assert(p >= pagos[i] * 1.5, `${p} apenas supera a ${pagos[i]}: no se siente progresión`));
+    });
+  });
   test('Los precios van de menor a mayor', () => {
     [app.TEMAS, app.AVATARES].forEach(lista => {
       const p = lista.map(i => i.precio);
       eq(p, [...p].sort((a, b) => a - b));
     });
+  });
+  test('Cada tema pago trae su escena de fondo', () => {
+    app.TEMAS.filter(t => t.precio > 0).forEach(t =>
+      assert(t.fondo && t.fondo.startsWith('data:image/svg+xml'),
+        `${t.id} no tiene fondo, o no es un SVG embebido`));
+  });
+  test('El tema gratis no tiene escena: se ve el fondo de siempre', () => {
+    eq(app.TEMAS[0].fondo, null);
+  });
+  test('Los fondos son SVG embebidos, no imágenes descargadas', () => {
+    app.TEMAS.forEach(t => {
+      if (!t.fondo) return;
+      assert(!/^https?:/.test(t.fondo), `${t.id} apunta a una URL externa: rompe el modo offline`);
+      assert(t.fondo.length < 20000, `${t.id} pesa ${t.fondo.length} bytes, demasiado para inline`);
+    });
+  });
+  test('Aplicar un tema con escena pinta el fondo del body', () => {
+    const { app: a, doc: d } = boot();
+    a.stars = 99999; a.fn.comprar('galaxia');
+    assert(/data:image\/svg/.test(d.body.style.backgroundImage), 'no se aplicó la escena');
+    assert(d.body.classList.contains('con-escena'));
+    eq(d.body.dataset.tema, 'galaxia');
+  });
+  test('Volver al tema clásico limpia el fondo', () => {
+    const { app: a, doc: d } = boot();
+    a.stars = 99999; a.fn.comprar('galaxia'); a.fn.aplicar('clasico');
+    eq(d.body.style.backgroundImage, '');
+    assert(!d.body.classList.contains('con-escena'));
   });
   test('Todo tema define colores de tecla blanca y negra', () => {
     app.TEMAS.forEach(t => assert(/^#[0-9a-f]{6}$/i.test(t.blanca) && /^#[0-9a-f]{6}$/i.test(t.negra), `${t.id} sin colores`));
@@ -212,16 +256,18 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
     eq(a.fn.comprar('oceano'), false);
     assert(!a.comprados.includes('oceano'));
   });
+  const precioDe = (a, id) => [...a.TEMAS, ...a.AVATARES].find(i => i.id === id).precio;
+
   test('Con estrellas suficientes la compra funciona', () => {
     const { app: a } = boot();
-    a.stars = 500;
+    a.stars = precioDe(a, 'oceano');
     eq(a.fn.comprar('oceano'), true);
     assert(a.comprados.includes('oceano'));
     eq(a.temaActivo, 'oceano', 'no se aplicó el tema recién comprado');
   });
   test('Las estrellas gastadas se descuentan del saldo', () => {
     const { app: a } = boot();
-    a.stars = 500;
+    a.stars = precioDe(a, 'oceano') * 3;
     const antes = a.fn.estrellasDisponibles();
     const precio = a.TEMAS.find(t => t.id === 'oceano').precio;
     a.fn.comprar('oceano');
@@ -229,7 +275,7 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
   });
   test('No se puede comprar dos veces lo mismo', () => {
     const { app: a } = boot();
-    a.stars = 500;
+    a.stars = precioDe(a, 'oceano') * 3;
     a.fn.comprar('oceano');
     const saldo = a.fn.estrellasDisponibles();
     eq(a.fn.comprar('oceano'), false);
@@ -237,13 +283,15 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
   });
   test('El saldo nunca queda negativo', () => {
     const { app: a } = boot();
-    a.stars = 500;
+    // A propósito con menos de lo que cuesta todo: queremos que algunas compras
+    // se rechacen y verificar que el saldo nunca cruza el cero.
+    a.stars = 1500;
     ['oceano', 'bosque', 'atardecer', 'galaxia', 'perro', 'panda', 'dragon', 'unicornio'].forEach(id => a.fn.comprar(id));
     assert(a.fn.estrellasDisponibles() >= 0, `saldo negativo: ${a.fn.estrellasDisponibles()}`);
   });
   test('Un ítem ya comprado se puede volver a poner sin pagar', () => {
     const { app: a } = boot();
-    a.stars = 500;
+    a.stars = 99999;
     a.fn.comprar('oceano'); a.fn.comprar('bosque');
     const saldo = a.fn.estrellasDisponibles();
     a.fn.aplicar('oceano');
@@ -252,7 +300,7 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
   });
   test('El tema aplicado cambia las variables CSS del teclado', () => {
     const { app: a, doc } = boot();
-    a.stars = 500; a.fn.comprar('bosque');
+    a.stars = 99999; a.fn.comprar('bosque');
     const v = doc.documentElement.style.getPropertyValue('--tecla-blanca');
     eq(v.trim(), a.TEMAS.find(t => t.id === 'bosque').blanca);
   });
@@ -356,6 +404,48 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
   });
   test('La tienda muestra el saldo disponible', () => {
     assert(/para gastar/.test(doc.getElementById('tienda-lista').textContent));
+  });
+  test('La mascota existe y muestra el avatar elegido', () => {
+    const m = doc.getElementById('mascota-izq');
+    assert(m, 'falta la mascota');
+    eq(m.querySelector('.cuerpo').textContent, app.AVATARES[0].emoji);
+  });
+  test('Cambiar de avatar cambia la mascota', () => {
+    const { app: a, doc: d } = boot();
+    a.stars = 99999; a.fn.comprar('dragon');
+    eq(d.getElementById('mascota-izq').querySelector('.cuerpo').textContent, '🐲');
+    eq(d.body.dataset.avatar, 'dragon');
+  });
+  test('La mascota es decorativa: no recibe clicks ni lee el lector de pantalla', () => {
+    assert(/\.mascota\{[^}]*pointer-events:none/.test(src), 'la mascota intercepta clicks');
+    assert(doc.getElementById('mascota-izq').getAttribute('aria-hidden') === 'true');
+  });
+  test('Cada animal tiene su forma de moverse', () => {
+    ['gato', 'perro', 'panda'].forEach(a =>
+      assert(new RegExp(`data-avatar="${a}"`).test(src), `${a} sin animación propia`));
+    assert(/data-avatar="dragon"\] \.mascota\{animation:volar/.test(src), 'el dragón no vuela');
+    assert(/data-avatar="unicornio"\] \.mascota\{animation:vagar/.test(src), 'el unicornio no deambula');
+  });
+  test('Sólo el unicornio deja rastro de arcoíris', () => {
+    assert(/data-avatar="unicornio"\] \.mascota \.rastro\{opacity:\.7/.test(src));
+    assert(/\.rastro\{[^}]*opacity:0/.test(src), 'el rastro se ve en todos los avatares');
+  });
+  test('Tocar una nota hace que la mascota se siente a mirar', () => {
+    const { app: a, doc: d } = boot();
+    const k = d.querySelector('#piano-libre .wk');
+    const ev = new d.defaultView.Event('pointerdown', { bubbles: true, cancelable: true });
+    Object.assign(ev, { pointerId: 1, pointerType: 'mouse', button: 0, clientX: 0, clientY: 0 });
+    k.dispatchEvent(ev);
+    assert(d.body.classList.contains('tocando'), 'la mascota sigue paseando mientras el chico toca');
+  });
+  test('Sentada, la mascota frena el recorrido y respira', () => {
+    assert(/body\.tocando \.mascota\{animation-play-state:paused/.test(src));
+    assert(/body\.tocando \.mascota \.cuerpo\{animation:mirando/.test(src));
+  });
+  test('La mascota se esconde en pantallas angostas y con reduce-motion', () => {
+    assert(/max-width:900px\)\{\.mascota\{display:none/.test(src), 'taparía el teclado en el celular');
+    assert(/prefers-reduced-motion:reduce\)\{\s*\.mascota[^}]*animation:none/.test(src),
+      'no respeta la preferencia de movimiento reducido');
   });
   test('El avatar aparece en el encabezado', () => {
     assert(doc.getElementById('sc-avatar'), 'falta el chip de avatar');
