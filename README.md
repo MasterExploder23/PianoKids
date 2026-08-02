@@ -7,10 +7,30 @@ pianokids/
 ├── index.html      ← App principal (todo en un archivo)
 ├── manifest.json   ← Configuración PWA
 ├── sw.js           ← Service Worker (offline + caché)
-├── icon-192.png    ← Ícono app (necesitás generarlo)
-├── icon-512.png    ← Ícono app grande (necesitás generarlo)
+├── icon-192.png    ← Ícono app
+├── icon-512.png    ← Ícono app grande
+├── package.json    ← Scripts de test
+├── tests/
+│   ├── harness.js  ← Arranca la app en JSDOM con audio stubbeado
+│   ├── run.js      ← Suite de regresión (36 tests)
+│   └── smoke.js    ← Smoke funcional simulando uso real (32 tests)
 └── README.md       ← Este archivo
 ```
+
+## Tests
+
+```bash
+npm install     # sólo la primera vez (instala jsdom)
+npm test        # corre las dos suites
+```
+
+Los tests arrancan el `index.html` real en JSDOM con Tone.js y el micrófono
+stubbeados, y verifican tanto lógica (racha, persistencia) como comportamiento
+(tocar teclas, navegar pestañas, iniciar canciones).
+
+**Corré `npm test` antes de cada push.** La suite cubre específicamente las
+regresiones que rompieron v1.0/v1.1: datos demo en el panel de padres, íconos
+faltantes y caché que no se actualiza.
 
 ## Cómo instalar como app en el celular / PC
 
@@ -62,15 +82,27 @@ El banner "Instalar" aparece automáticamente en Chrome/Edge/Android.
 - Clic en el ícono de instalación en la barra de direcciones
 - O menú → "Instalar PianoKids"
 
+## Deploy — IMPORTANTE
+
+Antes de cada push a producción:
+
+1. `npm test` (tiene que dar 68/68)
+2. **Subí `BUILD` en `sw.js`** (línea 5). Es lo que invalida la caché vieja.
+   Si no lo subís, los usuarios que ya instalaron la app siguen viendo la versión anterior.
+3. Commit → push → Vercel redeploya solo.
+
+El documento se sirve **network-first**, así que un deploy nuevo llega al usuario
+en la siguiente visita aunque tenga la app instalada. Los assets (íconos, fuentes,
+Tone.js) van cache-first porque son inmutables dentro de un mismo build.
+
 ## Ícono de la app
 
-Necesitás crear dos imágenes PNG:
-- `icon-192.png` — 192×192 px
-- `icon-512.png` — 512×512 px
+`icon-192.png` y `icon-512.png` están generados y commiteados. Son `maskable`:
+todo el contenido vive dentro del círculo seguro (radio 0,39 × tamaño), así que
+Android puede recortarlos en cualquier forma sin cortar el teclado ni la nota.
 
-Podés usar cualquier editor de imágenes o generarlos en:
-- https://realfavicongenerator.net
-- https://maskable.app
+Si querés regenerarlos, cualquier PNG cuadrado sirve — respetá la zona segura
+del 80% central. Herramienta útil: https://maskable.app
 
 ## Funciones
 
@@ -79,9 +111,11 @@ Podés usar cualquier editor de imágenes o generarlos en:
 - 🎵 15+ canciones (folklore, Disney, clásicas, navidad, pop)
 - 🎼 Pentagrama en tiempo real
 - 🥁 Metrónomo con péndulo animado
-- 🎮 4 mini juegos
+- 🎮 7 mini juegos (incluye karaoke, dictado melódico y memoria musical)
 - 🎙️ Detección de notas por micrófono
 - 💾 Progreso guardado automáticamente (localStorage)
+- 🔥 Racha diaria real, calculada sobre días de calendario
+- 👨‍👩‍👧 Panel de padres con progreso, actividad semanal y notas más tocadas
 - 📲 Instalable como app (PWA)
 - 🌐 Funciona sin internet una vez cacheado
 

@@ -664,7 +664,9 @@ const LEVELS=[
 // ════════════════════════════════════════════
 let notation='es',showKb=false,showFingers=false;
 let pianoSynth=null,currentSound='piano';
-let stars=0,streak=0,notesPlayed=0,songsCompleted=0,lessonsCompleted=0;
+let stars=0,combo=0,notesPlayed=0,songsCompleted=0,lessonsCompleted=0;
+// Racha real: días de calendario con actividad (NO es el combo de notas seguidas)
+let dayStreak=0,activeDays=[],dailyNotes={};
 let playerXP=0,totalScore=0;
 let pressedKeys=new Set();
 let micActive=false,audioCtx=null,analyser=null,micStream=null,pitchInterval=null;
@@ -694,6 +696,44 @@ function btnOn(el){el.style.background='#3949ab';el.style.color='white';}
 function btnOff(el){el.style.background='white';el.style.color='#3949ab';}
 
 // ════════════════════════════════════════════
+// ACTIVIDAD DIARIA Y RACHA (datos reales)
+// ════════════════════════════════════════════
+const dayKeyOf=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const todayKey=()=>dayKeyOf(new Date());
+function recomputeStreak(){
+  if(!activeDays.length){dayStreak=0;return;}
+  const set=new Set(activeDays);
+  const cur=new Date();cur.setHours(0,0,0,0);
+  // La racha sigue viva si tocó hoy, o si tocó ayer y todavía no tocó hoy.
+  if(!set.has(dayKeyOf(cur))){
+    cur.setDate(cur.getDate()-1);
+    if(!set.has(dayKeyOf(cur))){dayStreak=0;return;}
+  }
+  let n=0;
+  while(set.has(dayKeyOf(cur))){n++;cur.setDate(cur.getDate()-1);}
+  dayStreak=n;
+}
+function pruneActivity(){
+  const cut=new Date();cut.setDate(cut.getDate()-180);const ck=dayKeyOf(cut);
+  activeDays=activeDays.filter(k=>k>=ck).sort();
+  Object.keys(dailyNotes).forEach(k=>{if(k<ck)delete dailyNotes[k];});
+}
+function markActivityToday(){
+  const k=todayKey();
+  dailyNotes[k]=(dailyNotes[k]||0)+1;
+  if(!activeDays.includes(k)){activeDays.push(k);activeDays.sort();}
+  recomputeStreak();
+}
+function last7Days(){
+  const out=[],t=new Date();t.setHours(0,0,0,0);
+  for(let i=6;i>=0;i--){
+    const d=new Date(t);d.setDate(d.getDate()-i);const k=dayKeyOf(d);
+    out.push({key:k,dow:d.getDay(),notes:dailyNotes[k]||0});
+  }
+  return out;
+}
+
+// ════════════════════════════════════════════
 // LOCALSTORAGE
 // ════════════════════════════════════════════
 const SKEY='pianokids_progress_v1';
@@ -706,6 +746,7 @@ function saveProgress(){
       localStorage.setItem(SKEY,JSON.stringify({
         stars,notesPlayed,songsCompleted,lessonsCompleted,playerXP,totalScore,
         songHistory,noteFrequency,memoriaRecord,rankings,
+        dayStreak,activeDays,dailyNotes,
         achievements:ACHS.map(a=>a.ok),
         lessonsNotes:LESSONS_NOTES.map(l=>({stars:l.stars,locked:l.locked})),
         lessonsMaj:LESSONS_MAJ.map(l=>({stars:l.stars,locked:l.locked})),
@@ -722,6 +763,9 @@ function loadProgress(){
     lessonsCompleted=d.lessonsCompleted||0;playerXP=d.playerXP||0;totalScore=d.totalScore||0;
     songHistory=d.songHistory||[];noteFrequency=d.noteFrequency||{};
     memoriaRecord=d.memoriaRecord||0;rankings=d.rankings||{};
+    activeDays=Array.isArray(d.activeDays)?d.activeDays.slice():[];
+    dailyNotes=(d.dailyNotes&&typeof d.dailyNotes==='object')?Object.assign({},d.dailyNotes):{};
+    pruneActivity();recomputeStreak();
     if(d.achievements)d.achievements.forEach((ok,i)=>{if(ACHS[i])ACHS[i].ok=ok;});
     if(d.lessonsNotes)d.lessonsNotes.forEach((s,i)=>{if(LESSONS_NOTES[i]){LESSONS_NOTES[i].stars=s.stars;LESSONS_NOTES[i].locked=s.locked;}});
     if(d.lessonsMaj)d.lessonsMaj.forEach((s,i)=>{if(LESSONS_MAJ[i]){LESSONS_MAJ[i].stars=s.stars;LESSONS_MAJ[i].locked=s.locked;}});
@@ -735,7 +779,7 @@ function confirmReset(){
 }
 function updateStatsUI(){
   document.getElementById('sc-stars').textContent=stars;
-  document.getElementById('sc-streak').textContent=streak;
+  document.getElementById('sc-streak').textContent=dayStreak;
   document.getElementById('sc-level').textContent='Nivel '+(Math.floor(stars/20)+1);
   updateLevelBar();
 }
@@ -757,7 +801,21 @@ window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPro
 function installPWA(){if(!deferredPrompt)return;deferredPrompt.prompt();deferredPrompt.userChoice.then(r=>{if(r.outcome==='accepted')showToast('¡PianoKids instalado! 📲🎉');deferredPrompt=null;document.getElementById('install-banner').classList.remove('show');});}
 function dismissInstall(){document.getElementById('install-banner').classList.remove('show');localStorage.setItem('pwa_dismissed','1');}
 window.addEventListener('appinstalled',()=>{document.getElementById('install-banner').classList.remove('show');});
-if('serviceWorker'in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{});});}
+if('serviceWorker'in navigator){window.addEventListener('load',()=>{
+  navigator.serviceWorker.register('./sw.js').then(reg=>{
+    // Buscar actualizaciones al volver a la app (además del chequeo del navegador).
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)reg.update().catch(()=>{});});
+    reg.addEventListener('updatefound',()=>{
+      const sw=reg.installing;if(!sw)return;
+      sw.addEventListener('statechange',()=>{
+        // Hay una versión nueva lista y ya había una controlando: avisamos.
+        if(sw.state==='installed'&&navigator.serviceWorker.controller)showToast('¡Hay una versión nueva! Recargá para actualizar 🔄');
+      });
+    });
+  }).catch(()=>{});
+  let recargando=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(recargando)return;recargando=true;location.reload();});
+});}
 
 // ════════════════════════════════════════════
 // SYNTH
@@ -805,10 +863,11 @@ function pianoPlay(note,el,pid){
   if(nd)nd.innerHTML=`<span class="note-bubble" style="background:linear-gradient(135deg,${c},${c}bb)">${primary} <span style="font-size:13px;opacity:.75">(${secondary})</span></span>`;
   const wi=WHITE_NOTES.indexOf(note);const finger=wi>=0?WHITE_FINGER[wi]:(BLACK_FINGER[note]||null);
   if(showFingers&&finger)activateFinger(finger,false);
-  notesPlayed++;stars++;streak++;
+  notesPlayed++;stars++;combo++;
   noteFrequency[note]=(noteFrequency[note]||0)+1;
+  markActivityToday();
   updateStatsUI();
-  if(notesPlayed===1)unlockAch(0);if(streak>=5)unlockAch(1);if(stars>=10)unlockAch(6);
+  if(notesPlayed===1)unlockAch(0);if(combo>=5)unlockAch(1);if(stars>=10)unlockAch(6);
   saveProgress();
   onNote(note,pid);
 }
@@ -862,7 +921,7 @@ function switchTab(tab,btn){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');btn.classList.add('active');
-  streak=0;document.getElementById('sc-streak').textContent='0';
+  combo=0;
   if(tab==='logros')buildAchievements();
   if(tab==='padres'){renderPadresProgreso();renderPadresStats();showPadresLecc('notas',document.querySelector('#padres-lecc-tabs button'));}
 }
@@ -1061,27 +1120,36 @@ function renderPadresProgreso(){
     {icon:'🎵',num:songsCompleted,lbl:'Canciones'},{icon:'📚',num:lessonsCompleted,lbl:'Lecciones'},
     {icon:'🎹',num:notesPlayed,lbl:'Notas tocadas'},{icon:'🏅',num:achCount+'/10',lbl:'Logros'},
   ].map(s=>`<div class="stat-card-p"><div style="font-size:20px;">${s.icon}</div><div class="stat-num-p">${s.num}</div><div class="stat-lbl-p">${s.lbl}</div></div>`).join('');
-  // Streak (demo para visualización)
-  document.getElementById('streak-num-p').textContent=5;
-  document.getElementById('streak-sub-p').textContent='¡5 días seguidos! ¡Fantástico!';
-  const days=['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
-  document.getElementById('streak-days-p').innerHTML=[true,true,true,true,true,false,true].map((a,i)=>`<div class="streak-day-p ${a?'active':'empty'}"><span>${days[i]}</span><span style="font-size:11px;">${a?'✓':'·'}</span></div>`).join('');
+  // Racha real, calculada sobre días de calendario con actividad
+  recomputeStreak();
+  document.getElementById('streak-num-p').textContent=dayStreak;
+  document.getElementById('streak-sub-p').textContent=
+    dayStreak===0?'Todavía no practicó. ¡A empezar!':
+    dayStreak===1?'¡Primer día! Volvé mañana para seguir la racha.':
+    dayStreak<5?'¡'+dayStreak+' días seguidos! Buen ritmo.':
+    '¡'+dayStreak+' días seguidos! ¡Fantástico!';
+  const dowLbl=['Do','Lu','Ma','Mi','Ju','Vi','Sá'];
+  document.getElementById('streak-days-p').innerHTML=last7Days().map(d=>{
+    const on=d.notes>0;
+    return `<div class="streak-day-p ${on?'active':'empty'}" title="${d.key}: ${d.notes} notas"><span>${dowLbl[d.dow]}</span><span style="font-size:11px;">${on?'✓':'·'}</span></div>`;
+  }).join('');
   // Canciones
   const log=document.getElementById('song-log-p');
   log.innerHTML=songHistory.length===0?'<div style="font-size:12px;color:#bbb;padding:8px;text-align:center;">Todavía no completó ninguna canción.</div>':songHistory.slice().reverse().map(s=>`<div class="song-log-item"><span style="font-size:20px;">${s.emoji||'🎵'}</span><span style="flex:1;font-size:12px;font-weight:700;color:#333;">${s.name}</span><span style="font-size:10px;color:#aaa;">${s.date}</span></div>`).join('');
 }
 function renderPadresStats(){
-  const days=['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
-  const weekly=[42,0,88,55,72,20,35];// demo
-  const maxW=Math.max(...weekly,1);
+  const dowLbl=['Do','Lu','Ma','Mi','Ju','Vi','Sá'];
+  const week=last7Days();
+  const maxW=Math.max(...week.map(d=>d.notes),1);
   const colors=['#3949ab','#1976d2','#0288d1','#0097a7','#00897b','#43a047','#7cb342'];
-  document.getElementById('weekly-chart-p').innerHTML=weekly.map((v,i)=>`<div class="bar-col-p"><div class="bar-val-p">${v||''}</div><div class="bar-p" style="height:${Math.round(v/maxW*70)+4}px;background:${colors[i]};"></div><div class="bar-lbl-p">${days[i]}</div></div>`).join('');
+  document.getElementById('weekly-chart-p').innerHTML=week.map((d,i)=>`<div class="bar-col-p"><div class="bar-val-p">${d.notes||''}</div><div class="bar-p" style="height:${Math.round(d.notes/maxW*70)+4}px;background:${colors[i]};"></div><div class="bar-lbl-p">${dowLbl[d.dow]}</div></div>`).join('');
   const noteColors={C:'#FF6B6B',D:'#FF9F43',E:'#d4a000',F:'#0099bb',G:'#1DD1A1',A:'#54A0FF',B:'#A29BFE'};
   const noteNames={C:'Do',D:'Re',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si'};
-  const freq=Object.keys(noteFrequency).length>0?noteFrequency:{C4:88,E4:72,G4:65,D4:44,F4:38,A4:22};
-  const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,7);
+  const sorted=Object.entries(noteFrequency).sort((a,b)=>b[1]-a[1]).slice(0,7);
   const maxN=sorted[0]?sorted[0][1]:1;
-  document.getElementById('notes-chart-p').innerHTML=sorted.map(([note,count])=>{const base=note.replace(/\d/g,'').replace('#','');const c=noteColors[base]||'#3949ab';return`<div class="note-row-p"><div class="note-name-p" style="color:${c};">${noteNames[base]||base}</div><div class="note-bar-wrap-p"><div class="note-bar-p" style="width:${Math.round(count/maxN*100)}%;background:${c};"></div></div><div class="note-count-p">${count}</div></div>`;}).join('');
+  document.getElementById('notes-chart-p').innerHTML=sorted.length===0
+    ?'<div style="font-size:12px;color:#bbb;padding:8px;text-align:center;">Todavía no tocó ninguna nota.</div>'
+    :sorted.map(([note,count])=>{const base=note.replace(/\d/g,'').replace('#','');const c=noteColors[base]||'#3949ab';return`<div class="note-row-p"><div class="note-name-p" style="color:${c};">${noteNames[base]||base}</div><div class="note-bar-wrap-p"><div class="note-bar-p" style="width:${Math.round(count/maxN*100)}%;background:${c};"></div></div><div class="note-count-p">${count}</div></div>`;}).join('');
 }
 function showPadresLecc(cat,btn){
   if(!btn)return;
