@@ -195,75 +195,136 @@ const { boot, test, assert, eq, report, ROOT, src, srcC } = require('./harness')
 }
 
 // ═══════════════════════════════════════════════════════════
-// B4 · Sonidos del metrónomo diferenciados
+// B4/B5 · Motor de audio propio (desde v2.0, sin Tone.js)
+// Estos tests son de comportamiento: le piden sonidos al motor y verifican
+// qué nodos de Web Audio construye. Antes miraban la config de Tone como texto.
 // ═══════════════════════════════════════════════════════════
 {
-  test('Cada sonido del metrónomo tiene su propia voz', () => {
-    assert(/metroVoices/.test(srcC), 'no hay voces separadas');
-    ['click:', 'wood:', 'beep:', 'bell:'].forEach(k =>
-      assert(new RegExp(k).test(srcC), `falta la voz ${k}`));
-  });
-  test('Campana y beep usan tipos de síntesis distintos', () => {
-    const bell = /bell:newTone\.(\w+)/.exec(srcC);
-    const beep = /beep:newTone\.(\w+)/.exec(srcC);
-    assert(bell && beep, 'no se encontraron las definiciones de bell/beep');
-    assert(bell[1] !== beep[1], `campana y beep siguen usando el mismo ${bell[1]}`);
-  });
-  test('Los 4 sonidos usan al menos 3 tipos de síntesis distintos', () => {
-    const tipos = ['click', 'wood', 'beep', 'bell']
-      .map(k => (new RegExp(k + ':newTone\\.(\\w+)').exec(srcC) || [])[1]);
-    assert(tipos.every(Boolean), `falta definir alguno: ${tipos.join(', ')}`);
-    assert(new Set(tipos).size >= 3, `sólo ${new Set(tipos).size} timbres distintos: ${tipos.join(', ')}`);
-  });
-  test('La campana tiene cola larga (es lo que la hace sonar a campana)', () => {
-    const i = srcC.indexOf('bell:newTone');
-    const bloque = srcC.slice(i, i + 400);
-    const decay = /envelope:\{attack:[\d.]+,decay:([\d.]+)/.exec(bloque);
-    assert(decay && +decay[1] > 1, `decay de la campana ${decay && decay[1]}, necesita ser >1s`);
-  });
-  test('Ya no comparten un único Synth sine', () => {
-    assert(!/functiongetMetroSynth\(\)\{if\(!metroSynth\)metroSynth=newTone\.Synth/.test(srcC));
-  });
-}
+  const { app, w } = boot();
+  const A = app.Audio2;
+  const contar = () => ({ ...w.__audio });
+  const delta = (antes, campo) => w.__audio[campo] - antes[campo];
 
-// ═══════════════════════════════════════════════════════════
-// B5 · Timbres de instrumento
-// ═══════════════════════════════════════════════════════════
-{
-  const { app } = boot();
-  const I = app.INSTRUMENTOS;
+  test('Ya no se carga Tone.js', () => {
+    assert(!/cdnjs[^"']*tone/i.test(src), 'sigue el <script> de Tone');
+    assert(/<script src="audio\.js">/.test(src), 'no se carga el motor propio');
+  });
+  test('El motor arranca sin excepciones', async () => {});
+  test('Las frecuencias son las reales, no aproximaciones', () => {
+    // El la central es 440 Hz por definición del estándar.
+    assert(Math.abs(A.freq('A4') - 440) < 0.01, `A4 dio ${A.freq('A4')}`);
+    assert(Math.abs(A.freq('C4') - 261.6256) < 0.01, `C4 dio ${A.freq('C4')}`);
+    assert(Math.abs(A.freq('A5') - 880) < 0.01, 'una octava arriba debe ser el doble');
+    assert(Math.abs(A.freq('A3') - 220) < 0.01, 'una octava abajo debe ser la mitad');
+  });
+  test('Cada semitono es la raíz doceava de 2', () => {
+    const r = A.freq('C#4') / A.freq('C4');
+    assert(Math.abs(r - Math.pow(2, 1 / 12)) < 0.0001, `la razón dio ${r}`);
+  });
+  test('Toda nota del teclado da una frecuencia audible', () => {
+    [...app.WHITE_NOTES, ...app.BLACK_DEFS.map(b => b.n)].forEach(n => {
+      const f = A.freq(n);
+      assert(f > 100 && f < 1200, `${n} dio ${f} Hz, fuera del rango del teclado`);
+    });
+  });
+  test('Las duraciones de figura se traducen a segundos', () => {
+    eq(A.dur('8n'), 0.25);
+    eq(A.dur('16n'), 0.125);
+    eq(A.dur(0.5), 0.5);
+    eq(A.dur('.35'), 0.35);
+  });
 
-  test('Están los 5 instrumentos del selector', () => {
-    eq(Object.keys(I).sort(), ['bass', 'bells', 'organ', 'piano', 'synth']);
+  test('Quedan sólo piano y órgano', () => {
+    eq(Object.keys(app.INSTRUMENTOS).sort(), ['organ', 'piano']);
   });
-  test('No todos usan el mismo tipo de síntesis', () => {
-    const voces = new Set(Object.values(I).map(v => v.voz));
-    assert(voces.size >= 3, `sólo ${voces.size} tipos de voz para 5 instrumentos`);
+  test('El selector ofrece exactamente esos dos', () => {
+    const opts = [...w.document.querySelectorAll('#sound-select option')].map(o => o.value);
+    eq(opts.sort(), ['organ', 'piano'], `el selector ofrece ${opts.join(', ')}`);
   });
-  test('Órgano y campanas ya no son ambos una onda sine simple', () => {
-    assert(I.organ.voz !== I.bells.voz || I.organ.opts.oscillator.type !== I.bells.opts.oscillator.type,
-      'órgano y campanas siguen siendo indistinguibles');
+
+  test('El piano usa síntesis FM: portadora más modulador', () => {
+    A.iniciar(); A.setInstrumento('piano');
+    const antes = contar();
+    A.notaOn('C4', 0.8);
+    eq(delta(antes, 'osciladores'), 2, 'el piano debería crear 2 osciladores (FM)');
+    A.notaOff('C4');
   });
-  test('El piano se apaga solo aunque mantengas la tecla', () => {
-    assert(I.piano.opts.envelope.sustain < 0.15,
-      `sustain ${I.piano.opts.envelope.sustain}: un piano real no sostiene indefinidamente`);
-    assert(I.piano.opts.envelope.decay > 0.8, 'el decaimiento del piano es demasiado corto');
+  test('El órgano usa síntesis aditiva: varios armónicos', () => {
+    A.setInstrumento('organ');
+    const antes = contar();
+    A.notaOn('C4', 0.8);
+    assert(delta(antes, 'osciladores') >= 4,
+      `el órgano creó ${delta(antes, 'osciladores')} osciladores, esperaba varios armónicos`);
+    A.notaOff('C4');
   });
-  test('El órgano sí sostiene mientras apretás', () => {
-    eq(I.organ.opts.envelope.sustain, 1, 'un órgano mantiene el nivel');
+  test('Piano y órgano suenan distinto de verdad', () => {
+    A.setInstrumento('piano');
+    let antes = contar(); A.notaOn('E4'); const oscPiano = delta(antes, 'osciladores'); A.notaOff('E4');
+    A.setInstrumento('organ');
+    antes = contar(); A.notaOn('E4'); const oscOrgano = delta(antes, 'osciladores'); A.notaOff('E4');
+    assert(oscPiano !== oscOrgano, 'ambos instrumentos construyen la misma estructura');
   });
-  test('Las campanas tienen la cola más larga de todos', () => {
-    const colas = Object.entries(I).map(([k, v]) => [k, v.opts.envelope.decay]);
-    const max = colas.sort((a, b) => b[1] - a[1])[0];
-    eq(max[0], 'bells', `la cola más larga la tiene ${max[0]}, no las campanas`);
+  test('El piano decae solo y el órgano sostiene', () => {
+    assert(/exponentialRampToValueAtTime\(0\.035 \* vel, t0 \+ 1\.6\)/.test(src),
+      'el piano no decae solo');
+    assert(/function vozOrgano[\s\S]{0,400}exponentialRampToValueAtTime\(0\.3 \* vel, t0 \+ 0\.025\)/.test(src),
+      'el órgano no sostiene');
   });
-  test('El bajo tiene filtro pasabajos', () => {
-    assert(I.bass.opts.filter && I.bass.opts.filter.type === 'lowpass');
-    assert(I.bass.opts.filterEnvelope, 'sin envolvente de filtro no suena a bajo');
+
+  test('Una nota se puede soltar y volver a tocar', () => {
+    A.setInstrumento('piano');
+    A.notaOn('G4'); eq(A.notasSonando, 1);
+    A.notaOff('G4'); eq(A.notasSonando, 0);
+    A.notaOn('G4'); eq(A.notasSonando, 1);
+    A.soltarTodo(); eq(A.notasSonando, 0);
   });
-  test('buildSynth tiene fallback si la voz no existe en esta versión de Tone', () => {
-    assert(/catch\(e\)\{[\s\S]{0,200}newTone\.PolySynth\(Tone\.Synth/.test(srcC),
-      'si falla la voz la app se queda muda');
+  test('Se pueden sostener varias notas a la vez (acordes)', () => {
+    ['C4', 'E4', 'G4'].forEach(n => A.notaOn(n));
+    eq(A.notasSonando, 3);
+    A.soltarTodo();
+    eq(A.notasSonando, 0);
+  });
+  test('Tocar dos veces la misma nota no deja voces colgadas', () => {
+    A.notaOn('C5'); A.notaOn('C5'); A.notaOn('C5');
+    eq(A.notasSonando, 1, 'quedaron voces duplicadas sonando');
+    A.soltarTodo();
+  });
+  test('Audio2.nota acepta un acorde completo', () => {
+    const antes = contar();
+    A.nota(['C4', 'E4', 'G4'], '8n');
+    assert(delta(antes, 'osciladores') >= 6, 'no sonaron las 3 notas del acorde');
+    A.soltarTodo();
+  });
+
+  test('Los 4 sonidos del metrónomo usan mecanismos distintos', () => {
+    const medir = tipo => {
+      const antes = contar();
+      A.metronomo(tipo, true);
+      return { osc: delta(antes, 'osciladores'), buf: delta(antes, 'buffers'), filtro: delta(antes, 'filtros') };
+    };
+    const click = medir('click'), wood = medir('wood'), beep = medir('beep'), bell = medir('bell');
+
+    assert(click.buf === 1 && click.osc === 0, 'el click debería ser ruido, no un oscilador');
+    assert(wood.buf === 1 && wood.filtro === 1, 'la madera debería ser ruido filtrado en banda');
+    assert(beep.osc === 1, 'el beep debería ser un solo oscilador');
+    assert(bell.osc === 2, 'la campana debería ser FM: portadora más modulador');
+    assert(bell.osc !== beep.osc, 'campana y beep siguen siendo lo mismo (el bug de v1.2)');
+  });
+  test('La campana tiene cola larga: es lo que la hace sonar a metal', () => {
+    const m = /exponentialRampToValueAtTime\(0\.0001, t0 \+ ([\d.]+)\);\s*port\.connect/.exec(src);
+    assert(m && +m[1] > 1, `la cola de la campana dura ${m && m[1]}s, necesita más de 1s`);
+  });
+  test('El primer tiempo del compás se acentúa', () => {
+    assert(/Audio2\.metronomo\(metroSound, metroBeat % Math\.min\(metroSig, 6\) === 0\)/.test(src),
+      'no se distingue el primer tiempo');
+  });
+
+  test('El motor no depende de ningún CDN', () => {
+    const motor = fs.readFileSync(path.join(ROOT, 'audio.js'), 'utf8');
+    assert(!/https?:\/\//.test(motor.replace(/\/\/.*$/gm, '')), 'audio.js hace pedidos externos');
+  });
+  test('No hay samples ni archivos de audio: todo es síntesis', () => {
+    assert(!/\.(mp3|wav|ogg|m4a)/i.test(src), 'aparecieron archivos de audio');
   });
 }
 

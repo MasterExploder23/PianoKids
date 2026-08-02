@@ -10,6 +10,7 @@ pianokids/
 ├── icon-192.png    ← Ícono app
 ├── icon-512.png    ← Ícono app grande
 ├── package.json    ← Scripts de test
+├── audio.js        ← Motor de sonido (Web Audio puro, sin dependencias)
 ├── data/           ← Datos separados del código
 │   ├── canciones.js   ← Catálogo de canciones
 │   ├── curriculum.js  ← Los 5 módulos de lecciones
@@ -18,7 +19,7 @@ pianokids/
 │   ├── harness.js  ← Arranca la app en JSDOM con audio stubbeado
 │   ├── run.js      ← Suite de regresión (36 tests)
 │   ├── smoke.js    ← Smoke funcional simulando uso real (32 tests)
-│   ├── v13.js      ← Pentagrama, teclas, arrastre y audio (35 tests)
+│   ├── v13.js      ← Pentagrama, teclas, arrastre y motor de audio (43 tests)
 │   ├── midi.js     ← Teclado MIDI con puerto simulado (34 tests)
 │   ├── lecciones.js← Currículum, progresión y teoría musical (45 tests)
 │   ├── engagement.js← Misiones, racha, tienda, fondos y mascota (74 tests)
@@ -112,7 +113,7 @@ canciones, juegos y pentagrama.
 
 Antes de cada push a producción:
 
-1. `npm test` (tiene que dar 300/300)
+1. `npm test` (tiene que dar 308/308)
 2. **Subí `BUILD` en `sw.js`** (línea 5). Es lo que invalida la caché vieja.
    Si no lo subís, los usuarios que ya instalaron la app siguen viendo la versión anterior.
 3. Commit → push → Vercel redeploya solo.
@@ -132,7 +133,7 @@ del 80% central. Herramienta útil: https://maskable.app
 
 ## Funciones
 
-- 🎹 Teclado de 2 octavas con sonidos reales
+- 🎹 Teclado de 3 octavas con 2 instrumentos (piano y órgano) sintetizados
 - 📚 Currículum de 23 lecciones en 5 módulos, con explicación, demostración,
   práctica guiada y evaluación con estrellas según desempeño
 - 🎵 15+ canciones (folklore, Disney, clásicas, navidad, pop)
@@ -156,21 +157,22 @@ del 80% central. Herramienta útil: https://maskable.app
 
 ## Peso y rendimiento
 
-Medido en v1.9:
+Medido en v2.0, después de sacar Tone.js:
 
 | | crudo | gzip |
 |---|---|---|
-| `index.html` | 190 KB | 47 KB |
-| `data/*.js` | 45 KB | 7 KB |
-| **App completa** | **235 KB** | **54 KB** |
+| `index.html` | 185 KB | 45 KB |
+| `audio.js` | 9 KB | 3 KB |
+| `data/*.js` | 45 KB | 8 KB |
+| **Total** | **239 KB** | **56 KB** |
 
-Tone.js se carga **minificado** (`Tone.min.js`). La versión sin minificar pesaba
-unos 590 KB, casi 3 veces toda la app: cambiar esa palabra en la URL ahorró más
-que cualquier reorganización del código.
+**La app no tiene ninguna dependencia externa de JavaScript.** Antes cargaba
+Tone.js (349 KB / 79 KB gzip) desde un CDN para usar 7 de sus clases. Se
+reemplazó por `audio.js`: 9 KB de Web Audio a mano que cubren los 2
+instrumentos y los 4 sonidos del metrónomo. **Es un 58% menos de peso total** y
+además elimina el CDN como punto de falla del modo offline.
 
-Referencia de umbrales: con ~54 KB gzip y ~140 KB de JS a parsear, la app está
-lejos de cualquier límite. Los problemas empiezan cerca de los 150 KB gzip de
-shell o 300 KB de JS parseado.
+Todo el sonido se genera matemáticamente: no hay samples ni archivos de audio.
 
 **Los datos de `data/` se cargan con `<script>` normales**, no con `fetch`. Así
 comparten el scope global y el arranque sigue siendo sincrónico. Editar una
@@ -179,7 +181,7 @@ canción o una lección no requiere abrir `index.html`.
 ## Stack técnico
 
 - HTML/CSS/JS puro (sin frameworks)
-- Tone.js para síntesis de audio
+- Web Audio API para la síntesis (`audio.js`, sin librerías)
 - Web Audio API para detección de pitch
 - Service Worker para caché offline
 - localStorage para persistencia de datos

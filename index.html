@@ -2056,9 +2056,8 @@ body.tocando .mascota .rastro {
     <button id="btn-fingers" onclick="toggleFingers()" style="background:white;color:#3949ab;border:2px solid #3949ab;border-radius:8px;padding:6px 13px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">Mostrar</button>
     <div class="tsep"></div>
     <label>Sonido:</label>
-    <select onchange="changeSound(this.value)" style="background:#3949ab;color:white;border:none;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">
+    <select id="sound-select" name="sonido" aria-label="Sonido del piano" onchange="changeSound(this.value)" style="background:#3949ab;color:white;border:none;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">
       <option value="piano">🎹 Piano</option><option value="organ">🎺 Órgano</option>
-      <option value="bells">🔔 Campanas</option><option value="bass">🎸 Bajo</option><option value="synth">🌊 Synth</option>
     </select>
   </div>
   <div class="note-display" id="nd-libre"><span style="font-size:12px;color:#aaa;font-weight:700;">Tocá una tecla 🎵</span></div>
@@ -2429,7 +2428,8 @@ body.tocando .mascota .rastro {
 </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+<!-- Motor de audio propio: Web Audio puro, sin dependencias externas -->
+<script src="audio.js"></script>
 <!-- Datos separados: editarlos no requiere abrir el index.html -->
 <script src="data/escenas.js"></script>
 <script src="data/curriculum.js"></script>
@@ -2660,8 +2660,7 @@ const LEVELS = [
 let notation = 'es',
   showKb = false,
   showFingers = false;
-let pianoSynth = null,
-  currentSound = 'piano';
+let currentSound = 'piano';
 let stars = 0,
   combo = 0,
   notesPlayed = 0,
@@ -3021,113 +3020,20 @@ if ('serviceWorker' in navigator) {
 // oscilador: "piano" era una onda triangular y "órgano" y "campanas" eran ambos
 // senoidales. Por eso los nombres no se correspondían con lo que se escuchaba.
 // Ahora cada uno usa el tipo de síntesis que le corresponde.
+// Instrumentos disponibles. La sintesis vive en audio.js (Web Audio puro);
+// aca solo queda el catalogo que ve el usuario.
+// Se redujo a piano y organo: son los dos que sirven para aprender, y con dos
+// voces alcanzo para sacarse Tone.js de encima (349 kB).
 const INSTRUMENTOS = {
-  // Piano: FM con ataque instantáneo y decaimiento continuo, sin sustain.
-  // Lo clave es que la nota se apague sola aunque mantengas la tecla.
-  piano: {
-    voz: 'FMSynth',
-    opts: {
-      harmonicity: 2.5,
-      modulationIndex: 4.5,
-      oscillator: { type: 'triangle' },
-      modulation: { type: 'sine' },
-      envelope: { attack: 0.002, decay: 1.6, sustain: 0.04, release: 1.1 },
-      modulationEnvelope: { attack: 0.002, decay: 0.32, sustain: 0, release: 0.3 },
-    },
-    vol: -8,
-  },
-  // Órgano: sustain pleno mientras apretás, corte casi seco al soltar.
-  // Los armónicos fijos son lo que da el color de registro de órgano.
-  organ: {
-    voz: 'AMSynth',
-    opts: {
-      harmonicity: 2,
-      oscillator: { type: 'sine4' },
-      modulation: { type: 'sine' },
-      envelope: { attack: 0.02, decay: 0.02, sustain: 1, release: 0.12 },
-      modulationEnvelope: { attack: 0.02, decay: 0, sustain: 1, release: 0.1 },
-    },
-    vol: -11,
-  },
-  // Campanas: FM inarmónica con cola larga. La inarmonicidad es lo que suena a metal.
-  bells: {
-    voz: 'FMSynth',
-    opts: {
-      harmonicity: 3.01,
-      modulationIndex: 14,
-      oscillator: { type: 'sine' },
-      modulation: { type: 'sine' },
-      envelope: { attack: 0.001, decay: 2.6, sustain: 0, release: 1.8 },
-      modulationEnvelope: { attack: 0.001, decay: 0.5, sustain: 0, release: 0.5 },
-    },
-    vol: -9,
-  },
-  // Bajo: filtro pasabajos que se cierra rápido sobre un diente de sierra.
-  bass: {
-    voz: 'MonoSynth',
-    opts: {
-      oscillator: { type: 'sawtooth' },
-      filter: { type: 'lowpass', rolloff: -24, Q: 2 },
-      envelope: { attack: 0.01, decay: 0.28, sustain: 0.55, release: 0.5 },
-      filterEnvelope: {
-        attack: 0.01,
-        decay: 0.22,
-        sustain: 0.18,
-        release: 0.4,
-        baseFrequency: 90,
-        octaves: 2.6,
-      },
-    },
-    vol: -7,
-  },
-  // Synth: cuadrada con detune y filtro abierto, el color clásico de sintetizador.
-  synth: {
-    voz: 'MonoSynth',
-    opts: {
-      oscillator: { type: 'square', detune: 6 },
-      filter: { type: 'lowpass', rolloff: -12, Q: 6 },
-      envelope: { attack: 0.03, decay: 0.18, sustain: 0.6, release: 0.7 },
-      filterEnvelope: {
-        attack: 0.04,
-        decay: 0.3,
-        sustain: 0.5,
-        release: 0.6,
-        baseFrequency: 320,
-        octaves: 3,
-      },
-    },
-    vol: -12,
-  },
+  piano: { nombre: '🎹 Piano' },
+  organ: { nombre: '🎺 Órgano' },
 };
 function buildSynth(type) {
-  if (pianoSynth) {
-    try {
-      pianoSynth.dispose();
-    } catch (e) {}
-    pianoSynth = null;
-  }
-  const cfg = INSTRUMENTOS[type] || INSTRUMENTOS.piano;
-  const vol = new Tone.Volume(cfg.vol).toDestination();
-  try {
-    pianoSynth = new Tone.PolySynth(Tone[cfg.voz], cfg.opts).connect(vol);
-  } catch (e) {
-    // Si una voz no está disponible en esta versión de Tone, no dejamos la app muda.
-    pianoSynth = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: 'triangle' },
-      envelope: { attack: 0.02, decay: 0.1, sustain: 0.3, release: 1 },
-    }).connect(vol);
-  }
-  pianoSynth.maxPolyphony = 16;
-}
-function changeSound(val) {
-  currentSound = val;
-  buildSynth(val);
-  const L = { piano: 'Piano', organ: 'Órgano', bells: 'Campanas', bass: 'Bajo', synth: 'Synth' };
-  document.getElementById('sc-sound').textContent = '🎵 ' + L[val];
-  unlockAch(8);
+  currentSound = INSTRUMENTOS[type] ? type : 'piano';
+  Audio2.setInstrumento(currentSound);
 }
 function ensureSynth() {
-  if (!pianoSynth) buildSynth(currentSound);
+  Audio2.iniciar();
 }
 
 // ════════════════════════════════════════════
@@ -3206,7 +3112,7 @@ function releaseAllKeys() {
   });
   pressedKeys.clear();
   try {
-    if (pianoSynth && pianoSynth.releaseAll) pianoSynth.releaseAll();
+    Audio2.soltarTodo();
   } catch (e) {}
   document.querySelectorAll('.wk.pressed,.bk.pressed').forEach(el => {
     el.classList.remove('pressed');
@@ -3309,12 +3215,7 @@ function pianoPlay(note, el, pid, vel) {
   if (pressedKeys.has(note)) return;
   pressedKeys.add(note);
   const v = typeof vel === 'number' && vel > 0 ? Math.max(0.15, Math.min(1, vel)) : 0.8;
-  ensureSynth();
-  Tone.start().then(() => {
-    try {
-      pianoSynth.triggerAttack(note, undefined, v);
-    } catch (e) {}
-  });
+  Audio2.iniciar().then(() => Audio2.notaOn(note, v));
   if (el) {
     el.classList.add('pressed');
     if (!el.classList.contains('hl')) el.style.background = nc(note) + '66';
@@ -3347,9 +3248,7 @@ function pianoPlay(note, el, pid, vel) {
 }
 function pianoStop(note, el) {
   pressedKeys.delete(note);
-  try {
-    if (pianoSynth) pianoSynth.triggerRelease(note);
-  } catch (e) {}
+  Audio2.notaOff(note);
   if (el) {
     el.classList.remove('pressed');
     if (!el.classList.contains('hl')) el.style.background = '';
@@ -3602,38 +3501,9 @@ function switchPadresTab(tab, btn) {
 // Hasta v1.2 los 4 sonidos compartían un único Synth sine con decay .06 y
 // sustain 0: la envolvente mataba el sonido en 60ms, así que "campana" y "beep"
 // sonaban igual y sólo cambiaba la frecuencia. Ahora cada uno tiene su timbre.
-let metroVoices = null;
-function getMetroVoices() {
-  if (metroVoices) return metroVoices;
-  const out = new Tone.Volume(-6).toDestination();
-  metroVoices = {
-    // Click seco: ruido blanco muy corto, sin altura definida.
-    click: new Tone.NoiseSynth({
-      noise: { type: 'white' },
-      envelope: { attack: 0.001, decay: 0.018, sustain: 0 },
-    }).connect(out),
-    // Madera: ruido rosa filtrado en banda, cuerpo corto y opaco.
-    wood: new Tone.NoiseSynth({
-      noise: { type: 'pink' },
-      envelope: { attack: 0.001, decay: 0.05, sustain: 0 },
-    }).connect(new Tone.Filter({ type: 'bandpass', frequency: 820, Q: 3.5 }).connect(out)),
-    // Beep electrónico: onda cuadrada, corta y con altura clara.
-    beep: new Tone.Synth({
-      oscillator: { type: 'square' },
-      envelope: { attack: 0.001, decay: 0.07, sustain: 0, release: 0.02 },
-    }).connect(out),
-    // Campana: FM con cola larga e inarmónica, que es lo que la hace sonar a metal.
-    bell: new Tone.FMSynth({
-      harmonicity: 3.4,
-      modulationIndex: 12,
-      oscillator: { type: 'sine' },
-      modulation: { type: 'sine' },
-      envelope: { attack: 0.001, decay: 1.4, sustain: 0, release: 0.9 },
-      modulationEnvelope: { attack: 0.001, decay: 0.35, sustain: 0, release: 0.3 },
-    }).connect(out),
-  };
-  return metroVoices;
-}
+// Los 4 sonidos del metrónomo. Cada uno usa un mecanismo distinto (ruido
+// filtrado, cuadrada, FM inarmónica), no sólo otra frecuencia: por eso campana
+// y beep se distinguen. La síntesis está en audio.js.
 function setBpm(v) {
   metroBpm = parseInt(v);
   document.getElementById('bpm-val').textContent = metroBpm;
@@ -3708,21 +3578,9 @@ function tickMetro() {
     b = metroBeat % count;
   document.querySelectorAll('.beat-dot').forEach(d => d.classList.remove('on'));
   document.getElementById('bd-' + b)?.classList.add('on');
-  Tone.start().then(() => {
-    try {
-      const v = getMetroVoices(),
-        fuerte = b === 0; // el primer tiempo del compás se acentúa
-      if (metroSound === 'click' || metroSound === 'wood') {
-        v[metroSound].volume.value = fuerte ? 0 : -9;
-        v[metroSound].triggerAttackRelease(metroSound === 'click' ? 0.02 : 0.06);
-      } else if (metroSound === 'bell') {
-        v.bell.volume.value = fuerte ? -4 : -12;
-        v.bell.triggerAttackRelease(fuerte ? 1046.5 : 783.99, 1.2);
-      } else {
-        v.beep.volume.value = fuerte ? -3 : -10;
-        v.beep.triggerAttackRelease(fuerte ? 1000 : 700, 0.07);
-      }
-    } catch (e) {}
+  Audio2.iniciar().then(() => {
+    // El primer tiempo del compás se acentúa.
+    Audio2.metronomo(metroSound, metroBeat % Math.min(metroSig, 6) === 0);
   });
   metroBeat++;
 }
@@ -4260,7 +4118,7 @@ function renderPerfiles() {
       .map(
         p => `<div class="perfil${p.id === perfilActivo ? ' activo' : ''}">
       <div class="perfil-avatar" onclick="cambiarPerfil('${p.id}')">${p.avatar}</div>
-      <input class="perfil-nombre" value="${p.nombre.replace(/"/g, '&quot;')}" maxlength="14"
+      <input id="perfil-nombre-${p.id}" name="perfil-${p.id}" aria-label="Nombre del perfil" class="perfil-nombre" value="${p.nombre.replace(/"/g, '&quot;')}" maxlength="14"
         onchange="renombrarPerfil('${p.id}',this.value)">
       ${p.id === perfilActivo ? '<span class="perfil-badge">En uso</span>' : `<button class="perfil-btn" onclick="cambiarPerfil('${p.id}')">Usar</button>`}
       ${perfiles.length > 1 ? `<button class="perfil-btn del" onclick="confirmarBorrarPerfil('${p.id}')">🗑</button>` : ''}
@@ -4772,11 +4630,11 @@ function reproducirDemo() {
   if (!l) return;
   clearTimeout(demoTimer);
   ensureSynth();
-  Tone.start().then(() => {
+  Audio2.iniciar().then(() => {
     l.demo.forEach((n, i) => {
       setTimeout(() => {
         try {
-          pianoSynth.triggerAttackRelease(n, '8n');
+          Audio2.nota(n, '8n');
         } catch (e) {}
         clearHL('piano-lesson');
         hlKey('piano-lesson', n);
@@ -5101,9 +4959,9 @@ function nextQuestion() {
       ci = Math.floor(Math.random() * all.length),
       ch = all[ci];
     ensureSynth();
-    Tone.start().then(() => {
+    Audio2.iniciar().then(() => {
       try {
-        pianoSynth.triggerAttackRelease(ch.notes, '.6');
+        Audio2.nota(ch.notes, '.6');
       } catch (e) {}
     });
     document.getElementById('game-q').textContent = '¿Este acorde es Mayor o menor? 🎸';
@@ -5119,9 +4977,9 @@ function nextQuestion() {
     const idx = Math.floor(Math.random() * allN.length),
       correct = { note: allN[idx], label: notation === 'es' ? allEs[idx] : allEn[idx] };
     ensureSynth();
-    Tone.start().then(() => {
+    Audio2.iniciar().then(() => {
       try {
-        pianoSynth.triggerAttackRelease(correct.note, '.5');
+        Audio2.nota(correct.note, '.5');
       } catch (e) {}
     });
     document.getElementById('game-q').textContent = '¿Cómo se llama esta nota? 🎵';
@@ -5301,13 +5159,13 @@ function genFifthSeq(len) {
   const first = COF_NOTE[fifthSeq[0]];
   if (first) hlKey('piano-fifth', first);
   ensureSynth();
-  Tone.start().then(() => {
+  Audio2.iniciar().then(() => {
     fifthSeq.forEach((n, i) => {
       const note = COF_NOTE[n];
       if (note)
         setTimeout(() => {
           try {
-            pianoSynth.triggerAttackRelease(note, '.35');
+            Audio2.nota(note, '.35');
           } catch (e) {}
         }, i * 440);
     });
@@ -5670,7 +5528,7 @@ function playDictadoSeq() {
   document.getElementById('dictado-status').textContent = '🎵 Escuchando...';
   const lv = getLvlData(),
     delay = lv.tempo * 600;
-  Tone.start().then(() => {
+  Audio2.iniciar().then(() => {
     ensureSynth();
     dictadoSeq.forEach((note, i) => {
       setTimeout(() => {
@@ -5691,7 +5549,7 @@ function playDictadoSeq() {
         clearHL('piano-dictado');
         hlKey('piano-dictado', note);
         try {
-          pianoSynth.triggerAttackRelease(note, '8n');
+          Audio2.nota(note, '8n');
         } catch (e) {}
         if (i === dictadoSeq.length - 1) {
           setTimeout(() => {
@@ -5783,7 +5641,7 @@ function nextMemoriaRound() {
   document.getElementById('mem-round').textContent = memoriaRound;
   document.getElementById('mem-status').textContent = '👀 Mirá y escuchá...';
   renderMemoriaSeq(false);
-  Tone.start().then(() => {
+  Audio2.iniciar().then(() => {
     ensureSynth();
     const delay = Math.max(400, getLvlData().tempo * 600);
     memoriaSeq.forEach((note, i) => {
@@ -5792,7 +5650,7 @@ function nextMemoriaRound() {
         clearHL('piano-memoria');
         hlKey('piano-memoria', note);
         try {
-          pianoSynth.triggerAttackRelease(note, '8n');
+          Audio2.nota(note, '8n');
         } catch (e) {}
         if (i === memoriaSeq.length - 1) {
           setTimeout(() => {
@@ -6174,7 +6032,7 @@ function buildGenreChips() {
   const allowed = cfg.allowedGenres || GENRES_P.map(g => g.key);
   c.innerHTML = GENRES_P.map(
     g =>
-      `<label class="genre-chip ${allowed.includes(g.key) ? '' : 'off'}" id="gcp-${g.key}"><input type="checkbox" ${allowed.includes(g.key) ? 'checked' : ''} onchange="toggleGenreP('${g.key}',this.checked)" style="display:none;">${g.label}</label>`,
+      `<label class="genre-chip ${allowed.includes(g.key) ? '' : 'off'}" id="gcp-${g.key}"><input type="checkbox" id="genero-${g.key}" name="genero-${g.key}" aria-label="Permitir ${g.label}" ${allowed.includes(g.key) ? 'checked' : ''} onchange="toggleGenreP('${g.key}',this.checked)" style="display:none;">${g.label}</label>`,
   ).join('');
 }
 function toggleGenreP(key, checked) {

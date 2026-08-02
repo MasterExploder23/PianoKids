@@ -201,7 +201,7 @@ const esperar = () => new Promise(r => setTimeout(r, 0));
   {
     test('pianoPlay acepta velocity y la pasa al sintetizador', () => {
       assert(/functionpianoPlay\(note,el,pid,vel\)/.test(srcC), 'pianoPlay no recibe velocity');
-      assert(/triggerAttack\(note,undefined,v\)/.test(srcC), 'la velocity no llega al synth');
+      assert(/Audio2\.notaOn\(note,v\)/.test(srcC), 'la velocity no llega al motor de audio');
     });
     test('La velocity se acota para que ninguna nota quede inaudible', () => {
       assert(/Math\.max\(0?\.15,Math\.min\(1,vel\)\)/.test(srcC), 'falta el clamp de velocity');

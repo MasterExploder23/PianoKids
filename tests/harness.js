@@ -1,5 +1,5 @@
 // Harness de tests para PianoKids.
-// Arranca index.html real en JSDOM con Tone.js / Web Audio / micrófono stubbeados,
+// Arranca index.html real en JSDOM con Web Audio y microfono stubbeados,
 // y expone el scope interno de la app para poder assertear sobre él.
 const { JSDOM } = require('jsdom');
 const fs = require('fs');
@@ -18,7 +18,7 @@ const EXPOSED = [
   'midiSoportado', 'midiEntradas', 'ACH_MIDI',
   'MODULOS', 'modProgress', 'FASES', 'modActual', 'lecActual', 'faseActual', 'pasoActual', 'erroresEval',
   'perfiles', 'perfilActivo', 'PKEY', 'MAX_PERFILES', 'AVATARES_PERFIL', 'BACKUP_VERSION',
-  'MISIONES', 'misionEstado', 'HITOS', 'hitosCobrados', 'TEMAS', 'AVATARES', 'comprados', 'temaActivo', 'avatarActivo', 'COF',
+  'Audio2', 'MISIONES', 'misionEstado', 'HITOS', 'hitosCobrados', 'TEMAS', 'AVATARES', 'comprados', 'temaActivo', 'avatarActivo', 'COF',
 ];
 const EXPOSED_FN = [
   'saveProgress', 'loadProgress', 'recomputeStreak', 'markActivityToday',
@@ -41,12 +41,17 @@ const EXPOSED_FN = [
 // la app. Como son scripts clasicos comparten el scope global, asi que para el
 // harness alcanza con concatenarlos delante.
 const DATOS = ['canciones.js', 'curriculum.js', 'escenas.js'];
+const MOTOR = 'audio.js'; // la sintesis, que antes era Tone.js
 
 function boot(opts = {}) {
   const html = fs.readFileSync(INDEX, 'utf8');
-  const datosJs = DATOS.map(f => fs.readFileSync(path.join(ROOT, 'data', f), 'utf8')).join('\n');
+  const datosJs =
+    fs.readFileSync(path.join(ROOT, MOTOR), 'utf8') + '\n' +
+    DATOS.map(f => fs.readFileSync(path.join(ROOT, 'data', f), 'utf8')).join('\n');
+  // El script de la app es el ultimo bloque inline. Los otros son <script src=...>,
+  // que no contienen la subcadena exacta '<script>'.
   const appJs = datosJs + '\n' + html.slice(
-    html.indexOf('<script>', html.indexOf('Tone.js')) + '<script>'.length,
+    html.lastIndexOf('<script>') + '<script>'.length,
     html.lastIndexOf('</script>')
   );
 
@@ -57,28 +62,36 @@ function boot(opts = {}) {
   });
   const w = dom.window;
 
-  // ── stubs de audio ──────────────────────────────────────────
+  // ── stub de Web Audio ───────────────────────────────────────
+  // Desde v2.0 no hay Tone.js: la sintesis es Web Audio a mano. JSDOM no
+  // implementa AudioContext, asi que lo simulamos con nodos que no hacen ruido
+  // pero registran las llamadas, para poder verificar que la app pide lo que
+  // deberia (osciladores, envolventes, filtros).
   const noop = () => {};
-  const chain = {
-    toDestination() { return this; }, connect() { return this; },
-    triggerAttackRelease: noop, triggerAttack: noop, triggerRelease: noop,
-    releaseAll: noop, set: noop, dispose: noop, volume: { value: 0 },
-  };
-  const Voz = function () { return chain; };
-  w.Tone = {
-    // Todas las voces que usa la app. Si falta alguna, buildSynth cae al
-    // fallback y los tests dejarían de probar lo que creen probar.
-    PolySynth: Voz, Synth: Voz, Volume: Voz, NoiseSynth: Voz, FMSynth: Voz,
-    AMSynth: Voz, MonoSynth: Voz, Filter: Voz,
-    start: () => Promise.resolve(),
-    now: () => 0, context: { state: 'running', resume: () => Promise.resolve() },
-    Destination: chain, getDestination: () => chain,
-  };
+  w.__audio = { osciladores: 0, buffers: 0, ganancias: 0, filtros: 0, iniciado: 0 };
+  const param = () => ({
+    value: 0,
+    setValueAtTime: noop,
+    exponentialRampToValueAtTime: noop,
+    linearRampToValueAtTime: noop,
+    cancelScheduledValues: noop,
+  });
+  const nodo = extra =>
+    Object.assign({ connect(d) { return d || this; }, disconnect: noop, start: noop, stop: noop }, extra);
   w.AudioContext = w.webkitAudioContext = function () {
     return {
-      createAnalyser: () => ({ connect: noop, getFloatTimeDomainData: noop, fftSize: 2048 }),
-      createMediaStreamSource: () => ({ connect: noop }),
-      resume: () => Promise.resolve(), state: 'running',
+      state: 'running',
+      currentTime: 0,
+      sampleRate: 44100,
+      destination: nodo(),
+      resume: () => Promise.resolve(),
+      createGain: () => { w.__audio.ganancias++; return nodo({ gain: param() }); },
+      createOscillator: () => { w.__audio.osciladores++; return nodo({ frequency: param(), detune: param(), type: 'sine' }); },
+      createBiquadFilter: () => { w.__audio.filtros++; return nodo({ frequency: param(), Q: param(), type: 'lowpass' }); },
+      createBufferSource: () => { w.__audio.buffers++; return nodo({ buffer: null }); },
+      createBuffer: (ch, len) => ({ getChannelData: () => new Float32Array(len) }),
+      createAnalyser: () => nodo({ getFloatTimeDomainData: noop, fftSize: 2048 }),
+      createMediaStreamSource: () => nodo(),
     };
   };
   w.navigator.mediaDevices = { getUserMedia: () => Promise.reject(new Error('no mic en test')) };
@@ -184,6 +197,7 @@ function report(suite) {
 // en castellano) deben seguir usando `src`.
 function leerFuente() {
   return fs.readFileSync(INDEX, 'utf8') +
+    fs.readFileSync(path.join(ROOT, MOTOR), 'utf8') +
     DATOS.map(f => fs.readFileSync(path.join(ROOT, 'data', f), 'utf8')).join('\n');
 }
 const src = leerFuente();
