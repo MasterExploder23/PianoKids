@@ -319,6 +319,34 @@ const { boot, test, assert, eq, report, ROOT, src, srcC } = require('./harness')
       'no se distingue el primer tiempo');
   });
 
+  // Al sacar Tone borre sin querer changeSound(), que llama el <select> del
+  // encabezado. Ningun test lo noto: el selector quedo mudo y siempre sonaba
+  // piano. Este test recorre TODOS los handlers inline y verifica que la funcion
+  // que invocan exista de verdad.
+  test('Toda función invocada desde un handler inline existe', () => {
+    const nombres = new Set();
+    for (const m of src.matchAll(/\bon(?:click|change|input|submit)="\s*([A-Za-z_$][\w$]*)\s*\(/g)) {
+      nombres.add(m[1]);
+    }
+    assert(nombres.size > 20, `sólo se encontraron ${nombres.size} handlers, el regex falló`);
+    const faltan = [...nombres].filter(n => typeof w[n] !== 'function');
+    eq(faltan, [], `hay handlers que llaman funciones inexistentes: ${faltan.join(', ')}`);
+  });
+  test('Cambiar de instrumento desde el selector cambia el sonido de verdad', () => {
+    const { app: a, w: w2 } = boot();
+    a.Audio2.iniciar();
+    w2.changeSound('organ');
+    eq(a.Audio2.instrumentoActual(), 'organ', 'el selector no llegó al motor de audio');
+    w2.changeSound('piano');
+    eq(a.Audio2.instrumentoActual(), 'piano');
+  });
+  test('El chip del encabezado refleja el instrumento elegido', () => {
+    const { w: w2, doc: d2 } = boot();
+    w2.changeSound('organ');
+    assert(/Órgano/.test(d2.getElementById('sc-sound').textContent),
+      `el chip dice "${d2.getElementById('sc-sound').textContent}"`);
+  });
+
   test('El motor no depende de ningún CDN', () => {
     const motor = fs.readFileSync(path.join(ROOT, 'audio.js'), 'utf8');
     assert(!/https?:\/\//.test(motor.replace(/\/\/.*$/gm, '')), 'audio.js hace pedidos externos');

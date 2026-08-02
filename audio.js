@@ -188,22 +188,26 @@ const Audio2 = (() => {
       src.buffer = ruidoBuf;
       const filtro = ctx.createBiquadFilter();
       const g = ctx.createGain();
+      let fin;
       if (tipo === 'click') {
         filtro.type = 'highpass';
         filtro.frequency.value = 2500;
         g.gain.setValueAtTime(0.5 * vol, t0);
         g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.018);
-        src.stop(t0 + 0.05);
+        fin = t0 + 0.05;
       } else {
         filtro.type = 'bandpass';
         filtro.frequency.value = 820;
         filtro.Q.value = 3.5;
         g.gain.setValueAtTime(0.9 * vol, t0);
         g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.05);
-        src.stop(t0 + 0.1);
+        fin = t0 + 0.1;
       }
       src.connect(filtro).connect(g).connect(master);
+      // OJO: start() SIEMPRE antes que stop(). Al revés, Web Audio lanza
+      // InvalidStateError y el sonido no se escucha. Fue el bug de click y madera.
       src.start(t0);
+      src.stop(fin);
       return;
     }
 

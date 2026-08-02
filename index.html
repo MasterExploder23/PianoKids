@@ -735,16 +735,17 @@ body.con-escena .app {
   bottom: 14px;
   left: -90px;
   font-size: 44px;
-  z-index: 1;
+  z-index: 5;
   pointer-events: none;
   user-select: none;
-  opacity: 0.85;
+  opacity: 0.72;
   filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35));
   animation: caminar 26s linear infinite;
 }
 .mascota .rastro {
   position: absolute;
-  right: 100%;
+  /* Lado derecho local: con el volteo del sprite queda SIEMPRE detras. */
+  left: 100%;
   top: 52%;
   width: 130px;
   height: 9px;
@@ -765,19 +766,19 @@ body.con-escena .app {
 
 @keyframes caminar {
   0% {
-    transform: translateX(0) scaleX(1);
-  }
-  46% {
-    transform: translateX(calc(100vw + 120px)) scaleX(1);
-  }
-  50% {
-    transform: translateX(calc(100vw + 120px)) scaleX(-1);
-  }
-  96% {
     transform: translateX(0) scaleX(-1);
   }
-  100% {
+  46% {
+    transform: translateX(calc(100vw + 120px)) scaleX(-1);
+  }
+  50% {
+    transform: translateX(calc(100vw + 120px)) scaleX(1);
+  }
+  96% {
     transform: translateX(0) scaleX(1);
+  }
+  100% {
+    transform: translateX(0) scaleX(-1);
   }
 }
 @keyframes trotecito {
@@ -791,19 +792,19 @@ body.con-escena .app {
 }
 @keyframes volar {
   0% {
-    transform: translate(0, 0) scaleX(1);
-  }
-  46% {
-    transform: translate(calc(100vw + 120px), -46vh) scaleX(1);
-  }
-  50% {
-    transform: translate(calc(100vw + 120px), -46vh) scaleX(-1);
-  }
-  96% {
     transform: translate(0, 0) scaleX(-1);
   }
-  100% {
+  46% {
+    transform: translate(calc(100vw + 120px), -46vh) scaleX(-1);
+  }
+  50% {
+    transform: translate(calc(100vw + 120px), -46vh) scaleX(1);
+  }
+  96% {
     transform: translate(0, 0) scaleX(1);
+  }
+  100% {
+    transform: translate(0, 0) scaleX(-1);
   }
 }
 @keyframes aletear {
@@ -817,25 +818,28 @@ body.con-escena .app {
 }
 @keyframes vagar {
   0% {
-    transform: translate(0, 0) scaleX(1);
+    transform: translate(10vw, 0) scaleX(-1);
   }
-  22% {
-    transform: translate(38vw, -34vh) scaleX(1);
+  20% {
+    transform: translate(42vw, -30vh) scaleX(-1);
   }
-  44% {
-    transform: translate(76vw, -8vh) scaleX(1);
+  38% {
+    transform: translate(78vw, -10vh) scaleX(-1);
   }
-  48% {
-    transform: translate(76vw, -8vh) scaleX(-1);
+  42% {
+    transform: translate(78vw, -10vh) scaleX(1);
   }
-  70% {
-    transform: translate(34vw, -48vh) scaleX(-1);
+  60% {
+    transform: translate(46vw, -46vh) scaleX(1);
   }
-  92% {
-    transform: translate(2vw, -12vh) scaleX(-1);
+  80% {
+    transform: translate(14vw, -18vh) scaleX(1);
+  }
+  84% {
+    transform: translate(14vw, -18vh) scaleX(-1);
   }
   100% {
-    transform: translate(0, 0) scaleX(1);
+    transform: translate(10vw, 0) scaleX(-1);
   }
 }
 
@@ -2298,7 +2302,7 @@ body.tocando .mascota .rastro {
     <div style="font-family:'Fredoka One',cursive;font-size:18px;color:#3949ab;text-align:center;min-height:30px;" id="mem-status">Presioná Jugar</div>
     <div class="piano-wrapper" style="width:100%;"><div id="piano-memoria" class="piano"></div></div>
     <div style="display:flex;gap:6px;">
-      <button id="mem-play-btn" onclick="startMemoria()" style="background:#3949ab;color:white;border:none;border-radius:12px;padding:9px 22px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">▶ Jugar</button>
+      <button id="mem-play-btn" onclick="startMemoriaGame()" style="background:#3949ab;color:white;border:none;border-radius:12px;padding:9px 22px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">▶ Jugar</button>
       <button onclick="stopMemoria()" style="background:#c62828;color:white;border:none;border-radius:9px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;cursor:pointer;">⏹ Salir</button>
     </div>
   </div>
@@ -3031,6 +3035,14 @@ const INSTRUMENTOS = {
 function buildSynth(type) {
   currentSound = INSTRUMENTOS[type] ? type : 'piano';
   Audio2.setInstrumento(currentSound);
+}
+// La llama el <select> del encabezado. Al sacar Tone se perdió por accidente y
+// el selector quedó sin efecto: siempre sonaba piano.
+function changeSound(val) {
+  buildSynth(val);
+  const chip = document.getElementById('sc-sound');
+  if (chip) chip.textContent = INSTRUMENTOS[currentSound].nombre;
+  unlockAch(8);
 }
 function ensureSynth() {
   Audio2.iniciar();

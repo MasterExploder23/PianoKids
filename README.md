@@ -19,7 +19,7 @@ pianokids/
 │   ├── harness.js  ← Arranca la app en JSDOM con audio stubbeado
 │   ├── run.js      ← Suite de regresión (36 tests)
 │   ├── smoke.js    ← Smoke funcional simulando uso real (32 tests)
-│   ├── v13.js      ← Pentagrama, teclas, arrastre y motor de audio (43 tests)
+│   ├── v13.js      ← Pentagrama, teclas, arrastre y motor de audio (46 tests)
 │   ├── midi.js     ← Teclado MIDI con puerto simulado (34 tests)
 │   ├── lecciones.js← Currículum, progresión y teoría musical (45 tests)
 │   ├── engagement.js← Misiones, racha, tienda, fondos y mascota (74 tests)
@@ -113,7 +113,7 @@ canciones, juegos y pentagrama.
 
 Antes de cada push a producción:
 
-1. `npm test` (tiene que dar 308/308)
+1. `npm test` (tiene que dar 311/311)
 2. **Subí `BUILD` en `sw.js`** (línea 5). Es lo que invalida la caché vieja.
    Si no lo subís, los usuarios que ya instalaron la app siguen viendo la versión anterior.
 3. Commit → push → Vercel redeploya solo.

@@ -76,8 +76,22 @@ function boot(opts = {}) {
     linearRampToValueAtTime: noop,
     cancelScheduledValues: noop,
   });
+  // El nodo imita las reglas reales de Web Audio. En particular: llamar stop()
+  // antes que start() lanza InvalidStateError. Con un stub permisivo ese error
+  // pasaba desapercibido y click y madera salieron a produccion sin sonar.
   const nodo = extra =>
-    Object.assign({ connect(d) { return d || this; }, disconnect: noop, start: noop, stop: noop }, extra);
+    Object.assign(
+      {
+        __arrancado: false,
+        connect(d) { return d || this; },
+        disconnect: noop,
+        start() { this.__arrancado = true; },
+        stop() {
+          if (!this.__arrancado) throw new Error('InvalidStateError: stop() antes de start()');
+        },
+      },
+      extra
+    );
   w.AudioContext = w.webkitAudioContext = function () {
     return {
       state: 'running',
