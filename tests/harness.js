@@ -16,6 +16,7 @@ const EXPOSED = [
   'STAFF_Y', 'WHITE_NOTES', 'BLACK_DEFS', 'INSTRUMENTOS', 'pressedKeys',
   'STAFF_LINES', 'STAFF_TOP', 'STAFF_BOTTOM',
   'midiSoportado', 'midiEntradas', 'ACH_MIDI',
+  'MODULOS', 'modProgress', 'FASES', 'modActual', 'lecActual', 'faseActual', 'pasoActual', 'erroresEval',
 ];
 const EXPOSED_FN = [
   'saveProgress', 'loadProgress', 'recomputeStreak', 'markActivityToday',
@@ -23,6 +24,9 @@ const EXPOSED_FN = [
   'renderPadresProgreso', 'renderPadresStats', 'updateStatsUI',
   'ledgerLinesFor', 'updateStaff', 'releaseAllKeys', 'buildPiano', 'rebuildAll',
   'midiANota', 'midiAlRango', 'midiMensaje', 'midiIniciar', 'midiRefrescar', 'pianoActivo',
+  'buildLessonGrid', 'startLesson', 'siguienteFase', 'checkLessonNote', 'finishLesson', 'exitLesson',
+  'lecEstrellas', 'lecDesbloqueada', 'moduloDesbloqueado', 'estrellasPorErrores', 'lecClave',
+  'migrarLeccionesViejas', 'showPadresLecc', 'buildPadresLeccTabs', 'mostrarFase',
 ];
 
 function boot(opts = {}) {

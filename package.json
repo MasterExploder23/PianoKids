@@ -1,14 +1,15 @@
 {
   "name": "pianokids",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "private": true,
   "description": "App web para aprender piano jugando, para chicos de 7 a 10 años",
   "scripts": {
-    "test": "node tests/run.js && node tests/smoke.js && node tests/v13.js && node tests/midi.js",
+    "test": "node tests/run.js && node tests/smoke.js && node tests/v13.js && node tests/midi.js && node tests/lecciones.js",
     "test:regresion": "node tests/run.js",
     "test:smoke": "node tests/smoke.js",
     "test:v13": "node tests/v13.js",
     "test:midi": "node tests/midi.js",
+    "test:lecciones": "node tests/lecciones.js",
     "serve": "npx --yes serve ."
   },
   "devDependencies": {

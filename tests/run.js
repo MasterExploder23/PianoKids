@@ -21,8 +21,11 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
       assert(Array.isArray(s.notes) && s.notes.length > 0, `sin notas: ${s.name}`);
     });
   });
-  test('Las 19 lecciones siguen presentes (5 notas + 7 mayores + 7 menores)', () => {
-    eq(app.LESSONS_NOTES.length + app.LESSONS_MAJ.length + app.LESSONS_MEN.length, 19);
+  // v1.5 reemplazó las 19 lecciones sueltas por un currículum en módulos.
+  // El detalle vive en tests/lecciones.js; acá sólo verificamos que no se perdió contenido.
+  test('El currículum tiene al menos tanto contenido como las 19 lecciones viejas', () => {
+    const total = app.MODULOS.reduce((n, m) => n + m.lecciones.length, 0);
+    assert(total >= 19, `sólo ${total} lecciones`);
   });
   // El progreso guardado referencia los logros por índice, así que los nuevos
   // sólo pueden agregarse AL FINAL. Si se insertan en el medio, a un usuario

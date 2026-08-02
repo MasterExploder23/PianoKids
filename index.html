@@ -80,7 +80,27 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
 .leg-dot{width:11px;height:11px;border-radius:50%;}
 
 /* LECCIONES */
-.lesson-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:7px;}
+.lesson-grid{display:flex;flex-direction:column;gap:14px;}
+.modulo{border-radius:14px;overflow:hidden;background:#f8f8fc;border:2px solid #e8e8f4;}
+.modulo.locked{opacity:.55;}
+.modulo-head{display:flex;align-items:center;gap:10px;padding:10px 12px;color:white;}
+.modulo-emoji{font-size:26px;}
+.modulo-nombre{font-family:'Fredoka One',cursive;font-size:15px;line-height:1.1;}
+.modulo-desc{font-size:10px;opacity:.9;font-weight:700;margin-top:2px;}
+.modulo-stars{font-size:12px;font-weight:800;white-space:nowrap;}
+.modulo-lecciones{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:7px;padding:9px;}
+.fase-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:4px;}
+.fase-chip{font-size:9px;font-weight:800;padding:4px 9px;border-radius:20px;background:#ececf4;color:#9a9ab0;}
+.fase-chip.on{background:#3949ab;color:white;}
+.fase-chip.done{background:#26a69a;color:white;}
+.exp-card{background:linear-gradient(135deg,#f3f0ff,#e9f4ff);border-radius:14px;padding:14px;border:2px solid #ddd6fe;}
+.exp-titulo{font-family:'Fredoka One',cursive;font-size:17px;color:#3949ab;margin-bottom:7px;}
+.exp-texto{font-size:13px;line-height:1.55;color:#3a3a4a;font-weight:600;}
+.exp-texto b{color:#1a237e;}
+.exp-tip{margin-top:10px;background:#fff8e1;border-left:4px solid #fb8c00;border-radius:8px;padding:8px 10px;font-size:11.5px;font-weight:700;color:#6d4c00;}
+.exp-btn{margin-top:12px;background:#3949ab;color:white;border:none;border-radius:22px;padding:9px 20px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;}
+.exp-btn.alt{background:#26a69a;}
+.lesson-acciones{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-top:8px;}
 .lesson-card{background:#f4f4f8;border-radius:12px;padding:9px;text-align:center;cursor:pointer;border:2px solid #ddd;transition:all .2s;}
 .lesson-card:hover:not(.locked){transform:translateY(-3px);box-shadow:0 6px 16px rgba(57,73,171,.15);border-color:#9090c8;}
 .lesson-card.completed{border-color:#26a69a;background:#e8f8f5;}
@@ -411,11 +431,6 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
 <!-- LECCIONES -->
 <div id="tab-lecciones" class="panel">
   <div id="lesson-select">
-    <div style="display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap;" id="lesson-cat-btns">
-      <button onclick="setLessonCat('notas',this)" style="background:#3949ab;color:white;border:2px solid #3949ab;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">🎵 Notas</button>
-      <button onclick="setLessonCat('acordes_may',this)" style="background:white;color:#3949ab;border:2px solid #3949ab;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">🎸 Mayores</button>
-      <button onclick="setLessonCat('acordes_men',this)" style="background:white;color:#3949ab;border:2px solid #3949ab;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">🎻 Menores</button>
-    </div>
     <div class="lesson-grid" id="lesson-grid"></div>
   </div>
   <div class="lesson-playing" id="lesson-playing">
@@ -423,8 +438,12 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
       <button onclick="exitLesson()" style="background:white;color:#3949ab;border:2px solid #3949ab;border-radius:8px;padding:5px 11px;cursor:pointer;font-weight:800;font-family:'Nunito',sans-serif;font-size:11px;">← Volver</button>
       <span style="font-family:'Fredoka One',cursive;font-size:15px;color:#444;" id="lesson-title"></span>
     </div>
-    <div class="lesson-prompt"><div class="prompt-label" id="prompt-label">Tocá esta nota:</div><div class="prompt-main" id="prompt-main">Do</div><div class="chord-visual" id="chord-visual" style="display:none;"></div><div class="prompt-sub" id="prompt-sub"></div></div>
-    <div id="chord-diagram-area"></div>
+    <div class="fase-row" id="fase-indicador"></div>
+    <div class="exp-card" id="lesson-explicacion" style="display:none;"></div>
+    <div id="lesson-prompt-zone">
+      <div class="lesson-prompt"><div class="prompt-label" id="prompt-label">Tocá esta nota:</div><div class="prompt-main" id="prompt-main">Do</div><div class="prompt-sub" id="prompt-sub"></div></div>
+      <div class="lesson-acciones" id="lesson-acciones"></div>
+    </div>
     <div class="progress-row" id="lesson-progress"></div>
     <div class="piano-wrapper"><div id="piano-lesson" class="piano"></div></div>
     <div class="note-display" id="nd-lesson"></div>
@@ -590,11 +609,7 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
   </div>
 
   <div id="padres-lecc" class="padres-panel">
-    <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;" id="padres-lecc-tabs">
-      <button onclick="showPadresLecc('notas',this)" style="background:#1a237e;color:white;border:2px solid #1a237e;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">🎵 Notas</button>
-      <button onclick="showPadresLecc('may',this)" style="background:white;color:#1a237e;border:2px solid #1a237e;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">🎸 Mayores</button>
-      <button onclick="showPadresLecc('men',this)" style="background:white;color:#1a237e;border:2px solid #1a237e;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">🎻 Menores</button>
-    </div>
+    <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;" id="padres-lecc-tabs"></div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:7px;margin-bottom:10px;" id="padres-lecc-grid"></div>
     <div style="background:#f4f4f8;border-radius:12px;padding:10px 14px;border:2px solid #e0e0f0;font-size:12px;color:#666;font-weight:600;line-height:1.9;" id="padres-lecc-summary"></div>
   </div>
@@ -689,7 +704,7 @@ let dayStreak=0,activeDays=[],dailyNotes={};
 let playerXP=0,totalScore=0;
 let pressedKeys=new Set();
 let micActive=false,audioCtx=null,analyser=null,micStream=null,pitchInterval=null;
-let lessonCat='notas',currentLesson=null,lessonStep=0,chordPressed=new Set(),waitingChordFull=false;
+let modProgress={}; // 'moduloId/leccionId' -> {stars}
 let currentSong=null,songStep=0,songFilter='all';
 let currentGame=null,gameScore=0;
 let fifthActive=false,fifthSeq=[],fifthStep=0,fifthScore=0;
@@ -767,9 +782,7 @@ function saveProgress(){
         songHistory,noteFrequency,memoriaRecord,rankings,
         dayStreak,activeDays,dailyNotes,
         achievements:ACHS.map(a=>a.ok),
-        lessonsNotes:LESSONS_NOTES.map(l=>({stars:l.stars,locked:l.locked})),
-        lessonsMaj:LESSONS_MAJ.map(l=>({stars:l.stars,locked:l.locked})),
-        lessonsMen:LESSONS_MEN.map(l=>({stars:l.stars,locked:l.locked})),
+        modProgress,
       }));
       dot.classList.remove('saving');lbl.textContent='Guardado';
     }catch(e){lbl.textContent='Error';}
@@ -786,10 +799,29 @@ function loadProgress(){
     dailyNotes=(d.dailyNotes&&typeof d.dailyNotes==='object')?Object.assign({},d.dailyNotes):{};
     pruneActivity();recomputeStreak();
     if(d.achievements)d.achievements.forEach((ok,i)=>{if(ACHS[i])ACHS[i].ok=ok;});
-    if(d.lessonsNotes)d.lessonsNotes.forEach((s,i)=>{if(LESSONS_NOTES[i]){LESSONS_NOTES[i].stars=s.stars;LESSONS_NOTES[i].locked=s.locked;}});
-    if(d.lessonsMaj)d.lessonsMaj.forEach((s,i)=>{if(LESSONS_MAJ[i]){LESSONS_MAJ[i].stars=s.stars;LESSONS_MAJ[i].locked=s.locked;}});
-    if(d.lessonsMen)d.lessonsMen.forEach((s,i)=>{if(LESSONS_MEN[i]){LESSONS_MEN[i].stars=s.stars;LESSONS_MEN[i].locked=s.locked;}});
+    modProgress=(d.modProgress&&typeof d.modProgress==='object')?Object.assign({},d.modProgress):{};
+    migrarLeccionesViejas(d);
   }catch(e){}
+}
+// Hasta v1.4 las lecciones se guardaban como 3 arrays por índice
+// (lessonsNotes / lessonsMaj / lessonsMen). El currículum nuevo tiene otra
+// estructura, así que traducimos el progreso viejo en vez de tirarlo:
+// cada lección completada del sistema anterior abre la equivalente del módulo
+// nuevo. Se corre una sola vez; después manda modProgress.
+function migrarLeccionesViejas(d){
+  if(!d||d.modProgress)return;            // ya migrado
+  if(!d.lessonsNotes&&!d.lessonsMaj&&!d.lessonsMen)return;
+  const otorgar=(mid,cuantas)=>{
+    const m=MODULOS.find(x=>x.id===mid);if(!m)return;
+    m.lecciones.slice(0,cuantas).forEach(l=>{
+      const k=lecClave(mid,l.id);
+      if(!modProgress[k])modProgress[k]={stars:2}; // 2★: hizo algo, pero no con el sistema nuevo
+    });
+  };
+  const hechas=arr=>Array.isArray(arr)?arr.filter(s=>s&&s.stars>0).length:0;
+  otorgar('notas',hechas(d.lessonsNotes));
+  otorgar('may',hechas(d.lessonsMaj));
+  otorgar('men',hechas(d.lessonsMen));
 }
 function confirmReset(){
   if(confirm('¿Borrar todo el progreso? No se puede deshacer.')){
@@ -1124,7 +1156,7 @@ function midiIniciar(){
 function setNotation(n){notation=n;const es=document.getElementById('btn-es'),en=document.getElementById('btn-en');n==='es'?(btnOn(es),btnOff(en)):(btnOff(es),btnOn(en));rebuildAll();if(n==='en')unlockAch(9);}
 function toggleKb(){showKb=!showKb;const b=document.getElementById('btn-kb');showKb?btnOn(b):btnOff(b);rebuildAll();}
 function toggleFingers(){showFingers=!showFingers;const b=document.getElementById('btn-fingers');showFingers?btnOn(b):btnOff(b);document.getElementById('finger-legend').classList.toggle('show',showFingers);document.getElementById('hand-diagram').classList.toggle('show',showFingers);rebuildAll();}
-function rebuildAll(){['piano-libre','piano-staff','piano-songs','piano-lesson','piano-fifth','piano-karaoke','piano-dictado','piano-memoria'].forEach(id=>{if(document.getElementById(id))buildPiano(id);});if(currentLesson!==null)showLessonStep();if(currentSong!==null)showSongStep();}
+function rebuildAll(){['piano-libre','piano-staff','piano-songs','piano-lesson','piano-fifth','piano-karaoke','piano-dictado','piano-memoria'].forEach(id=>{if(document.getElementById(id))buildPiano(id);});if(modActual!==null)mostrarFase();if(currentSong!==null)showSongStep();}
 function activateFinger(f,chord){[1,2,3,4,5].forEach(n=>{document.getElementById('hf-'+n)?.classList.toggle(chord?'chord-active':'active',n===f);document.getElementById('hb-'+n)?.classList.toggle(chord?'chord-active':'active',n===f);});}
 function activateChordFingers(fs){[1,2,3,4,5].forEach(n=>{const on=fs.includes(n);document.getElementById('hf-'+n)?.classList.toggle('chord-active',on);document.getElementById('hb-'+n)?.classList.toggle('chord-active',on);});}
 function clearFingers(){[1,2,3,4,5].forEach(n=>{document.getElementById('hf-'+n)?.setAttribute('class','hfnum');document.getElementById('hb-'+n)?.setAttribute('class','hfbar');});}
@@ -1138,7 +1170,7 @@ function switchTab(tab,btn){
   document.getElementById('tab-'+tab).classList.add('active');btn.classList.add('active');
   combo=0;
   if(tab==='logros')buildAchievements();
-  if(tab==='padres'){renderPadresProgreso();renderPadresStats();showPadresLecc('notas',document.querySelector('#padres-lecc-tabs button'));}
+  if(tab==='padres'){renderPadresProgreso();renderPadresStats();buildPadresLeccTabs();showPadresLecc(MODULOS[0].id,document.querySelector('#padres-lecc-tabs button'));}
 }
 function switchPadresTab(tab,btn){
   document.querySelectorAll('.padres-panel').forEach(p=>p.classList.remove('active'));
@@ -1205,19 +1237,519 @@ function updateStaff(note){const base=nb(note),esn=NOTE_ES[base]||base,enn=NOTE_
 // ════════════════════════════════════════════
 const CHORDS_MAJ=[{name:'Do Mayor',nameEn:'C Major',root:'C',notes:['C4','E4','G4'],type:'major',formula:'Do+Mi+Sol / C+E+G',emoji:'🔴',color:'#FF6B6B'},{name:'Re Mayor',nameEn:'D Major',root:'D',notes:['D4','F#4','A4'],type:'major',formula:'Re+Fa#+La / D+F#+A',emoji:'🟠',color:'#FF9F43'},{name:'Mi Mayor',nameEn:'E Major',root:'E',notes:['E4','G#4','B4'],type:'major',formula:'Mi+Sol#+Si / E+G#+B',emoji:'🟡',color:'#d4a000'},{name:'Fa Mayor',nameEn:'F Major',root:'F',notes:['F4','A4','C5'],type:'major',formula:'Fa+La+Do / F+A+C',emoji:'🩵',color:'#0099bb'},{name:'Sol Mayor',nameEn:'G Major',root:'G',notes:['G4','B4','D5'],type:'major',formula:'Sol+Si+Re / G+B+D',emoji:'🟢',color:'#1DD1A1'},{name:'La Mayor',nameEn:'A Major',root:'A',notes:['A4','C#5','E5'],type:'major',formula:'La+Do#+Mi / A+C#+E',emoji:'🔵',color:'#54A0FF'},{name:'Si Mayor',nameEn:'B Major',root:'B',notes:['B4','D#5','F#5'],type:'major',formula:'Si+Re#+Fa# / B+D#+F#',emoji:'🟣',color:'#A29BFE'}];
 const CHORDS_MEN=[{name:'Do menor',nameEn:'C minor',root:'C',notes:['C4','D#4','G4'],type:'minor',formula:'Do+Re#+Sol / C+Eb+G',emoji:'🔴',color:'#FF6B6B'},{name:'Re menor',nameEn:'D minor',root:'D',notes:['D4','F4','A4'],type:'minor',formula:'Re+Fa+La / D+F+A',emoji:'🟠',color:'#FF9F43'},{name:'Mi menor',nameEn:'E minor',root:'E',notes:['E4','G4','B4'],type:'minor',formula:'Mi+Sol+Si / E+G+B',emoji:'🟡',color:'#d4a000'},{name:'Fa menor',nameEn:'F minor',root:'F',notes:['F4','G#4','C5'],type:'minor',formula:'Fa+Sol#+Do / F+Ab+C',emoji:'🩵',color:'#0099bb'},{name:'Sol menor',nameEn:'G minor',root:'G',notes:['G4','A#4','D5'],type:'minor',formula:'Sol+La#+Re / G+Bb+D',emoji:'🟢',color:'#1DD1A1'},{name:'La menor',nameEn:'A minor',root:'A',notes:['A4','C5','E5'],type:'minor',formula:'La+Do+Mi / A+C+E',emoji:'🔵',color:'#54A0FF'},{name:'Si menor',nameEn:'B minor',root:'B',notes:['B4','D5','F#5'],type:'minor',formula:'Si+Re+Fa# / B+D+F#',emoji:'🟣',color:'#A29BFE'}];
-const LESSONS_NOTES=[{name:'El Do',nameEn:'Note C',emoji:'🔴',tag:'notas',steps:[{type:'note',note:'C4',esn:'Do',enn:'C',hint:'Primera tecla blanca ✨',finger:1}],stars:0,locked:false},{name:'Re y Mi',nameEn:'D and E',emoji:'🟠',tag:'notas',steps:[{type:'note',note:'D4',esn:'Re',enn:'D',hint:'Segunda blanca',finger:2},{type:'note',note:'E4',esn:'Mi',enn:'E',hint:'Tercera blanca',finger:3}],stars:0,locked:false},{name:'Fa y Sol',nameEn:'F and G',emoji:'🟡',tag:'notas',steps:[{type:'note',note:'F4',esn:'Fa',enn:'F',hint:'Antes del grupo de 3 negras',finger:1},{type:'note',note:'G4',esn:'Sol',enn:'G',hint:'Segunda del grupo de 3',finger:2}],stars:0,locked:true},{name:'La y Si',nameEn:'A and B',emoji:'🟢',tag:'notas',steps:[{type:'note',note:'A4',esn:'La',enn:'A',hint:'Sexta blanca',finger:3},{type:'note',note:'B4',esn:'Si',enn:'B',hint:'Séptima blanca',finger:4}],stars:0,locked:true},{name:'Notas negras',nameEn:'Black keys',emoji:'⚫',tag:'notas',steps:[{type:'note',note:'C#4',esn:'Do#',enn:'C#',hint:'Primera tecla negra',finger:2},{type:'note',note:'F#4',esn:'Fa#',enn:'F#',hint:'Cuarta tecla negra',finger:2}],stars:0,locked:true}];
-function makeLessonChords(arr){return arr.map((ch,i)=>({name:ch.name,nameEn:ch.nameEn,emoji:ch.emoji,tag:ch.type==='major'?'acordes_may':'acordes_men',chord:ch,steps:[...ch.notes.map((n,ni)=>{const base=nb(n);return{type:'chord_note',note:n,esn:NOTE_ES[base]||base,enn:NOTE_EN[base]||base,chordNotes:ch.notes,stepIdx:ni,finger:CHORD_F[ch.root][ni]};}),{type:'chord_full',notes:ch.notes,name:ch.name,nameEn:ch.nameEn,chordNotes:ch.notes,fingers:CHORD_F[ch.root]}],stars:0,locked:i>0}));}
-const LESSONS_MAJ=makeLessonChords(CHORDS_MAJ);const LESSONS_MEN=makeLessonChords(CHORDS_MEN);
-function getLessonList(){return lessonCat==='notas'?LESSONS_NOTES:lessonCat==='acordes_may'?LESSONS_MAJ:LESSONS_MEN;}
-function setLessonCat(cat,btn){lessonCat=cat;document.querySelectorAll('#lesson-cat-btns button').forEach(b=>btnOff(b));btnOn(btn);buildLessonGrid();}
-function buildLessonGrid(){const g=document.getElementById('lesson-grid');g.innerHTML='';getLessonList().forEach((l,i)=>{const card=document.createElement('div');card.className='lesson-card'+(l.locked?' locked':'')+(l.stars>0?' completed':'');const dn=notation==='es'?l.name:l.nameEn;card.innerHTML=`<div class="lesson-emoji">${l.emoji}</div><div class="lesson-name">${dn}</div><div class="lesson-stars">${'★'.repeat(l.stars)}${'☆'.repeat(3-l.stars)}</div><div class="lesson-tag">${l.tag==='notas'?'Notas':l.tag.includes('may')?'Mayor':'Menor'}</div>`;if(!l.locked)card.onclick=()=>startLesson(i);g.appendChild(card);});}
-function startLesson(idx){currentLesson=idx;lessonStep=0;chordPressed=new Set();waitingChordFull=false;const l=getLessonList()[idx];document.getElementById('lesson-select').style.display='none';document.getElementById('lesson-playing').classList.add('active');document.getElementById('lesson-title').textContent=l.emoji+' '+(notation==='es'?l.name:l.nameEn);buildPiano('piano-lesson');showLessonStep();}
-function showLessonStep(){const l=getLessonList()[currentLesson],step=l.steps[lessonStep];if(!step){finishLesson();return;}const prog=document.getElementById('lesson-progress');prog.innerHTML='';l.steps.forEach((_,i)=>{const d=document.createElement('div');d.className='progress-dot'+(i<lessonStep?' done':i===lessonStep?' current':'');prog.appendChild(d);});clearHL('piano-lesson');document.getElementById('chord-diagram-area').innerHTML='';if(step.type==='note'){const nm=notation==='es'?step.esn:step.enn;document.getElementById('prompt-label').textContent='Tocá esta nota:';document.getElementById('prompt-main').textContent=nm;document.getElementById('prompt-sub').textContent=step.hint+(step.finger?' · Dedo '+step.finger+' ('+FINGER_NAMES[step.finger]+')':'');document.getElementById('chord-visual').style.display='none';hlKey('piano-lesson',step.note);if(showFingers&&step.finger)activateFinger(step.finger,false);}else if(step.type==='chord_note'){const ch=l.chord,nm=notation==='es'?step.esn:step.enn,labels=['1ra nota — tónica','2da nota — 3ra','3ra nota — 5ta'];document.getElementById('prompt-label').textContent=labels[step.stepIdx]||'Tocá:';document.getElementById('prompt-main').textContent=nm;document.getElementById('prompt-sub').textContent='Del acorde '+(notation==='es'?ch.name:ch.nameEn)+(step.finger?' · Dedo '+step.finger+' ('+FINGER_NAMES[step.finger]+')':'');document.getElementById('chord-visual').style.display='none';hlKey('piano-lesson',step.note);showChordDiagram(ch,step.stepIdx);}else if(step.type==='chord_full'){chordPressed=new Set();waitingChordFull=true;const ch=l.chord,chName=notation==='es'?ch.name:ch.nameEn;document.getElementById('prompt-label').textContent='¡Tocá las 3 notas juntas!';document.getElementById('prompt-main').textContent=chName;const cv=document.getElementById('chord-visual');cv.style.display='flex';cv.innerHTML=ch.notes.map(n=>`<div class="chord-pill" style="background:${NOTE_COLORS[nb(n)]||'#3949ab'}">${nl(n)}</div>`).join('');document.getElementById('prompt-sub').textContent='Dedos: '+step.fingers.map(f=>f+' ('+FINGER_NAMES[f]+')').join(' · ');ch.notes.forEach(n=>hlKey('piano-lesson',n));showChordDiagram(ch,-1);ensureSynth();Tone.start().then(()=>{try{pianoSynth.triggerAttackRelease(ch.notes,'1');}catch(e){}});}document.getElementById('nd-lesson').innerHTML='';}
-function showChordDiagram(chord,activeIdx){const tl=chord.type==='major'?'Mayor':'Menor';const fing=chord.notes.map((n,i)=>{const b=nb(n),c=NOTE_COLORS[b]||'#3949ab',nm=nl(n),active=activeIdx===-1||activeIdx===i,fi=CHORD_F[chord.root]?.[i]||'';return`<div class="fnb"><div class="fnb-circle" style="background:${active?c:'#ccc'}">${nm}</div><div class="fnb-label">${i===0?'Tónica':i===1?'3ra':'5ta'}</div><div class="fnb-label" style="color:${active?'#3949ab':'#ccc'}">Dedo ${fi}</div></div>`;}).join('');document.getElementById('chord-diagram-area').innerHTML=`<div class="chord-diagram"><div class="chord-diagram-title">🎸 Acorde ${tl}</div><div class="chord-fingers-row">${fing}</div><div class="chord-formula">${chord.formula}</div></div>`;}
-function checkLessonNote(note){if(currentLesson===null)return;const l=getLessonList()[currentLesson],step=l.steps[lessonStep];if(!step)return;if(step.type==='note'&&note===step.note){unlockAch(2);advanceLessonStep();}else if(step.type==='chord_note'&&note===step.note){advanceLessonStep();}else if(step.type==='chord_full'&&waitingChordFull&&step.notes.includes(note)){chordPressed.add(note);if(chordPressed.size===step.notes.length){waitingChordFull=false;unlockAch(3);advanceLessonStep();}}}
-function advanceLessonStep(){document.getElementById('nd-lesson').innerHTML='<span class="note-bubble" style="background:linear-gradient(135deg,#26a69a,#00695c)">¡Correcto! 🎉</span>';stars+=3;updateStatsUI();lessonStep++;setTimeout(()=>{document.getElementById('nd-lesson').innerHTML='';showLessonStep();},700);}
-function finishLesson(){const l=getLessonList();l[currentLesson].stars=3;if(currentLesson+1<l.length)l[currentLesson+1].locked=false;lessonsCompleted++;addXP(30);showToast('¡Lección completada! +3 ⭐');unlockAch(4);saveProgress();exitLesson();buildLessonGrid();}
-function exitLesson(){currentLesson=null;chordPressed=new Set();waitingChordFull=false;clearFingers();document.getElementById('lesson-select').style.display='block';document.getElementById('lesson-playing').classList.remove('active');}
+// ════════════════════════════════════════════
+// CURRÍCULUM DE LECCIONES (v1.5)
+// ════════════════════════════════════════════
+// Cada lección tiene 4 fases:
+//   1. explicacion — qué vamos a aprender y por qué (texto para 7-10 años)
+//   2. demo        — la app toca; el chico escucha y mira
+//   3. practica    — tocá lo que brilla, sin penalización
+//   4. evaluacion  — tocá sin ayuda; se cuentan los errores y salen las estrellas
+//
+// Un paso de práctica/evaluación es {n:'C4'} para una nota suelta,
+// o {acorde:['C4','E4','G4']} para tocar varias juntas.
+// 'pista' es el texto que se muestra arriba del teclado.
+const MODULOS=[
+{
+  id:'notas',nombre:'Las notas',emoji:'🎵',color:'#FF6B6B',
+  desc:'Ubicarte en el teclado y conocer las 7 notas',
+  lecciones:[
+  {
+    id:'n1',nombre:'Encontrar el Do',emoji:'🔴',
+    explicacion:{
+      titulo:'¿Cómo encuentro el Do?',
+      texto:'Mirá el teclado: las teclas negras vienen en grupitos de <b>2</b> y de <b>3</b>. Buscá un grupo de <b>2 negras</b>. La tecla blanca que está justo a su izquierda es el <b>Do</b>.',
+      tip:'Este truco funciona en cualquier piano del mundo 🌎'
+    },
+    demo:['C4'],
+    practica:[{n:'C4',pista:'Buscá el grupo de 2 negras y tocá la blanca de la izquierda'},{n:'C5',pista:'Ahora el Do de más arriba'},{n:'C4',pista:'Volvé al Do del medio'}],
+    evaluacion:[{n:'C4'},{n:'C5'},{n:'C3'}]
+  },
+  {
+    id:'n2',nombre:'Re y Mi',emoji:'🟠',
+    explicacion:{
+      titulo:'Las vecinas del Do',
+      texto:'Justo a la derecha del Do está el <b>Re</b>, y al lado el <b>Mi</b>. Do, Re y Mi son las tres blancas que rodean al grupo de 2 negras.',
+      tip:'Do-Re-Mi son las tres primeras notas de casi todas las canciones que ya conocés 🎶'
+    },
+    demo:['C4','D4','E4'],
+    practica:[{n:'D4',pista:'El Re: a la derecha del Do'},{n:'E4',pista:'El Mi: una más a la derecha'},{n:'C4'},{n:'D4'},{n:'E4'}],
+    evaluacion:[{n:'C4'},{n:'D4'},{n:'E4'},{n:'D4'},{n:'C4'}]
+  },
+  {
+    id:'n3',nombre:'Fa, Sol, La y Si',emoji:'🟡',
+    explicacion:{
+      titulo:'El grupo de 3 negras',
+      texto:'Después del Mi viene el <b>Fa</b>, que está pegado al grupo de <b>3 negras</b>. Y siguen <b>Sol</b>, <b>La</b> y <b>Si</b>. Con estas cuatro completamos las 7 notas.',
+      tip:'Fa está a la izquierda de las 3 negras, igual que Do está a la izquierda de las 2 🔍'
+    },
+    demo:['F4','G4','A4','B4'],
+    practica:[{n:'F4',pista:'El Fa: a la izquierda del grupo de 3 negras'},{n:'G4',pista:'Sol'},{n:'A4',pista:'La'},{n:'B4',pista:'Si'}],
+    evaluacion:[{n:'F4'},{n:'G4'},{n:'A4'},{n:'B4'},{n:'F4'}]
+  },
+  {
+    id:'n4',nombre:'La escala subiendo',emoji:'🪜',
+    explicacion:{
+      titulo:'Do Re Mi Fa Sol La Si Do',
+      texto:'Si tocás las 7 notas seguidas y volvés al Do, hiciste una <b>escala</b>. Es como una escalera: cada nota es un escalón más agudo que el anterior.',
+      tip:'Escuchá cómo el último Do suena igual que el primero, pero más agudo ✨'
+    },
+    demo:['C4','D4','E4','F4','G4','A4','B4','C5'],
+    practica:[{n:'C4'},{n:'D4'},{n:'E4'},{n:'F4'},{n:'G4'},{n:'A4'},{n:'B4'},{n:'C5',pista:'¡Y volvemos al Do!'}],
+    evaluacion:[{n:'C4'},{n:'D4'},{n:'E4'},{n:'F4'},{n:'G4'},{n:'A4'},{n:'B4'},{n:'C5'}]
+  },
+  {
+    id:'n5',nombre:'La escala bajando',emoji:'🛝',
+    explicacion:{
+      titulo:'Ahora al revés',
+      texto:'Bajar la escala es tocar las mismas notas pero desde el Do de arriba hasta el de abajo: <b>Do Si La Sol Fa Mi Re Do</b>.',
+      tip:'Bajar cuesta un poco más que subir. Andá despacio 🐢'
+    },
+    demo:['C5','B4','A4','G4','F4','E4','D4','C4'],
+    practica:[{n:'C5'},{n:'B4'},{n:'A4'},{n:'G4'},{n:'F4'},{n:'E4'},{n:'D4'},{n:'C4'}],
+    evaluacion:[{n:'C5'},{n:'B4'},{n:'A4'},{n:'G4'},{n:'F4'},{n:'E4'},{n:'D4'},{n:'C4'}]
+  },
+  {
+    id:'n6',nombre:'Ida y vuelta',emoji:'🏅',
+    explicacion:{
+      titulo:'Prueba del módulo',
+      texto:'Ya conocés las 7 notas y sabés subir y bajar. Esta es la prueba final: la escala completa, <b>ida y vuelta</b>, sin ayuda.',
+      tip:'Si te trabás, podés repetir la lección las veces que quieras 💪'
+    },
+    demo:['C4','D4','E4','F4','G4','A4','B4','C5','B4','A4','G4','F4','E4','D4','C4'],
+    practica:[{n:'C4'},{n:'E4'},{n:'G4'},{n:'C5'},{n:'G4'},{n:'E4'},{n:'C4'}],
+    evaluacion:[{n:'C4'},{n:'D4'},{n:'E4'},{n:'F4'},{n:'G4'},{n:'A4'},{n:'B4'},{n:'C5'},{n:'B4'},{n:'A4'},{n:'G4'},{n:'F4'},{n:'E4'},{n:'D4'},{n:'C4'}]
+  }
+  ]
+},
+{
+  id:'dedos',nombre:'Manos y dedos',emoji:'🖐️',color:'#FF9F43',
+  desc:'Qué dedo usar en cada tecla',
+  lecciones:[
+  {
+    id:'d1',nombre:'Cada dedo tiene número',emoji:'1️⃣',
+    explicacion:{
+      titulo:'Los dedos se numeran',
+      texto:'En el piano cada dedo tiene un número: el <b>pulgar es el 1</b>, el índice el <b>2</b>, el mayor el <b>3</b>, el anular el <b>4</b> y el meñique el <b>5</b>. Es igual en las dos manos.',
+      tip:'Activá el botón "Dedos" arriba del teclado para ver los números mientras tocás 👆'
+    },
+    demo:['C4','D4','E4','F4','G4'],
+    practica:[{n:'C4',pista:'Pulgar (1) en el Do'},{n:'D4',pista:'Índice (2) en el Re'},{n:'E4',pista:'Mayor (3) en el Mi'},{n:'F4',pista:'Anular (4) en el Fa'},{n:'G4',pista:'Meñique (5) en el Sol'}],
+    evaluacion:[{n:'C4'},{n:'D4'},{n:'E4'},{n:'F4'},{n:'G4'}]
+  },
+  {
+    id:'d2',nombre:'Posición de 5 dedos',emoji:'✋',
+    explicacion:{
+      titulo:'La mano quieta',
+      texto:'Apoyá los 5 dedos de la mano derecha sobre <b>Do Re Mi Fa Sol</b> y dejalos ahí. Podés tocar cualquiera de esas notas <b>sin mover la mano</b>.',
+      tip:'Mantené los dedos curvados, como si tuvieras una pelotita en la mano 🥎'
+    },
+    demo:['C4','E4','G4','E4','C4'],
+    practica:[{n:'E4',pista:'Sin mover la mano: dedo 3'},{n:'G4',pista:'Dedo 5'},{n:'D4',pista:'Dedo 2'},{n:'F4',pista:'Dedo 4'},{n:'C4',pista:'Dedo 1'}],
+    evaluacion:[{n:'G4'},{n:'E4'},{n:'C4'},{n:'F4'},{n:'D4'},{n:'G4'}]
+  },
+  {
+    id:'d3',nombre:'Saltos con la mano quieta',emoji:'🦘',
+    explicacion:{
+      titulo:'Tocar salteado',
+      texto:'Ahora vamos a tocar las notas <b>salteadas</b>: Do, Mi, Sol. La mano sigue en el mismo lugar, sólo cambian los dedos: <b>1, 3 y 5</b>.',
+      tip:'Estas tres notas juntas forman el acorde de Do. Ya lo vas a ver 😉'
+    },
+    demo:['C4','E4','G4','E4','C4','G4'],
+    practica:[{n:'C4'},{n:'E4'},{n:'G4'},{n:'E4'},{n:'C4'}],
+    evaluacion:[{n:'C4'},{n:'E4'},{n:'G4'},{n:'C4'},{n:'G4'},{n:'E4'},{n:'C4'}]
+  },
+  {
+    id:'d4',nombre:'Pasar el pulgar',emoji:'👍',
+    explicacion:{
+      titulo:'El truco más importante',
+      texto:'La mano tiene 5 dedos pero la escala tiene 8 notas. El truco es <b>pasar el pulgar por debajo</b> después del Mi: tocás Do-Re-Mi con 1-2-3, y para el Fa pasás el pulgar por abajo y seguís 1-2-3-4-5.',
+      tip:'Es raro al principio y le pasa a todo el mundo. Con práctica sale solo 🎯'
+    },
+    demo:['C4','D4','E4','F4','G4','A4','B4','C5'],
+    practica:[{n:'C4',pista:'Dedo 1'},{n:'D4',pista:'Dedo 2'},{n:'E4',pista:'Dedo 3'},{n:'F4',pista:'¡Pasá el pulgar! Dedo 1'},{n:'G4',pista:'Dedo 2'},{n:'A4',pista:'Dedo 3'},{n:'B4',pista:'Dedo 4'},{n:'C5',pista:'Dedo 5'}],
+    evaluacion:[{n:'C4'},{n:'D4'},{n:'E4'},{n:'F4'},{n:'G4'},{n:'A4'},{n:'B4'},{n:'C5'}]
+  }
+  ]
+},
+{
+  id:'intervalos',nombre:'Intervalos',emoji:'📏',color:'#0099bb',
+  desc:'La distancia entre dos notas',
+  lecciones:[
+  {
+    id:'i1',nombre:'Segundas: notas vecinas',emoji:'👯',
+    explicacion:{
+      titulo:'Notas pegaditas',
+      texto:'Cuando tocás dos notas <b>vecinas</b> —una al lado de la otra— eso es una <b>segunda</b>. Do-Re es una segunda. Re-Mi también.',
+      tip:'Las segundas suenan un poco "chocadas" cuando las tocás juntas 😬'
+    },
+    demo:['C4','D4','E4','F4'],
+    practica:[{n:'C4'},{n:'D4',pista:'Segunda: la vecina de arriba'},{n:'E4'},{n:'F4',pista:'Otra segunda'}],
+    evaluacion:[{n:'G4'},{n:'A4'},{n:'D4'},{n:'E4'}]
+  },
+  {
+    id:'i2',nombre:'Terceras: salteás una',emoji:'🎯',
+    explicacion:{
+      titulo:'Saltear una nota',
+      texto:'Si tocás una nota y <b>salteás la siguiente</b>, eso es una <b>tercera</b>. Do-Mi es una tercera: te salteaste el Re.',
+      tip:'Las terceras suenan lindas juntas. Son la base de los acordes 🎸'
+    },
+    demo:['C4','E4','D4','F4','E4','G4'],
+    practica:[{n:'C4'},{n:'E4',pista:'Salteá el Re'},{n:'D4'},{n:'F4',pista:'Salteá el Mi'},{n:'E4'},{n:'G4',pista:'Salteá el Fa'}],
+    evaluacion:[{n:'C4'},{n:'E4'},{n:'F4'},{n:'A4'},{n:'G4'},{n:'B4'}]
+  },
+  {
+    id:'i3',nombre:'Quintas: bien separadas',emoji:'🌉',
+    explicacion:{
+      titulo:'De Do a Sol',
+      texto:'Una <b>quinta</b> es una distancia más grande: contás cinco notas. De <b>Do a Sol</b> hay una quinta. De <b>Fa a Do</b> también.',
+      tip:'Las quintas suenan "abiertas" y fuertes. Se usan mucho en el rock 🤘'
+    },
+    demo:['C4','G4','F4','C5','G4','D5'],
+    practica:[{n:'C4'},{n:'G4',pista:'Quinta arriba del Do'},{n:'F4'},{n:'C5',pista:'Quinta arriba del Fa'}],
+    evaluacion:[{n:'C4'},{n:'G4'},{n:'D4'},{n:'A4'},{n:'E4'},{n:'B4'}]
+  },
+  {
+    id:'i4',nombre:'Reconocer de oído',emoji:'👂',
+    explicacion:{
+      titulo:'¿Cerca o lejos?',
+      texto:'Ahora escuchá con atención. Te voy a tocar dos notas y vos las repetís. Prestá atención a si están <b>cerca</b> (segunda), <b>medio lejos</b> (tercera) o <b>bien lejos</b> (quinta).',
+      tip:'Cerrá los ojos en la demostración. El oído se entrena escuchando 🎧'
+    },
+    demo:['C4','D4','C4','E4','C4','G4'],
+    practica:[{n:'C4'},{n:'D4'},{n:'C4'},{n:'E4'},{n:'C4'},{n:'G4'}],
+    evaluacion:[{n:'C4'},{n:'E4'},{n:'C4'},{n:'G4'},{n:'C4'},{n:'D4'},{n:'C4'},{n:'G4'}]
+  }
+  ]
+},
+{
+  id:'may',nombre:'Acordes mayores',emoji:'🎸',color:'#1DD1A1',
+  desc:'Tres notas juntas que suenan alegres',
+  lecciones:[
+  {
+    id:'a1',nombre:'¿Qué es un acorde?',emoji:'🧩',
+    explicacion:{
+      titulo:'Tres notas al mismo tiempo',
+      texto:'Un <b>acorde</b> son tres notas tocadas juntas. Se arma con la nota base (la <b>tónica</b>), la que está una <b>tercera</b> arriba, y la que está una <b>quinta</b> arriba.',
+      tip:'¿Te acordás de Do-Mi-Sol de la lección del canguro? ¡Ese es el acorde de Do! 🦘'
+    },
+    demo:['C4','E4','G4'],
+    practica:[{n:'C4',pista:'Tónica'},{n:'E4',pista:'Tercera'},{n:'G4',pista:'Quinta'},{acorde:['C4','E4','G4'],pista:'¡Ahora las tres juntas!'}],
+    evaluacion:[{n:'C4'},{n:'E4'},{n:'G4'},{acorde:['C4','E4','G4']}]
+  },
+  {
+    id:'a2',nombre:'Do mayor',emoji:'🔴',
+    explicacion:{
+      titulo:'El acorde más fácil',
+      texto:'<b>Do mayor</b> se toca con los dedos <b>1, 3 y 5</b> sobre Do, Mi y Sol. Es el primer acorde que aprende todo el mundo.',
+      tip:'Bajá los tres dedos al mismo tiempo, como si fuera un solo movimiento ✊'
+    },
+    demo:['C4','E4','G4'],
+    practica:[{acorde:['C4','E4','G4'],pista:'Do mayor: dedos 1, 3 y 5'},{acorde:['C4','E4','G4']}],
+    evaluacion:[{acorde:['C4','E4','G4']},{acorde:['C4','E4','G4']}]
+  },
+  {
+    id:'a3',nombre:'Fa y Sol mayor',emoji:'🟢',
+    explicacion:{
+      titulo:'Los dos compañeros del Do',
+      texto:'<b>Fa mayor</b> es Fa-La-Do y <b>Sol mayor</b> es Sol-Si-Re. Junto con Do mayor, son los tres acordes que aparecen en miles de canciones.',
+      tip:'Con estos tres acordes ya podés acompañar un montón de temas 🎉'
+    },
+    demo:['F4','A4','C5','G4','B4','D5'],
+    practica:[{acorde:['F4','A4','C5'],pista:'Fa mayor'},{acorde:['G4','B4','D5'],pista:'Sol mayor'}],
+    evaluacion:[{acorde:['F4','A4','C5']},{acorde:['G4','B4','D5']}]
+  },
+  {
+    id:'a4',nombre:'Más acordes mayores',emoji:'🌈',
+    explicacion:{
+      titulo:'Re, Mi, La y Si',
+      texto:'Todos los acordes mayores se arman igual: tónica, tercera y quinta. Cambia la nota de la que salís, pero la forma de la mano es parecida.',
+      tip:'Algunos usan teclas negras. Está bien, son parte del piano igual 🎹'
+    },
+    demo:['D4','F#4','A4','E4','G#4','B4'],
+    practica:[{acorde:['D4','F#4','A4'],pista:'Re mayor'},{acorde:['E4','G#4','B4'],pista:'Mi mayor'},{acorde:['A4','C#5','E5'],pista:'La mayor'}],
+    evaluacion:[{acorde:['D4','F#4','A4']},{acorde:['E4','G#4','B4']},{acorde:['A4','C#5','E5']}]
+  },
+  {
+    id:'a5',nombre:'Encadenar acordes',emoji:'🔗',
+    explicacion:{
+      titulo:'Do → Fa → Sol → Do',
+      texto:'Ahora vamos a <b>encadenarlos</b>: tocar uno después de otro sin parar. Esta secuencia es la más usada de la música popular.',
+      tip:'Escuchá: cuando volvés al Do al final, suena a "listo, terminó" 🏁'
+    },
+    demo:['C4','E4','G4','F4','A4','C5','G4','B4','D5','C4','E4','G4'],
+    practica:[{acorde:['C4','E4','G4'],pista:'Do'},{acorde:['F4','A4','C5'],pista:'Fa'},{acorde:['G4','B4','D5'],pista:'Sol'},{acorde:['C4','E4','G4'],pista:'Y volvemos a Do'}],
+    evaluacion:[{acorde:['C4','E4','G4']},{acorde:['F4','A4','C5']},{acorde:['G4','B4','D5']},{acorde:['C4','E4','G4']}]
+  }
+  ]
+},
+{
+  id:'men',nombre:'Acordes menores',emoji:'🎻',color:'#A29BFE',
+  desc:'Los acordes que suenan tristes',
+  lecciones:[
+  {
+    id:'m1',nombre:'Mayor o menor',emoji:'🎭',
+    explicacion:{
+      titulo:'Un solo dedo cambia todo',
+      texto:'Si en un acorde mayor bajás <b>la nota del medio</b> a la tecla negra de al lado, se convierte en <b>menor</b>. <b>Do-Mi-Sol</b> es mayor. <b>Do-Re#-Sol</b> es menor.',
+      tip:'Los mayores suenan alegres 😀 y los menores suenan tristes 😢. ¡Escuchá la diferencia!'
+    },
+    demo:['C4','E4','G4','C4','D#4','G4'],
+    practica:[{acorde:['C4','E4','G4'],pista:'Do mayor: alegre'},{acorde:['C4','D#4','G4'],pista:'Do menor: triste. Sólo bajó el dedo del medio'}],
+    evaluacion:[{acorde:['C4','E4','G4']},{acorde:['C4','D#4','G4']}]
+  },
+  {
+    id:'m2',nombre:'La menor y Mi menor',emoji:'🌙',
+    explicacion:{
+      titulo:'Los menores más usados',
+      texto:'<b>La menor</b> es La-Do-Mi y <b>Mi menor</b> es Mi-Sol-Si. Los dos se tocan sólo con teclas blancas.',
+      tip:'La menor es el "hermano triste" de Do mayor: usan las mismas notas del teclado 🤝'
+    },
+    demo:['A4','C5','E5','E4','G4','B4'],
+    practica:[{acorde:['A4','C5','E5'],pista:'La menor'},{acorde:['E4','G4','B4'],pista:'Mi menor'}],
+    evaluacion:[{acorde:['A4','C5','E5']},{acorde:['E4','G4','B4']}]
+  },
+  {
+    id:'m3',nombre:'Más acordes menores',emoji:'🌌',
+    explicacion:{
+      titulo:'Re, Sol y Si menor',
+      texto:'Igual que con los mayores, cada nota tiene su acorde menor. La regla es siempre la misma: tónica, tercera <b>bajada</b> y quinta.',
+      tip:'Si te sale el mayor, el menor es bajar un solo dedo. Nada más 👇'
+    },
+    demo:['D4','F4','A4','G4','A#4','D5'],
+    practica:[{acorde:['D4','F4','A4'],pista:'Re menor'},{acorde:['G4','A#4','D5'],pista:'Sol menor'},{acorde:['B4','D5','F#5'],pista:'Si menor'}],
+    evaluacion:[{acorde:['D4','F4','A4']},{acorde:['G4','A#4','D5']},{acorde:['B4','D5','F#5']}]
+  },
+  {
+    id:'m4',nombre:'¿Alegre o triste?',emoji:'👂',
+    explicacion:{
+      titulo:'Prueba de oído',
+      texto:'Última prueba del módulo. Vas a escuchar acordes mayores y menores mezclados, y los vas a repetir. Prestá atención al <b>color</b> de cada uno.',
+      tip:'No mires el teclado en la demostración: escuchá 🎧'
+    },
+    demo:['C4','E4','G4','A4','C5','E5','F4','A4','C5','D4','F4','A4'],
+    practica:[{acorde:['C4','E4','G4'],pista:'¿Alegre o triste?'},{acorde:['A4','C5','E5'],pista:'¿Y este?'},{acorde:['F4','A4','C5']},{acorde:['D4','F4','A4']}],
+    evaluacion:[{acorde:['C4','E4','G4']},{acorde:['A4','C5','E5']},{acorde:['F4','A4','C5']},{acorde:['D4','F4','A4']},{acorde:['E4','G4','B4']},{acorde:['G4','B4','D5']}]
+  }
+  ]
+}
+];
+
+// ════════════════════════════════════════════
+// MOTOR DE LECCIONES (v1.5)
+// ════════════════════════════════════════════
+// Reemplaza el sistema anterior, donde una "lección" era apretar N teclas una
+// vez y finishLesson() daba SIEMPRE 3 estrellas: era imposible fallar y no se
+// explicaba nada.
+// Ahora cada lección recorre 4 fases y las estrellas salen del desempeño real
+// en la fase de evaluación.
+const FASES=['explicacion','demo','practica','evaluacion'];
+let modActual=null,lecActual=null,faseActual=0,pasoActual=0;
+let erroresEval=0,acordeApretado=new Set(),demoTimer=null;
+
+function lecPorId(mid,lid){const m=MODULOS.find(x=>x.id===mid);return m&&m.lecciones.find(l=>l.id===lid);}
+function totalLecciones(){return MODULOS.reduce((n,m)=>n+m.lecciones.length,0);}
+
+// ── Progreso ────────────────────────────────
+// modProgress = { 'notas/n1': {stars:3}, ... }
+function lecClave(mid,lid){return mid+'/'+lid;}
+function lecEstrellas(mid,lid){const p=modProgress[lecClave(mid,lid)];return p?p.stars:0;}
+// Una lección se abre si es la primera del módulo o si la anterior tiene ≥1 estrella.
+// El módulo se abre si el anterior está completo al menos a la mitad.
+function lecDesbloqueada(mi,li){
+  if(li===0)return moduloDesbloqueado(mi);
+  const m=MODULOS[mi];
+  return lecEstrellas(m.id,m.lecciones[li-1].id)>0;
+}
+function moduloDesbloqueado(mi){
+  if(mi===0)return true;
+  const prev=MODULOS[mi-1];
+  const hechas=prev.lecciones.filter(l=>lecEstrellas(prev.id,l.id)>0).length;
+  return hechas>=Math.ceil(prev.lecciones.length/2);
+}
+function moduloEstrellas(mi){
+  const m=MODULOS[mi];
+  return m.lecciones.reduce((n,l)=>n+lecEstrellas(m.id,l.id),0);
+}
+
+// ── Vista de módulos ────────────────────────
+function buildLessonGrid(){
+  const g=document.getElementById('lesson-grid');if(!g)return;
+  g.innerHTML='';
+  MODULOS.forEach((m,mi)=>{
+    const abierto=moduloDesbloqueado(mi);
+    const max=m.lecciones.length*3,got=moduloEstrellas(mi);
+    const cont=document.createElement('div');
+    cont.className='modulo'+(abierto?'':' locked');
+    cont.innerHTML=`<div class="modulo-head" style="background:${m.color}">
+      <div class="modulo-emoji">${abierto?m.emoji:'🔒'}</div>
+      <div style="flex:1;">
+        <div class="modulo-nombre">${m.nombre}</div>
+        <div class="modulo-desc">${abierto?m.desc:'Completá la mitad del módulo anterior para abrirlo'}</div>
+      </div>
+      <div class="modulo-stars">★ ${got}/${max}</div>
+    </div>`;
+    const fila=document.createElement('div');fila.className='modulo-lecciones';
+    m.lecciones.forEach((l,li)=>{
+      const st=lecEstrellas(m.id,l.id),open=abierto&&lecDesbloqueada(mi,li);
+      const card=document.createElement('div');
+      card.className='lesson-card'+(open?'':' locked')+(st>0?' completed':'');
+      card.innerHTML=`<div class="lesson-emoji">${open?l.emoji:'🔒'}</div>
+        <div class="lesson-name">${l.nombre}</div>
+        <div class="lesson-stars">${'★'.repeat(st)}${'☆'.repeat(3-st)}</div>`;
+      if(open)card.onclick=()=>startLesson(mi,li);
+      fila.appendChild(card);
+    });
+    cont.appendChild(fila);
+    g.appendChild(cont);
+  });
+}
+
+// ── Recorrido de una lección ────────────────
+function startLesson(mi,li){
+  modActual=mi;lecActual=li;faseActual=0;pasoActual=0;erroresEval=0;
+  acordeApretado=new Set();
+  document.getElementById('lesson-select').style.display='none';
+  document.getElementById('lesson-playing').classList.add('active');
+  const m=MODULOS[mi],l=m.lecciones[li];
+  document.getElementById('lesson-title').textContent=l.emoji+' '+l.nombre;
+  buildPiano('piano-lesson');
+  mostrarFase();
+}
+function lecCorriente(){return modActual===null?null:MODULOS[modActual].lecciones[lecActual];}
+function pasosDeFase(){
+  const l=lecCorriente();if(!l)return[];
+  return faseActual===2?l.practica:faseActual===3?l.evaluacion:[];
+}
+function mostrarFase(){
+  const l=lecCorriente();if(!l)return;
+  clearHL('piano-lesson');
+  document.getElementById('nd-lesson').innerHTML='';
+  const fase=FASES[faseActual];
+  const zonaExp=document.getElementById('lesson-explicacion');
+  const zonaPrompt=document.getElementById('lesson-prompt-zone');
+  if(fase==='explicacion'){
+    zonaExp.style.display='block';zonaPrompt.style.display='none';
+    zonaExp.innerHTML=`<div class="exp-titulo">${l.explicacion.titulo}</div>
+      <div class="exp-texto">${l.explicacion.texto}</div>
+      <div class="exp-tip">💡 ${l.explicacion.tip}</div>
+      <button class="exp-btn" onclick="siguienteFase()">¡Entendí! →</button>`;
+    marcarFase();return;
+  }
+  zonaExp.style.display='none';zonaPrompt.style.display='block';
+  if(fase==='demo'){
+    document.getElementById('prompt-label').textContent='Escuchá y mirá';
+    document.getElementById('prompt-main').textContent='🎧 Demostración';
+    document.getElementById('prompt-sub').textContent='Te muestro cómo suena. Después te toca a vos.';
+    document.getElementById('lesson-progress').innerHTML='';
+    document.getElementById('lesson-acciones').innerHTML=
+      `<button class="exp-btn" onclick="reproducirDemo()">▶ Escuchar de nuevo</button>
+       <button class="exp-btn alt" onclick="siguienteFase()">Ahora yo →</button>`;
+    reproducirDemo();marcarFase();return;
+  }
+  document.getElementById('lesson-acciones').innerHTML='';
+  mostrarPaso();marcarFase();
+}
+function marcarFase(){
+  const cont=document.getElementById('fase-indicador');if(!cont)return;
+  const nombres=['📖 Explicación','🎧 Demostración','🎹 Práctica','🏅 Evaluación'];
+  cont.innerHTML=nombres.map((n,i)=>
+    `<div class="fase-chip${i===faseActual?' on':''}${i<faseActual?' done':''}">${n}</div>`).join('');
+}
+function reproducirDemo(){
+  const l=lecCorriente();if(!l)return;
+  clearTimeout(demoTimer);
+  ensureSynth();
+  Tone.start().then(()=>{
+    l.demo.forEach((n,i)=>{
+      setTimeout(()=>{
+        try{pianoSynth.triggerAttackRelease(n,'8n');}catch(e){}
+        clearHL('piano-lesson');hlKey('piano-lesson',n);
+      },i*520);
+    });
+    demoTimer=setTimeout(()=>clearHL('piano-lesson'),l.demo.length*520+400);
+  });
+}
+function mostrarPaso(){
+  const pasos=pasosDeFase(),p=pasos[pasoActual];
+  if(!p){terminarFase();return;}
+  const evaluando=(faseActual===3);
+  const prog=document.getElementById('lesson-progress');prog.innerHTML='';
+  pasos.forEach((_,i)=>{const d=document.createElement('div');
+    d.className='progress-dot'+(i<pasoActual?' done':i===pasoActual?' current':'');prog.appendChild(d);});
+  clearHL('piano-lesson');
+  acordeApretado=new Set();
+  const notas=p.acorde||[p.n];
+  document.getElementById('prompt-label').textContent=
+    evaluando?(p.acorde?'Tocá el acorde (sin ayuda)':'Tocá la nota (sin ayuda)')
+             :(p.acorde?'Tocá las 3 notas juntas':'Tocá esta nota');
+  document.getElementById('prompt-main').textContent=notas.map(n=>nl(n)).join(' + ');
+  document.getElementById('prompt-sub').textContent=
+    evaluando?'Ronda de evaluación · errores: '+erroresEval:(p.pista||'');
+  // En práctica se ilumina la tecla. En evaluación no: hay que saberla.
+  if(!evaluando)notas.forEach(n=>hlKey('piano-lesson',n));
+}
+function checkLessonNote(note){
+  if(modActual===null||faseActual<2)return;
+  const pasos=pasosDeFase(),p=pasos[pasoActual];if(!p)return;
+  const notas=p.acorde||[p.n];
+  if(notas.includes(note)){
+    acordeApretado.add(note);
+    if(p.acorde)unlockAch(3);else unlockAch(2);
+    if(acordeApretado.size>=notas.length){
+      document.getElementById('nd-lesson').innerHTML=
+        '<span class="note-bubble" style="background:linear-gradient(135deg,#26a69a,#00695c)">¡Correcto! 🎉</span>';
+      stars+=faseActual===3?3:1;updateStatsUI();
+      pasoActual++;
+      // Limpiar acá y no en mostrarPaso(): esa corre 600ms después, y si el
+      // chico toca rápido una nota vieja quedaría contando para el paso nuevo.
+      acordeApretado=new Set();
+      setTimeout(()=>{document.getElementById('nd-lesson').innerHTML='';mostrarPaso();},600);
+    }
+  }else{
+    if(faseActual===3)erroresEval++;
+    document.getElementById('nd-lesson').innerHTML=
+      '<span class="note-bubble" style="background:linear-gradient(135deg,#ef5350,#c62828)">Esa no. Probá de nuevo 🙂</span>';
+    document.getElementById('prompt-sub').textContent=
+      faseActual===3?'Ronda de evaluación · errores: '+erroresEval:(p.pista||'');
+    setTimeout(()=>{const nd=document.getElementById('nd-lesson');if(nd)nd.innerHTML='';},900);
+  }
+}
+function terminarFase(){
+  if(faseActual<3){siguienteFase();return;}
+  finishLesson();
+}
+function siguienteFase(){
+  faseActual++;pasoActual=0;acordeApretado=new Set();
+  if(faseActual>=FASES.length){finishLesson();return;}
+  mostrarFase();
+}
+// Estrellas por desempeño real en la evaluación.
+function estrellasPorErrores(err,pasos){
+  if(err===0)return 3;
+  if(err<=Math.max(2,Math.ceil(pasos*0.25)))return 2;
+  return 1;
+}
+function finishLesson(){
+  const m=MODULOS[modActual],l=m.lecciones[lecActual];
+  const nuevas=estrellasPorErrores(erroresEval,l.evaluacion.length);
+  const previas=lecEstrellas(m.id,l.id);
+  // Sólo mejora: repetir una lección nunca baja lo que ya conseguiste.
+  modProgress[lecClave(m.id,l.id)]={stars:Math.max(previas,nuevas)};
+  if(previas===0){lessonsCompleted++;addXP(30);unlockAch(4);}
+  const msg=nuevas===3?'¡Perfecto! ★★★ Sin ningún error 🎉'
+    :nuevas===2?'¡Muy bien! ★★ Casi perfecto'
+    :'¡Lección completada! ★ Podés repetirla para mejorar';
+  showToast(msg);
+  saveProgress();exitLesson();buildLessonGrid();
+}
+function exitLesson(){
+  clearTimeout(demoTimer);
+  modActual=null;lecActual=null;faseActual=0;pasoActual=0;erroresEval=0;
+  acordeApretado=new Set();clearFingers();clearHL('piano-lesson');
+  document.getElementById('lesson-select').style.display='block';
+  document.getElementById('lesson-playing').classList.remove('active');
+}
 
 // ════════════════════════════════════════════
 // CANCIONES
@@ -1403,14 +1935,21 @@ function renderPadresStats(){
     ?'<div style="font-size:12px;color:#bbb;padding:8px;text-align:center;">Todavía no tocó ninguna nota.</div>'
     :sorted.map(([note,count])=>{const base=note.replace(/\d/g,'').replace('#','');const c=noteColors[base]||'#3949ab';return`<div class="note-row-p"><div class="note-name-p" style="color:${c};">${noteNames[base]||base}</div><div class="note-bar-wrap-p"><div class="note-bar-p" style="width:${Math.round(count/maxN*100)}%;background:${c};"></div></div><div class="note-count-p">${count}</div></div>`;}).join('');
 }
+function buildPadresLeccTabs(){
+  const c=document.getElementById('padres-lecc-tabs');if(!c)return;
+  c.innerHTML=MODULOS.map((m,i)=>`<button onclick="showPadresLecc('${m.id}',this)" style="background:${i===0?'#1a237e':'white'};color:${i===0?'white':'#1a237e'};border:2px solid #1a237e;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">${m.emoji} ${m.nombre}</button>`).join('');
+}
 function showPadresLecc(cat,btn){
   if(!btn)return;
   document.querySelectorAll('#padres-lecc-tabs button').forEach(b=>{b.style.background='white';b.style.color='#1a237e';});
   btn.style.background='#1a237e';btn.style.color='white';
-  const lessons=cat==='notas'?LESSONS_NOTES:cat==='may'?LESSONS_MAJ:LESSONS_MEN;
-  document.getElementById('padres-lecc-grid').innerHTML=lessons.map(l=>`<div style="background:${l.stars>0?'#e8f8f5':'#f4f4f8'};border-radius:10px;padding:8px;text-align:center;border:2px solid ${l.stars>0?'#26a69a':'#e0e0f0'};${l.locked?'opacity:.4':''}"><div style="font-size:18px;">${l.emoji}</div><div style="font-size:9px;font-weight:700;color:#444;margin-top:2px;">${l.name}</div><div style="font-size:10px;color:#fb8c00;">${'★'.repeat(l.stars||0)}${'☆'.repeat(3-(l.stars||0))}</div>${l.locked?'<div style="font-size:9px;color:#aaa;">🔒</div>':''}</div>`).join('');
-  const done=lessons.filter(l=>l.stars>0).length,total=lessons.length,unlocked=lessons.filter(l=>!l.locked).length;
-  document.getElementById('padres-lecc-summary').innerHTML=`✅ Completadas: <strong>${done}/${total}</strong><br>🔓 Desbloqueadas: <strong>${unlocked}/${total}</strong><br>⭐ Estrellas: <strong>${lessons.reduce((a,l)=>a+(l.stars||0),0)}</strong> de ${total*3}`;
+  const m=MODULOS.find(x=>x.id===cat)||MODULOS[0];
+  const est=l=>lecEstrellas(m.id,l.id);
+  const abierta=(li)=>lecDesbloqueada(MODULOS.indexOf(m),li);
+  document.getElementById('padres-lecc-grid').innerHTML=m.lecciones.map((l,li)=>`<div style="background:${est(l)>0?'#e8f8f5':'#f4f4f8'};border-radius:10px;padding:8px;text-align:center;border:2px solid ${est(l)>0?'#26a69a':'#e0e0f0'};${abierta(li)?'':'opacity:.4'}"><div style="font-size:18px;">${l.emoji}</div><div style="font-size:10px;font-weight:800;color:#444;margin-top:2px;">${l.nombre}</div><div style="font-size:10px;color:#fb8c00;">${'★'.repeat(est(l))}${'☆'.repeat(3-est(l))}</div></div>`).join('');
+  const done=m.lecciones.filter(l=>est(l)>0).length,total=m.lecciones.length;
+  const unlocked=m.lecciones.filter((l,li)=>abierta(li)).length;
+  document.getElementById('padres-lecc-summary').innerHTML=`✅ Completadas: <strong>${done}/${total}</strong><br>🔓 Desbloqueadas: <strong>${unlocked}/${total}</strong><br>⭐ Estrellas: <strong>${m.lecciones.reduce((a,l)=>a+est(l),0)}</strong> de ${total*3}`;
 }
 // Config padres
 const GENRES_P=[{key:'infantil',label:'👶 Infantil'},{key:'clasica',label:'🎻 Clásica'},{key:'argentina',label:'🇦🇷 Argentina'},{key:'disney',label:'✨ Disney'},{key:'navidad',label:'🎄 Navidad'},{key:'pop',label:'🎤 Pop'}];
