@@ -2,9 +2,8 @@
 // Uso:  node tests/v13.js
 const fs = require('fs');
 const path = require('path');
-const { boot, test, assert, eq, report, ROOT } = require('./harness');
+const { boot, test, assert, eq, report, ROOT, src, srcC } = require('./harness');
 
-const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 
 // ═══════════════════════════════════════════════════════════
 // B1 · Pentagrama: posiciones correctas en clave de sol
@@ -64,7 +63,7 @@ const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
   });
 
   test('Las líneas adicionales se calculan, ya no están hardcodeadas', () => {
-    assert(!/note==='C4'\|\|note==='B3'/.test(src), 'sigue el caso especial C4/B3');
+    assert(!/note==='C4'\|\|note==='B3'/.test(srcC), 'sigue el caso especial C4/B3');
     assert(typeof app.fn.ledgerLinesFor === 'function', 'falta ledgerLinesFor');
   });
 
@@ -167,9 +166,9 @@ const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
   });
 
   test('Hay red de seguridad global (pointerup fuera, blur, pestaña oculta)', () => {
-    assert(/window\.addEventListener\('pointerup'/.test(src), 'falta el pointerup global');
-    assert(/window\.addEventListener\('blur',releaseAllKeys\)/.test(src), 'falta el blur');
-    assert(/visibilitychange/.test(src) && /releaseAllKeys/.test(src), 'falta visibilitychange');
+    assert(/window\.addEventListener\('pointerup'/.test(srcC), 'falta el pointerup global');
+    assert(/window\.addEventListener\('blur',releaseAllKeys\)/.test(srcC), 'falta el blur');
+    assert(/visibilitychange/.test(srcC) && /releaseAllKeys/.test(srcC), 'falta visibilitychange');
   });
 }
 
@@ -178,20 +177,20 @@ const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 // ═══════════════════════════════════════════════════════════
 {
   test('El touchstart de las teclas ya no bloquea el scroll nativo', () => {
-    assert(!/touchstart',ev=>\{ev\.preventDefault\(\);pianoPlay/.test(src),
+    assert(!/touchstart',ev=>\{ev\.preventDefault\(\);pianoPlay/.test(srcC),
       'sigue el preventDefault que impedía correr el teclado con el dedo');
   });
   test('El contenedor declara touch-action:pan-x', () => {
-    assert(/\.piano-wrapper\{[^}]*touch-action:pan-x/.test(src),
+    assert(/\.piano-wrapper\{[^}]*touch-action:pan-x/.test(srcC),
       'sin touch-action:pan-x el navegador no hace el paneo horizontal');
   });
   test('Existe arrastre con mouse para la compu', () => {
-    assert(/function wireDragScroll/.test(src), 'falta wireDragScroll');
-    assert(/scrollLeft=scroll0-d/.test(src), 'el arrastre no mueve el scroll');
+    assert(/functionwireDragScroll/.test(srcC), 'falta wireDragScroll');
+    assert(/scrollLeft=scroll0-d/.test(srcC), 'el arrastre no mueve el scroll');
   });
   test('Las teclas usan Pointer Events, no mouse/touch por separado', () => {
-    assert(/pointerdown/.test(src) && /pointercancel/.test(src));
-    assert(!/k\.addEventListener\('mousedown'/.test(src), 'quedaron handlers de mouse viejos');
+    assert(/pointerdown/.test(srcC) && /pointercancel/.test(srcC));
+    assert(!/k\.addEventListener\('mousedown'/.test(srcC), 'quedaron handlers de mouse viejos');
   });
 }
 
@@ -200,29 +199,30 @@ const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 // ═══════════════════════════════════════════════════════════
 {
   test('Cada sonido del metrónomo tiene su propia voz', () => {
-    assert(/metroVoices/.test(src), 'no hay voces separadas');
+    assert(/metroVoices/.test(srcC), 'no hay voces separadas');
     ['click:', 'wood:', 'beep:', 'bell:'].forEach(k =>
-      assert(new RegExp(k).test(src), `falta la voz ${k}`));
+      assert(new RegExp(k).test(srcC), `falta la voz ${k}`));
   });
   test('Campana y beep usan tipos de síntesis distintos', () => {
-    const bell = /bell:new Tone\.(\w+)/.exec(src);
-    const beep = /beep:new Tone\.(\w+)/.exec(src);
+    const bell = /bell:newTone\.(\w+)/.exec(srcC);
+    const beep = /beep:newTone\.(\w+)/.exec(srcC);
     assert(bell && beep, 'no se encontraron las definiciones de bell/beep');
     assert(bell[1] !== beep[1], `campana y beep siguen usando el mismo ${bell[1]}`);
   });
   test('Los 4 sonidos usan al menos 3 tipos de síntesis distintos', () => {
     const tipos = ['click', 'wood', 'beep', 'bell']
-      .map(k => (new RegExp(k + ':new Tone\\.(\\w+)').exec(src) || [])[1]);
+      .map(k => (new RegExp(k + ':newTone\\.(\\w+)').exec(srcC) || [])[1]);
     assert(tipos.every(Boolean), `falta definir alguno: ${tipos.join(', ')}`);
     assert(new Set(tipos).size >= 3, `sólo ${new Set(tipos).size} timbres distintos: ${tipos.join(', ')}`);
   });
   test('La campana tiene cola larga (es lo que la hace sonar a campana)', () => {
-    const bloque = src.slice(src.indexOf('bell:new Tone'), src.indexOf('bell:new Tone') + 400);
+    const i = srcC.indexOf('bell:newTone');
+    const bloque = srcC.slice(i, i + 400);
     const decay = /envelope:\{attack:[\d.]+,decay:([\d.]+)/.exec(bloque);
     assert(decay && +decay[1] > 1, `decay de la campana ${decay && decay[1]}, necesita ser >1s`);
   });
   test('Ya no comparten un único Synth sine', () => {
-    assert(!/function getMetroSynth\(\)\{if\(!metroSynth\)metroSynth=new Tone\.Synth/.test(src));
+    assert(!/functiongetMetroSynth\(\)\{if\(!metroSynth\)metroSynth=newTone\.Synth/.test(srcC));
   });
 }
 
@@ -262,7 +262,7 @@ const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
     assert(I.bass.opts.filterEnvelope, 'sin envolvente de filtro no suena a bajo');
   });
   test('buildSynth tiene fallback si la voz no existe en esta versión de Tone', () => {
-    assert(/catch\(e\)\{[\s\S]{0,200}new Tone\.PolySynth\(Tone\.Synth/.test(src),
+    assert(/catch\(e\)\{[\s\S]{0,200}newTone\.PolySynth\(Tone\.Synth/.test(srcC),
       'si falla la voz la app se queda muda');
   });
 }

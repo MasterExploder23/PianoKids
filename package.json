@@ -1,6 +1,6 @@
 {
   "name": "pianokids",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "private": true,
   "description": "App web para aprender piano jugando, para chicos de 7 a 10 años",
   "scripts": {
@@ -12,7 +12,8 @@
     "test:lecciones": "node tests/lecciones.js",
     "test:engagement": "node tests/engagement.js",
     "test:perfiles": "node tests/perfiles.js",
-    "serve": "npx --yes serve ."
+    "serve": "npx --yes serve .",
+    "format": "npx --yes prettier@3 --write \"data/*.js\" \"tests/*.js\""
   },
   "devDependencies": {
     "jsdom": "^24.0.0"

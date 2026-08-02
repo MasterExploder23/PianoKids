@@ -1,7 +1,7 @@
 // Smoke test funcional: simula uso real de la app clickeando el DOM
 // y verifica que el panel de padres refleje exactamente lo que pasó.
 // Uso:  node tests/smoke.js
-const { boot, test, assert, eq, report } = require('./harness');
+const { boot, test, assert, eq, report, src, srcC } = require('./harness');
 
 const fire = (el, tipo) => { assert(el, 'elemento inexistente'); el.dispatchEvent(new el.ownerDocument.defaultView.MouseEvent(tipo, { bubbles: true, cancelable: true })); };
 const click = el => fire(el, 'click');

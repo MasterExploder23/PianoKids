@@ -2,9 +2,8 @@
 // Uso:  node tests/lecciones.js
 const fs = require('fs');
 const path = require('path');
-const { boot, test, assert, eq, report, ROOT } = require('./harness');
+const { boot, test, assert, eq, report, ROOT, src, srcC } = require('./harness');
 
-const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 
 // Semitonos por nota, para verificar la teoría musical de forma independiente.
 const PC = { C: 0, 'C#': 1, D: 2, 'D#': 3, E: 4, F: 5, 'F#': 6, G: 7, 'G#': 8, A: 9, 'A#': 10, B: 11 };
@@ -163,7 +162,7 @@ const midi = n => { const m = /^([A-G]#?)(\d)$/.exec(n); return PC[m[1]] + 12 * 
     assert(e(3, 4) === 1, 'en una de 4 pasos, 3 errores es 1 estrella');
   });
   test('Ya no existe el "siempre 3 estrellas" del sistema viejo', () => {
-    assert(!/l\[currentLesson\]\.stars=3/.test(src), 'sigue asignando 3 estrellas fijas');
+    assert(!/l\[currentLesson\]\.stars=3/.test(srcC), 'sigue asignando 3 estrellas fijas');
   });
 }
 
@@ -344,7 +343,7 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
   });
   test('Ya no queda nada del sistema de lecciones viejo', () => {
     ['LESSONS_NOTES', 'LESSONS_MAJ', 'LESSONS_MEN', 'getLessonList', 'setLessonCat', 'lessonCat']
-      .forEach(id => assert(!src.includes(id), `sigue existiendo ${id}`));
+      .forEach(id => assert(!srcC.includes(id), `sigue existiendo ${id}`));
   });
 }
 

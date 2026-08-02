@@ -37,9 +37,15 @@ const EXPOSED_FN = [
   'armarBackup', 'validarBackup', 'aplicarBackup', 'renderPerfiles', 'snapshotProgreso',
 ];
 
+// Desde v1.9 los datos viven en data/*.js, cargados con <script src> antes de
+// la app. Como son scripts clasicos comparten el scope global, asi que para el
+// harness alcanza con concatenarlos delante.
+const DATOS = ['canciones.js', 'curriculum.js', 'escenas.js'];
+
 function boot(opts = {}) {
   const html = fs.readFileSync(INDEX, 'utf8');
-  const appJs = html.slice(
+  const datosJs = DATOS.map(f => fs.readFileSync(path.join(ROOT, 'data', f), 'utf8')).join('\n');
+  const appJs = datosJs + '\n' + html.slice(
     html.indexOf('<script>', html.indexOf('Tone.js')) + '<script>'.length,
     html.lastIndexOf('</script>')
   );
@@ -171,4 +177,16 @@ function report(suite) {
   return failed;
 }
 
-module.exports = { boot, test, assert, eq, report, ROOT };
+// Fuente completo (index.html + data/*.js) para los tests que verifican
+// estructura del codigo. `src` es el texto tal cual; `srcC` viene sin espacios,
+// para que un reformateo del codigo no rompa aserciones que solo quieren saber
+// si cierta construccion existe. Las que buscan texto para el usuario (frases
+// en castellano) deben seguir usando `src`.
+function leerFuente() {
+  return fs.readFileSync(INDEX, 'utf8') +
+    DATOS.map(f => fs.readFileSync(path.join(ROOT, 'data', f), 'utf8')).join('\n');
+}
+const src = leerFuente();
+const srcC = src.replace(/\s+/g, '');
+
+module.exports = { boot, test, assert, eq, report, ROOT, src, srcC };

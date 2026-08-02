@@ -2,7 +2,7 @@
 // Uso:  node tests/run.js
 const fs = require('fs');
 const path = require('path');
-const { boot, test, assert, eq, report, ROOT } = require('./harness');
+const { boot, test, assert, eq, report, ROOT, src, srcC } = require('./harness');
 
 const dayKey = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - n); return dayKey(d); };
@@ -145,8 +145,8 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
 {
   test('El objeto guardado incluye las claves de actividad', () => {
     const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-    assert(/dayStreak,activeDays,dailyNotes/.test(src), 'saveProgress no persiste la actividad');
-    assert(/activeDays=Array\.isArray\(d\.activeDays\)/.test(src), 'loadProgress no restaura activeDays');
+    assert(/dayStreak,activeDays,dailyNotes/.test(srcC), 'saveProgress no persiste la actividad');
+    assert(/activeDays=Array\.isArray\(d\.activeDays\)/.test(srcC), 'loadProgress no restaura activeDays');
   });
 
   test('Reload con progreso guardado restaura la racha', () => {
@@ -168,9 +168,9 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
 
   test('combo (notas seguidas) es independiente de la racha diaria', () => {
     const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-    assert(/combo\+\+/.test(src), 'el combo debe incrementar por nota');
-    assert(/combo>=5/.test(src), 'el logro de 5 seguidas debe usar combo');
-    assert(!/\bstreak\+\+/.test(src), 'la racha diaria no debe incrementar por nota');
+    assert(/combo\+\+/.test(srcC), 'el combo debe incrementar por nota');
+    assert(/combo>=5/.test(srcC), 'el logro de 5 seguidas debe usar combo');
+    assert(!/\bstreak\+\+/.test(srcC), 'la racha diaria no debe incrementar por nota');
   });
 }
 

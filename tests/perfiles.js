@@ -2,9 +2,8 @@
 // Uso:  node tests/perfiles.js
 const fs = require('fs');
 const path = require('path');
-const { boot, test, assert, eq, report, ROOT } = require('./harness');
+const { boot, test, assert, eq, report, ROOT, src, srcC } = require('./harness');
 
-const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 
 // ═══════════════════════════════════════════════════════════
 // Arranque
@@ -151,12 +150,12 @@ const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
     eq(a.fn.cambiarPerfil(a.perfilActivo), false);
   });
   test('Guardar antes de cambiar: no se pierde lo último', () => {
-    assert(/function cambiarPerfil[\s\S]{0,200}saveProgressAhora\(\)/.test(src),
+    assert(/functioncambiarPerfil[\s\S]{0,200}saveProgressAhora\(\)/.test(srcC),
       'cambiarPerfil no guarda antes de cambiar');
   });
   test('saveProgress usa la clave del perfil activo, no la fija', () => {
-    assert(!/localStorage\.setItem\(SKEY,JSON/.test(src), 'sigue guardando en la clave única');
-    assert(/localStorage\.setItem\(claveActual\(\)/.test(src), 'no usa claveActual()');
+    assert(!/localStorage\.setItem\(SKEY,JSON/.test(srcC), 'sigue guardando en la clave única');
+    assert(/localStorage\.setItem\(claveActual\(\)/.test(srcC), 'no usa claveActual()');
   });
 }
 
@@ -270,10 +269,10 @@ const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
     assert(a.perfiles.length <= a.MAX_PERFILES, `quedaron ${a.perfiles.length} perfiles`);
   });
   test('El nombre del archivo lleva la fecha', () => {
-    assert(/pianokids-backup-'\+todayKey\(\)/.test(src), 'el backup no lleva fecha en el nombre');
+    assert(/pianokids-backup-'\+todayKey\(\)/.test(srcC), 'el backup no lleva fecha en el nombre');
   });
   test('Importar pide confirmación antes de pisar todo', () => {
-    assert(/importarArchivo[\s\S]{0,600}confirm\(/.test(src),
+    assert(/importarArchivo[\s\S]{0,600}confirm\(/.test(srcC),
       'restaura sin confirmar: se puede perder todo por un click');
   });
 }
@@ -308,7 +307,7 @@ const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
     assert(chip.textContent.includes(app.fn.perfilCorriente().nombre), `dice "${chip.textContent}"`);
   });
   test('Hay controles de backup en el panel de padres', () => {
-    assert(/descargarBackup\(\)/.test(src) && /importarArchivo\(this\)/.test(src));
+    assert(/descargarBackup\(\)/.test(srcC) && /importarArchivo\(this\)/.test(srcC));
     assert(doc.getElementById('backup-file'), 'falta el input de archivo');
   });
   test('Se le avisa al padre que el progreso es solo local', () => {

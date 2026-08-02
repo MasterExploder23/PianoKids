@@ -10,6 +10,10 @@ pianokids/
 ├── icon-192.png    ← Ícono app
 ├── icon-512.png    ← Ícono app grande
 ├── package.json    ← Scripts de test
+├── data/           ← Datos separados del código
+│   ├── canciones.js   ← Catálogo de canciones
+│   ├── curriculum.js  ← Los 5 módulos de lecciones
+│   └── escenas.js     ← Fondos SVG de la tienda
 ├── tests/
 │   ├── harness.js  ← Arranca la app en JSDOM con audio stubbeado
 │   ├── run.js      ← Suite de regresión (36 tests)
@@ -149,6 +153,28 @@ del 80% central. Herramienta útil: https://maskable.app
 - 👨‍👩‍👧 Panel de padres con progreso, actividad semanal y notas más tocadas
 - 📲 Instalable como app (PWA)
 - 🌐 Funciona sin internet una vez cacheado
+
+## Peso y rendimiento
+
+Medido en v1.9:
+
+| | crudo | gzip |
+|---|---|---|
+| `index.html` | 190 KB | 47 KB |
+| `data/*.js` | 45 KB | 7 KB |
+| **App completa** | **235 KB** | **54 KB** |
+
+Tone.js se carga **minificado** (`Tone.min.js`). La versión sin minificar pesaba
+unos 590 KB, casi 3 veces toda la app: cambiar esa palabra en la URL ahorró más
+que cualquier reorganización del código.
+
+Referencia de umbrales: con ~54 KB gzip y ~140 KB de JS a parsear, la app está
+lejos de cualquier límite. Los problemas empiezan cerca de los 150 KB gzip de
+shell o 300 KB de JS parseado.
+
+**Los datos de `data/` se cargan con `<script>` normales**, no con `fetch`. Así
+comparten el scope global y el arranque sigue siendo sincrónico. Editar una
+canción o una lección no requiere abrir `index.html`.
 
 ## Stack técnico
 

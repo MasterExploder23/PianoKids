@@ -2,9 +2,8 @@
 // Uso:  node tests/midi.js
 const fs = require('fs');
 const path = require('path');
-const { boot, test, assert, eq, report, ROOT } = require('./harness');
+const { boot, test, assert, eq, report, ROOT, src, srcC } = require('./harness');
 
-const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const esperar = () => new Promise(r => setTimeout(r, 0));
 
 // ═══════════════════════════════════════════════════════════
@@ -201,19 +200,19 @@ const esperar = () => new Promise(r => setTimeout(r, 0));
   // ── Dinámica ──────────────────────────────────────────────
   {
     test('pianoPlay acepta velocity y la pasa al sintetizador', () => {
-      assert(/function pianoPlay\(note,el,pid,vel\)/.test(src), 'pianoPlay no recibe velocity');
-      assert(/triggerAttack\(note,undefined,v\)/.test(src), 'la velocity no llega al synth');
+      assert(/functionpianoPlay\(note,el,pid,vel\)/.test(srcC), 'pianoPlay no recibe velocity');
+      assert(/triggerAttack\(note,undefined,v\)/.test(srcC), 'la velocity no llega al synth');
     });
     test('La velocity se acota para que ninguna nota quede inaudible', () => {
-      assert(/Math\.max\(\.15,Math\.min\(1,vel\)\)/.test(src), 'falta el clamp de velocity');
+      assert(/Math\.max\(0?\.15,Math\.min\(1,vel\)\)/.test(srcC), 'falta el clamp de velocity');
     });
     test('Sin MIDI se usa un valor fijo (mouse y teclas no tienen dinámica)', () => {
-      assert(/:\.8;/.test(src), 'falta el valor por defecto de velocity');
+      assert(/:0?\.8;/.test(srcC), 'falta el valor por defecto de velocity');
     });
   }
 
   test('Se pide acceso MIDI sin sysex (no hace falta y evita permisos extra)', () => {
-    assert(/requestMIDIAccess\(\{sysex:false\}\)/.test(src));
+    assert(/requestMIDIAccess\(\{sysex:false\}\)/.test(srcC));
   });
 
   process.exit(report('PianoKids v1.4 — teclado MIDI') === 0 ? 0 : 1);

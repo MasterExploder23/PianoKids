@@ -2,7 +2,7 @@
 // ─────────────────────────────────────────────────────────────
 // IMPORTANTE: subí BUILD en cada deploy. Es lo que invalida la caché vieja.
 // Si no lo subís, los usuarios que ya instalaron la app siguen viendo la versión anterior.
-const BUILD = '1.8.0';
+const BUILD = '1.9.0';
 const CACHE_NAME = `pianokids-${BUILD}`;
 
 // Assets que se intentan precachear en el install.
@@ -13,8 +13,11 @@ const ASSETS = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
+  './data/canciones.js',
+  './data/curriculum.js',
+  './data/escenas.js',
   'https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Fredoka+One&display=swap',
-  'https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js'
+  'https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js'
 ];
 
 // ── INSTALL ──────────────────────────────────────────────────

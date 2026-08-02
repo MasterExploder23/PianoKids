@@ -2,9 +2,8 @@
 // Uso:  node tests/engagement.js
 const fs = require('fs');
 const path = require('path');
-const { boot, test, assert, eq, report, ROOT } = require('./harness');
+const { boot, test, assert, eq, report, ROOT, src, srcC } = require('./harness');
 
-const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const dayKey = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - n); return dayKey(d); };
 
@@ -78,7 +77,7 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
       'las misiones cambian entre recargas: el chico perdería el progreso del día');
   });
   test('La semilla depende de la fecha, no del azar', () => {
-    assert(!/misionesDeHoy[\s\S]{0,200}Math\.random/.test(src),
+    assert(!/misionesDeHoy[\s\S]{0,200}Math\.random/.test(srcC),
       'la elección de misiones usa Math.random y no sería estable');
     eq(app.fn.semillaDelDia('2026-08-02'), app.fn.semillaDelDia('2026-08-02'));
     assert(app.fn.semillaDelDia('2026-08-02') !== app.fn.semillaDelDia('2026-08-03'),
@@ -119,7 +118,7 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
 
   test('Cada acción del chico está enganchada a una misión', () => {
     ['notas', 'lecciones', 'canciones', 'juegos', 'perfectas', 'metronomo'].forEach(campo =>
-      assert(new RegExp(`avanzarMision\\('${campo}'`).test(src), `no hay gancho para ${campo}`));
+      assert(new RegExp(`avanzarMision\\('${campo}'`).test(srcC), `no hay gancho para ${campo}`));
   });
   test('Tocar una tecla avanza la misión de notas', () => {
     const { app: a, doc } = boot();
@@ -305,8 +304,8 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
     eq(v.trim(), a.TEMAS.find(t => t.id === 'bosque').blanca);
   });
   test('Las teclas usan las variables CSS del tema', () => {
-    assert(/\.wk\{[^}]*background:var\(--tecla-blanca/.test(src), 'las blancas no usan la variable');
-    assert(/\.bk\{[^}]*background:var\(--tecla-negra/.test(src), 'las negras no usan la variable');
+    assert(/\.wk\{[^}]*background:var\(--tecla-blanca/.test(srcC), 'las blancas no usan la variable');
+    assert(/\.bk\{[^}]*background:var\(--tecla-negra/.test(srcC), 'las negras no usan la variable');
   });
   test('Las compras sobreviven al reload', () => {
     const { app: a } = boot({
@@ -417,18 +416,22 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
     eq(d.body.dataset.avatar, 'dragon');
   });
   test('La mascota es decorativa: no recibe clicks ni lee el lector de pantalla', () => {
-    assert(/\.mascota\{[^}]*pointer-events:none/.test(src), 'la mascota intercepta clicks');
+    assert(/\.mascota\{[^}]*pointer-events:none/.test(srcC), 'la mascota intercepta clicks');
     assert(doc.getElementById('mascota-izq').getAttribute('aria-hidden') === 'true');
   });
   test('Cada animal tiene su forma de moverse', () => {
     ['gato', 'perro', 'panda'].forEach(a =>
-      assert(new RegExp(`data-avatar="${a}"`).test(src), `${a} sin animación propia`));
-    assert(/data-avatar="dragon"\] \.mascota\{animation:volar/.test(src), 'el dragón no vuela');
-    assert(/data-avatar="unicornio"\] \.mascota\{animation:vagar/.test(src), 'el unicornio no deambula');
+      assert(new RegExp(`data-avatar="${a}"`).test(srcC), `${a} sin animación propia`));
+    assert(/data-avatar="dragon"\]\.mascota\{animation:volar/.test(srcC), 'el dragón no vuela');
+    assert(/data-avatar="unicornio"\]\.mascota\{animation:vagar/.test(srcC), 'el unicornio no deambula');
   });
   test('Sólo el unicornio deja rastro de arcoíris', () => {
-    assert(/data-avatar="unicornio"\] \.mascota \.rastro\{opacity:\.7/.test(src));
-    assert(/\.rastro\{[^}]*opacity:0/.test(src), 'el rastro se ve en todos los avatares');
+    assert(/data-avatar="unicornio"\]\.mascota\.rastro\{opacity:0?\.7/.test(srcC),
+      'el unicornio no muestra el rastro');
+    // Ojo con `opacity:0` a secas: tambien matchearia `opacity:0.7`. Pedimos el
+    // punto y coma para asegurarnos de que la regla base sea invisible.
+    assert(/\.mascota\.rastro\{[^}]*opacity:0;/.test(srcC),
+      'el rastro se ve en todos los avatares, no solo en el unicornio');
   });
   test('Tocar una nota hace que la mascota se siente a mirar', () => {
     const { app: a, doc: d } = boot();
@@ -439,12 +442,12 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
     assert(d.body.classList.contains('tocando'), 'la mascota sigue paseando mientras el chico toca');
   });
   test('Sentada, la mascota frena el recorrido y respira', () => {
-    assert(/body\.tocando \.mascota\{animation-play-state:paused/.test(src));
-    assert(/body\.tocando \.mascota \.cuerpo\{animation:mirando/.test(src));
+    assert(/body\.tocando\.mascota\{animation-play-state:paused/.test(srcC));
+    assert(/body\.tocando\.mascota\.cuerpo\{animation:mirando/.test(srcC));
   });
   test('La mascota se esconde en pantallas angostas y con reduce-motion', () => {
-    assert(/max-width:900px\)\{\.mascota\{display:none/.test(src), 'taparía el teclado en el celular');
-    assert(/prefers-reduced-motion:reduce\)\{\s*\.mascota[^}]*animation:none/.test(src),
+    assert(/max-width:900px\)\{\.mascota\{display:none/.test(srcC), 'taparía el teclado en el celular');
+    assert(/prefers-reduced-motion:reduce\)\{\.mascota[^}]*animation:none/.test(srcC),
       'no respeta la preferencia de movimiento reducido');
   });
   test('El avatar aparece en el encabezado', () => {
