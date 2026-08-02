@@ -2,7 +2,7 @@
 // ─────────────────────────────────────────────────────────────
 // IMPORTANTE: subí BUILD en cada deploy. Es lo que invalida la caché vieja.
 // Si no lo subís, los usuarios que ya instalaron la app siguen viendo la versión anterior.
-const BUILD = '1.5.0';
+const BUILD = '1.6.0';
 const CACHE_NAME = `pianokids-${BUILD}`;
 
 // Assets que se intentan precachear en el install.

@@ -45,11 +45,11 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
 /* PIANO */
 .piano-wrapper{width:100%;overflow-x:auto;padding:4px 0 8px;touch-action:pan-x;overscroll-behavior-x:contain;cursor:grab;-webkit-overflow-scrolling:touch;}
 .piano{position:relative;display:flex;height:165px;width:max-content;min-width:100%;justify-content:center;padding:0 2px;}
-.wk{width:40px;height:155px;background:#FFFEF5;border:1.5px solid #ccc;border-bottom-left-radius:7px;border-bottom-right-radius:7px;position:relative;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:6px;box-shadow:0 4px 6px rgba(0,0,0,.1),inset 0 -3px 0 rgba(0,0,0,.08);user-select:none;z-index:1;transition:background .08s,transform .08s;}
+.wk{width:40px;height:155px;background:var(--tecla-blanca,#FFFEF5);border:1.5px solid #ccc;border-bottom-left-radius:7px;border-bottom-right-radius:7px;position:relative;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:6px;box-shadow:0 4px 6px rgba(0,0,0,.1),inset 0 -3px 0 rgba(0,0,0,.08);user-select:none;z-index:1;transition:background .08s,transform .08s;}
 .wk:hover{background:#f0f0f0;}
 .wk.pressed{transform:translateY(3px);}
 .wk.hl{background:#FFD700!important;border-color:#e6ac00!important;box-shadow:0 0 14px #FFD70099!important;}
-.bk{width:26px;height:98px;background:#2C2C54;border-radius:0 0 5px 5px;position:absolute;top:0;cursor:pointer;z-index:2;user-select:none;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:5px;transition:background .08s,transform .08s;box-shadow:2px 4px 8px rgba(0,0,0,.4);}
+.bk{width:26px;height:98px;background:var(--tecla-negra,#2C2C54);border-radius:0 0 5px 5px;position:absolute;top:0;cursor:pointer;z-index:2;user-select:none;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:5px;transition:background .08s,transform .08s;box-shadow:2px 4px 8px rgba(0,0,0,.4);}
 .bk:hover{background:#4a4a7a;}
 .bk.pressed{transform:translateY(2px);}
 .bk.hl{background:#e6ac00!important;box-shadow:0 0 10px #FFD70088!important;}
@@ -101,6 +101,42 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
 .exp-btn{margin-top:12px;background:#3949ab;color:white;border:none;border-radius:22px;padding:9px 20px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;}
 .exp-btn.alt{background:#26a69a;}
 .lesson-acciones{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-top:8px;}
+/* Misiones, racha y tienda */
+.misiones-card{background:#f4f4f8;border-radius:13px;padding:11px;border:2px solid #ddd;}
+.mision{display:flex;align-items:center;gap:10px;background:white;border-radius:11px;padding:9px 11px;margin-bottom:7px;border:2px solid #e8e8f4;}
+.mision.ok{border-color:#26a69a;background:#e8f8f5;}
+.mision-emoji{font-size:22px;}
+.mision-texto{font-size:12px;font-weight:800;color:#3a3a4a;margin-bottom:4px;}
+.mision-bar{height:6px;background:#e4e4ee;border-radius:4px;overflow:hidden;}
+.mision-fill{height:100%;background:linear-gradient(90deg,#3949ab,#26a69a);border-radius:4px;transition:width .3s;}
+.mision-premio{font-size:11px;font-weight:800;color:#fb8c00;white-space:nowrap;}
+.hitos-titulo{font-size:11px;font-weight:800;color:#666;margin:9px 0 6px;}
+.hitos-row{display:flex;gap:6px;flex-wrap:wrap;}
+.hito{flex:1;min-width:62px;background:white;border:2px solid #e8e8f4;border-radius:10px;padding:7px 4px;text-align:center;opacity:.55;}
+.hito.ok{opacity:1;border-color:#fb8c00;background:#fff8e1;}
+.hito-dias{font-size:12px;font-weight:800;color:#444;}
+.hito-premio{font-size:9px;font-weight:800;color:#fb8c00;}
+.tienda-card{background:#f4f4f8;border-radius:13px;padding:11px;border:2px solid #ddd;}
+.tienda-saldo{font-size:12px;font-weight:700;color:#444;margin-bottom:9px;text-align:center;}
+.tienda-titulo{font-size:11px;font-weight:800;color:#666;margin:8px 0 6px;}
+.tienda-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:7px;}
+.tienda-item{background:white;border:2px solid #e8e8f4;border-radius:11px;padding:8px 5px;text-align:center;cursor:pointer;transition:all .15s;}
+.tienda-item.tengo{border-color:#26a69a;}
+.tienda-item.activo{border-color:#3949ab;background:#eef0ff;}
+.tienda-emoji{font-size:24px;}
+.tienda-nombre{font-size:10px;font-weight:800;color:#444;margin-top:2px;}
+.tienda-precio{font-size:10px;font-weight:800;color:#fb8c00;margin-top:1px;}
+.tienda-falta{font-size:8px;color:#aaa;font-weight:700;}
+/* Círculo de quintas */
+.cof-card{display:flex;gap:12px;align-items:center;background:white;border:2px solid #e0e0f0;border-radius:14px;padding:11px;flex-wrap:wrap;}
+.cof-svg{flex:0 0 190px;max-width:100%;margin:0 auto;}
+.cof-svg svg{width:100%;height:auto;display:block;}
+.cof-texto{flex:1;min-width:190px;}
+.cof-titulo{font-family:'Fredoka One',cursive;font-size:14px;color:#3949ab;margin-bottom:5px;}
+.cof-texto p{font-size:11.5px;line-height:1.5;color:#4a4a5a;font-weight:600;margin:0 0 6px;}
+.cof-texto b{color:#1a237e;}
+.cof-nodo{transition:all .2s;}
+.cof-nodo.on circle{stroke:#fb8c00;stroke-width:3.5;}
 .lesson-card{background:#f4f4f8;border-radius:12px;padding:9px;text-align:center;cursor:pointer;border:2px solid #ddd;transition:all .2s;}
 .lesson-card:hover:not(.locked){transform:translateY(-3px);box-shadow:0 6px 16px rgba(57,73,171,.15);border-color:#9090c8;}
 .lesson-card.completed{border-color:#26a69a;background:#e8f8f5;}
@@ -288,6 +324,7 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
   <div class="stat-chip">⭐ <span id="sc-stars">0</span></div>
   <div class="stat-chip">🔥 <span id="sc-streak">0</span></div>
   <div class="stat-chip">🏆 <span id="sc-level">Nivel 1</span></div>
+  <div class="stat-chip" id="sc-avatar" title="Tu avatar">🐱</div>
   <div class="stat-chip" id="sc-sound">🎹 Piano</div>
   <div class="stat-chip" id="midi-chip" style="display:none;background:#2e7d32;" title="Teclado MIDI conectado">🎹 MIDI</div>
   <div class="stat-chip">💾 <span id="save-status">Guardado</span><span class="save-dot" id="save-dot"></span></div>
@@ -497,6 +534,14 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
   <div class="game-area" id="fifth-area">
     <div style="font-weight:800;font-size:12px;color:#3949ab;">Puntos: <span id="fifth-score">0</span></div>
     <div style="font-family:'Fredoka One',cursive;font-size:17px;color:#444;text-align:center;">¡Tocá las notas del círculo de quintas!</div>
+    <div class="cof-card">
+      <div class="cof-svg" id="cof-svg"></div>
+      <div class="cof-texto">
+        <div class="cof-titulo">¿Qué es el círculo de quintas?</div>
+        <p>Es un <b>mapa de las notas</b>. Empezá en el <b>Do</b> de arriba y contá <b>cinco notas</b> hacia la derecha: llegás al <b>Sol</b>. Contá cinco desde Sol y llegás al <b>Re</b>. Y así, hasta dar toda la vuelta y volver al Do.</p>
+        <p>Las notas que están <b>al lado</b> en el círculo suenan muy bien juntas. Por eso un montón de canciones usan Do, Sol y Fa: son vecinas 🎶</p>
+      </div>
+    </div>
     <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;" id="fifth-seq"></div>
     <div style="font-size:11px;color:#888;font-weight:700;text-align:center;" id="fifth-hint"></div>
     <div class="piano-wrapper"><div id="piano-fifth" class="piano"></div></div>
@@ -559,7 +604,17 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
 
 <!-- LOGROS -->
 <div id="tab-logros" class="panel">
-  <div class="sec-title">🏅 Mis logros</div>
+  <div class="sec-title">🎯 Misiones de hoy</div>
+  <div class="misiones-card">
+    <div id="misiones-lista"></div>
+    <div class="hitos-titulo">🔥 Premios por racha</div>
+    <div class="hitos-row" id="hitos-lista"></div>
+  </div>
+
+  <div class="sec-title" style="margin-top:12px;">🛍️ Tienda de estrellas</div>
+  <div class="tienda-card" id="tienda-lista"></div>
+
+  <div class="sec-title" style="margin-top:12px;">🏅 Mis logros</div>
   <div style="background:#f4f4f8;border-radius:13px;padding:10px;margin-bottom:10px;border:2px solid #ddd;">
     <div style="font-family:'Fredoka One',cursive;font-size:15px;color:#3949ab;margin-bottom:8px;">⭐ Medallas</div>
     <div class="ach-grid" id="ach-grid"></div>
@@ -782,7 +837,7 @@ function saveProgress(){
         songHistory,noteFrequency,memoriaRecord,rankings,
         dayStreak,activeDays,dailyNotes,
         achievements:ACHS.map(a=>a.ok),
-        modProgress,
+        modProgress,misionEstado,hitosCobrados,comprados,temaActivo,avatarActivo,
       }));
       dot.classList.remove('saving');lbl.textContent='Guardado';
     }catch(e){lbl.textContent='Error';}
@@ -801,6 +856,10 @@ function loadProgress(){
     if(d.achievements)d.achievements.forEach((ok,i)=>{if(ACHS[i])ACHS[i].ok=ok;});
     modProgress=(d.modProgress&&typeof d.modProgress==='object')?Object.assign({},d.modProgress):{};
     migrarLeccionesViejas(d);
+    if(d.misionEstado&&typeof d.misionEstado==='object')misionEstado=Object.assign({fecha:'',progreso:{},cobradas:[]},d.misionEstado);
+    hitosCobrados=Array.isArray(d.hitosCobrados)?d.hitosCobrados.slice():[];
+    comprados=Array.isArray(d.comprados)&&d.comprados.length?d.comprados.slice():['clasico','gato'];
+    temaActivo=d.temaActivo||'clasico';avatarActivo=d.avatarActivo||'gato';
   }catch(e){}
 }
 // Hasta v1.4 las lecciones se guardaban como 3 arrays por índice
@@ -1034,7 +1093,7 @@ function pianoPlay(note,el,pid,vel){
   if(showFingers&&finger)activateFinger(finger,false);
   notesPlayed++;stars++;combo++;
   noteFrequency[note]=(noteFrequency[note]||0)+1;
-  markActivityToday();
+  markActivityToday();avanzarMision('notas',1);revisarHitos();
   updateStatsUI();
   if(notesPlayed===1)unlockAch(0);if(combo>=5)unlockAch(1);if(stars>=10)unlockAch(6);
   saveProgress();
@@ -1169,7 +1228,7 @@ function switchTab(tab,btn){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');btn.classList.add('active');
   combo=0;
-  if(tab==='logros')buildAchievements();
+  if(tab==='logros'){buildAchievements();renderHome();}
   if(tab==='padres'){renderPadresProgreso();renderPadresStats();buildPadresLeccTabs();showPadresLecc(MODULOS[0].id,document.querySelector('#padres-lecc-tabs button'));}
 }
 function switchPadresTab(tab,btn){
@@ -1209,7 +1268,7 @@ function setSig(n,btn){metroSig=n;metroBeat=0;document.querySelectorAll('#sig-bt
 function setMetroSound(s,btn){metroSound=s;document.querySelectorAll('#sound-metro-btns button').forEach(b=>btnOff(b));btnOn(btn);}
 function buildBeatDots(){const d=document.getElementById('beat-dots');d.innerHTML='';for(let i=0;i<Math.min(metroSig,6);i++){const dot=document.createElement('div');dot.className='beat-dot'+(i===0?' accent':'');dot.id='bd-'+i;d.appendChild(dot);}}
 function toggleMetro(){metroActive?stopMetro():startMetro();}
-function startMetro(){metroActive=true;document.getElementById('metro-play-btn').textContent='⏸';document.getElementById('metro-play-btn').classList.add('active');metroBeat=0;tickMetro();metroInterval=setInterval(tickMetro,60000/metroBpm);animPend();}
+function startMetro(){metroActive=true;avanzarMision('metronomo',1);document.getElementById('metro-play-btn').textContent='⏸';document.getElementById('metro-play-btn').classList.add('active');metroBeat=0;tickMetro();metroInterval=setInterval(tickMetro,60000/metroBpm);animPend();}
 function stopMetro(){metroActive=false;clearInterval(metroInterval);if(pendFrame)cancelAnimationFrame(pendFrame);document.getElementById('metro-play-btn').textContent='▶';document.getElementById('metro-play-btn').classList.remove('active');document.querySelectorAll('.beat-dot').forEach(d=>d.classList.remove('on'));}
 function tickMetro(){const count=Math.min(metroSig,6),b=metroBeat%count;document.querySelectorAll('.beat-dot').forEach(d=>d.classList.remove('on'));document.getElementById('bd-'+b)?.classList.add('on');Tone.start().then(()=>{try{
   const v=getMetroVoices(),fuerte=(b===0); // el primer tiempo del compás se acentúa
@@ -1251,7 +1310,7 @@ const CHORDS_MEN=[{name:'Do menor',nameEn:'C minor',root:'C',notes:['C4','D#4','
 // 'pista' es el texto que se muestra arriba del teclado.
 const MODULOS=[
 {
-  id:'notas',nombre:'Las notas',emoji:'🎵',color:'#FF6B6B',
+  id:'notas',nombre:'Las notas',libres:2,emoji:'🎵',color:'#FF6B6B',
   desc:'Ubicarte en el teclado y conocer las 7 notas',
   lecciones:[
   {
@@ -1323,7 +1382,7 @@ const MODULOS=[
   ]
 },
 {
-  id:'dedos',nombre:'Manos y dedos',emoji:'🖐️',color:'#FF9F43',
+  id:'dedos',nombre:'Manos y dedos',libres:2,emoji:'🖐️',color:'#FF9F43',
   desc:'Qué dedo usar en cada tecla',
   lecciones:[
   {
@@ -1373,7 +1432,7 @@ const MODULOS=[
   ]
 },
 {
-  id:'intervalos',nombre:'Intervalos',emoji:'📏',color:'#0099bb',
+  id:'intervalos',nombre:'Intervalos',libres:1,emoji:'📏',color:'#0099bb',
   desc:'La distancia entre dos notas',
   lecciones:[
   {
@@ -1423,7 +1482,7 @@ const MODULOS=[
   ]
 },
 {
-  id:'may',nombre:'Acordes mayores',emoji:'🎸',color:'#1DD1A1',
+  id:'may',nombre:'Acordes mayores',libres:2,emoji:'🎸',color:'#1DD1A1',
   desc:'Tres notas juntas que suenan alegres',
   lecciones:[
   {
@@ -1484,7 +1543,7 @@ const MODULOS=[
   ]
 },
 {
-  id:'men',nombre:'Acordes menores',emoji:'🎻',color:'#A29BFE',
+  id:'men',nombre:'Acordes menores',libres:1,emoji:'🎻',color:'#A29BFE',
   desc:'Los acordes que suenan tristes',
   lecciones:[
   {
@@ -1536,6 +1595,175 @@ const MODULOS=[
 ];
 
 // ════════════════════════════════════════════
+// MISIONES DIARIAS, RACHA Y TIENDA (v1.6)
+// ════════════════════════════════════════════
+// Objetivo: que haya un motivo concreto para volver mañana.
+// Hasta v1.5 las estrellas se acumulaban pero no compraban nada.
+
+// ── Misiones ────────────────────────────────
+// Se eligen de forma determinista a partir de la fecha: todos los días salen
+// las mismas dos misiones para un mismo día, y no cambian si recargás la app.
+const MISIONES=[
+  {id:'notas20',emoji:'🎹',texto:'Tocá 20 notas',meta:20,campo:'notas',premio:10},
+  {id:'notas50',emoji:'🎹',texto:'Tocá 50 notas',meta:50,campo:'notas',premio:20},
+  {id:'leccion1',emoji:'📚',texto:'Completá 1 lección',meta:1,campo:'lecciones',premio:15},
+  {id:'cancion1',emoji:'🎵',texto:'Terminá 1 canción',meta:1,campo:'canciones',premio:15},
+  {id:'juego1',emoji:'🎮',texto:'Jugá 1 mini juego',meta:1,campo:'juegos',premio:12},
+  {id:'perfecta',emoji:'⭐',texto:'Sacá 3 estrellas en una lección',meta:1,campo:'perfectas',premio:25},
+  {id:'metro',emoji:'🥁',texto:'Practicá con el metrónomo',meta:1,campo:'metronomo',premio:10},
+];
+let misionEstado={fecha:'',progreso:{},cobradas:[]};
+
+// Hash simple y estable de la fecha, para que la elección no dependa de Math.random.
+function semillaDelDia(k){let h=0;for(let i=0;i<k.length;i++)h=(h*31+k.charCodeAt(i))|0;return Math.abs(h);}
+function misionesDeHoy(){
+  const k=todayKey(),sem=semillaDelDia(k);
+  const a=MISIONES[sem%MISIONES.length];
+  let b=MISIONES[(sem*7+3)%MISIONES.length];
+  if(b.id===a.id)b=MISIONES[(MISIONES.indexOf(a)+1)%MISIONES.length];
+  return [a,b];
+}
+function resetMisionesSiCambioElDia(){
+  const k=todayKey();
+  if(misionEstado.fecha!==k)misionEstado={fecha:k,progreso:{},cobradas:[]};
+}
+// campo: 'notas' | 'lecciones' | 'canciones' | 'juegos' | 'perfectas' | 'metronomo'
+function avanzarMision(campo,cuanto){
+  resetMisionesSiCambioElDia();
+  misionEstado.progreso[campo]=(misionEstado.progreso[campo]||0)+(cuanto||1);
+  misionesDeHoy().forEach(m=>{
+    if(misionEstado.cobradas.includes(m.id))return;
+    if((misionEstado.progreso[m.campo]||0)>=m.meta){
+      misionEstado.cobradas.push(m.id);
+      stars+=m.premio;addXP(m.premio);
+      showToast('¡Misión cumplida! '+m.emoji+' +'+m.premio+' ⭐');
+      updateStatsUI();
+    }
+  });
+  renderMisiones();saveProgress();
+}
+function misionCumplida(m){return misionEstado.cobradas.includes(m.id);}
+function renderMisiones(){
+  const c=document.getElementById('misiones-lista');if(!c)return;
+  resetMisionesSiCambioElDia();
+  c.innerHTML=misionesDeHoy().map(m=>{
+    const hecho=Math.min(misionEstado.progreso[m.campo]||0,m.meta),ok=misionCumplida(m);
+    const pct=Math.round(hecho/m.meta*100);
+    return `<div class="mision${ok?' ok':''}">
+      <div class="mision-emoji">${ok?'✅':m.emoji}</div>
+      <div style="flex:1;">
+        <div class="mision-texto">${m.texto}</div>
+        <div class="mision-bar"><div class="mision-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div class="mision-premio">${ok?'¡Listo!':'+'+m.premio+' ⭐'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Hitos de racha ──────────────────────────
+const HITOS=[
+  {dias:3,premio:20,emoji:'🔥',texto:'3 días seguidos'},
+  {dias:7,premio:50,emoji:'🌟',texto:'1 semana completa'},
+  {dias:14,premio:100,emoji:'💎',texto:'2 semanas'},
+  {dias:30,premio:250,emoji:'👑',texto:'1 mes entero'},
+];
+let hitosCobrados=[];
+function revisarHitos(){
+  HITOS.forEach(h=>{
+    if(dayStreak>=h.dias&&!hitosCobrados.includes(h.dias)){
+      hitosCobrados.push(h.dias);
+      stars+=h.premio;addXP(h.premio);
+      showToast('¡'+h.emoji+' '+h.texto+'! +'+h.premio+' ⭐');
+      updateStatsUI();saveProgress();
+    }
+  });
+}
+function proximoHito(){return HITOS.find(h=>!hitosCobrados.includes(h.dias))||null;}
+function renderHitos(){
+  const c=document.getElementById('hitos-lista');if(!c)return;
+  c.innerHTML=HITOS.map(h=>{
+    const ok=hitosCobrados.includes(h.dias);
+    return `<div class="hito${ok?' ok':''}" title="${h.texto}">
+      <div style="font-size:18px;">${ok?h.emoji:'🔒'}</div>
+      <div class="hito-dias">${h.dias}d</div>
+      <div class="hito-premio">+${h.premio}⭐</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Tienda ──────────────────────────────────
+// Las estrellas por fin compran algo. Todo es cosmético: nada de esto
+// cambia lo que se puede aprender, sólo cómo se ve.
+const TEMAS=[
+  {id:'clasico',nombre:'Clásico',precio:0,blanca:'#FFFEF5',negra:'#1a1d2e',emoji:'🎹'},
+  {id:'oceano',nombre:'Océano',precio:60,blanca:'#eaf6ff',negra:'#0b3954',emoji:'🌊'},
+  {id:'bosque',nombre:'Bosque',precio:120,blanca:'#f0fff4',negra:'#14532d',emoji:'🌲'},
+  {id:'atardecer',nombre:'Atardecer',precio:200,blanca:'#fff5eb',negra:'#7c2d12',emoji:'🌅'},
+  {id:'galaxia',nombre:'Galaxia',precio:350,blanca:'#f5f3ff',negra:'#2e1065',emoji:'🌌'},
+];
+const AVATARES=[
+  {id:'gato',nombre:'Gatito',precio:0,emoji:'🐱'},
+  {id:'perro',nombre:'Perrito',precio:40,emoji:'🐶'},
+  {id:'panda',nombre:'Panda',precio:80,emoji:'🐼'},
+  {id:'dragon',nombre:'Dragón',precio:150,emoji:'🐲'},
+  {id:'unicornio',nombre:'Unicornio',precio:300,emoji:'🦄'},
+];
+let comprados=['clasico','gato'],temaActivo='clasico',avatarActivo='gato';
+
+function estrellasGastadas(){
+  return comprados.reduce((n,id)=>{
+    const t=TEMAS.find(x=>x.id===id)||AVATARES.find(x=>x.id===id);
+    return n+(t?t.precio:0);
+  },0);
+}
+// Las estrellas se ganan y se gastan: el saldo es lo acumulado menos lo comprado.
+function estrellasDisponibles(){return Math.max(0,stars-estrellasGastadas());}
+function comprar(id){
+  const item=TEMAS.find(x=>x.id===id)||AVATARES.find(x=>x.id===id);
+  if(!item||comprados.includes(id))return false;
+  if(estrellasDisponibles()<item.precio){
+    showToast('Te faltan '+(item.precio-estrellasDisponibles())+' ⭐');
+    return false;
+  }
+  comprados.push(id);
+  showToast('¡Desbloqueaste '+item.emoji+' '+item.nombre+'!');
+  aplicar(id);saveProgress();renderTienda();updateStatsUI();
+  return true;
+}
+function aplicar(id){
+  if(TEMAS.some(t=>t.id===id)){temaActivo=id;aplicarTema();}
+  else if(AVATARES.some(a=>a.id===id)){avatarActivo=id;aplicarAvatar();}
+  saveProgress();renderTienda();
+}
+function aplicarTema(){
+  const t=TEMAS.find(x=>x.id===temaActivo)||TEMAS[0];
+  document.documentElement.style.setProperty('--tecla-blanca',t.blanca);
+  document.documentElement.style.setProperty('--tecla-negra',t.negra);
+}
+function aplicarAvatar(){
+  const a=AVATARES.find(x=>x.id===avatarActivo)||AVATARES[0];
+  const el=document.getElementById('sc-avatar');if(el)el.textContent=a.emoji;
+}
+function renderTienda(){
+  const c=document.getElementById('tienda-lista');if(!c)return;
+  const bloque=(titulo,items,activo)=>`<div class="tienda-titulo">${titulo}</div>
+    <div class="tienda-grid">`+items.map(i=>{
+      const tengo=comprados.includes(i.id),puesto=activo===i.id;
+      const alcanza=estrellasDisponibles()>=i.precio;
+      return `<div class="tienda-item${puesto?' activo':''}${tengo?' tengo':''}" onclick="${tengo?`aplicar('${i.id}')`:`comprar('${i.id}')`}">
+        <div class="tienda-emoji">${i.emoji}</div>
+        <div class="tienda-nombre">${i.nombre}</div>
+        <div class="tienda-precio">${puesto?'✔ En uso':tengo?'Usar':(i.precio+' ⭐')}</div>
+        ${(!tengo&&!alcanza)?'<div class="tienda-falta">Te faltan '+(i.precio-estrellasDisponibles())+'</div>':''}
+      </div>`;
+    }).join('')+'</div>';
+  c.innerHTML=`<div class="tienda-saldo">Tenés <strong>${estrellasDisponibles()} ⭐</strong> para gastar</div>`
+    +bloque('🎨 Temas del teclado',TEMAS,temaActivo)
+    +bloque('🙂 Avatares',AVATARES,avatarActivo);
+}
+function renderHome(){renderMisiones();renderHitos();renderTienda();}
+
+// ════════════════════════════════════════════
 // MOTOR DE LECCIONES (v1.5)
 // ════════════════════════════════════════════
 // Reemplaza el sistema anterior, donde una "lección" era apretar N teclas una
@@ -1554,18 +1782,16 @@ function totalLecciones(){return MODULOS.reduce((n,m)=>n+m.lecciones.length,0);}
 // modProgress = { 'notas/n1': {stars:3}, ... }
 function lecClave(mid,lid){return mid+'/'+lid;}
 function lecEstrellas(mid,lid){const p=modProgress[lecClave(mid,lid)];return p?p.stars:0;}
-// Una lección se abre si es la primera del módulo o si la anterior tiene ≥1 estrella.
-// El módulo se abre si el anterior está completo al menos a la mitad.
+// Cada módulo abre sus primeras `libres` lecciones de entrada, para que el chico
+// pueda probar de todo desde el día uno. Un teclado lleno de candados espanta.
+// Más allá de esas, se sigue la cadena: la anterior necesita al menos 1 estrella.
 function lecDesbloqueada(mi,li){
-  if(li===0)return moduloDesbloqueado(mi);
   const m=MODULOS[mi];
+  if(li<(m.libres||1))return true;
   return lecEstrellas(m.id,m.lecciones[li-1].id)>0;
 }
 function moduloDesbloqueado(mi){
-  if(mi===0)return true;
-  const prev=MODULOS[mi-1];
-  const hechas=prev.lecciones.filter(l=>lecEstrellas(prev.id,l.id)>0).length;
-  return hechas>=Math.ceil(prev.lecciones.length/2);
+  return (MODULOS[mi].libres||0)>0;
 }
 function moduloEstrellas(mi){
   const m=MODULOS[mi];
@@ -1737,6 +1963,7 @@ function finishLesson(){
   // Sólo mejora: repetir una lección nunca baja lo que ya conseguiste.
   modProgress[lecClave(m.id,l.id)]={stars:Math.max(previas,nuevas)};
   if(previas===0){lessonsCompleted++;addXP(30);unlockAch(4);}
+  avanzarMision('lecciones',1);if(nuevas===3)avanzarMision('perfectas',1);
   const msg=nuevas===3?'¡Perfecto! ★★★ Sin ningún error 🎉'
     :nuevas===2?'¡Muy bien! ★★ Casi perfecto'
     :'¡Lección completada! ★ Podés repetirla para mejorar';
@@ -1776,7 +2003,7 @@ function renderSongs(){const list=document.getElementById('song-list');list.inne
 function startSong(idx){if(currentSong!==null)_clearSong();currentSong=idx;songStep=0;document.getElementById('song-active-panel').style.display='block';document.getElementById('song-active-name').textContent=SONGS[idx].emoji+' '+SONGS[idx].name;document.getElementById('song-status').textContent='🎹 Tocá la nota que brilla en el teclado.';renderSongs();showSongStep();}
 function showSongStep(){if(currentSong===null)return;const song=SONGS[currentSong];if(songStep>=song.notes.length){finishSong();return;}const note=song.notes[songStep],pct=Math.round(songStep/song.notes.length*100);document.getElementById('main-prog-fill').style.width=pct+'%';document.getElementById('main-step-lbl').textContent='Nota '+(songStep+1)+' de '+song.notes.length+' — tocá: '+nl(note);if(document.getElementById('spf-'+currentSong))document.getElementById('spf-'+currentSong).style.width=pct+'%';if(document.getElementById('spl-'+currentSong))document.getElementById('spl-'+currentSong).textContent='Nota '+(songStep+1)+' de '+song.notes.length;clearHL('piano-songs');hlKey('piano-songs',note);}
 function checkSong(played){if(currentSong===null)return;if(nb(played)===nb(SONGS[currentSong].notes[songStep])){songStep++;stars+=2;updateStatsUI();setTimeout(showSongStep,120);}}
-function finishSong(){const song=SONGS[currentSong];showToast('¡Canción completa! 🎵🎉');unlockAch(5);songsCompleted++;addXP(50);const already=songHistory.find(s=>s.name===song.name);if(!already)songHistory.push({emoji:song.emoji,name:song.name,date:new Date().toLocaleDateString('es-AR')});saveProgress();clearHL('piano-songs');setTimeout(()=>{document.getElementById('song-active-panel').style.display='none';},2000);_clearSong();}
+function finishSong(){const song=SONGS[currentSong];showToast('¡Canción completa! 🎵🎉');unlockAch(5);songsCompleted++;avanzarMision('canciones',1);addXP(50);const already=songHistory.find(s=>s.name===song.name);if(!already)songHistory.push({emoji:song.emoji,name:song.name,date:new Date().toLocaleDateString('es-AR')});saveProgress();clearHL('piano-songs');setTimeout(()=>{document.getElementById('song-active-panel').style.display='none';},2000);_clearSong();}
 function stopSong(){clearHL('piano-songs');document.getElementById('song-active-panel').style.display='none';document.getElementById('song-status').textContent='🎹 Elegí una canción y tocá las notas que brillan.';_clearSong();}
 function _clearSong(){currentSong=null;songStep=0;renderSongs();}
 
@@ -1794,7 +2021,7 @@ const GAMES_DEF=[
 ];
 function buildGameGrid(){const g=document.getElementById('game-grid');g.innerHTML='';GAMES_DEF.forEach((game,i)=>{const card=document.createElement('div');card.className='game-card';card.innerHTML=`<div class="game-icon">${game.emoji}</div><div class="game-name">${game.name}</div><div class="game-desc">${game.desc}</div>${game.isNew?'<div class="game-badge">¡NUEVO!</div>':''}`;card.onclick=()=>startGameType(game.type);g.appendChild(card);});}
 
-function startGameType(type){
+function startGameType(type){avanzarMision('juegos',1);
   // Ocultar todas las áreas de juego
   ['game-area','fifth-area','karaoke-area','dictado-area','memoria-area'].forEach(id=>{document.getElementById(id).classList.remove('active');});
   if(type==='quiz'||type==='chord_quiz'){currentGame=type;gameScore=0;document.getElementById('game-score').textContent='0';document.getElementById('game-area').classList.add('active');document.getElementById('game-feedback').textContent='';nextQuestion();}
@@ -1812,8 +2039,39 @@ function stopGame(){currentGame=null;document.getElementById('game-area').classL
 
 // ════ QUINTAS ════
 const COF=['C','G','D','A','E','B','F#','C#','Ab','Eb','Bb','F'],COF_ES={C:'Do',G:'Sol',D:'Re',A:'La',E:'Mi',B:'Si','F#':'Fa#','C#':'Do#',Ab:'Lab',Eb:'Mib',Bb:'Sib',F:'Fa'},COF_EN={C:'C',G:'G',D:'D',A:'A',E:'E',B:'B','F#':'F#','C#':'C#',Ab:'Ab',Eb:'Eb',Bb:'Bb',F:'F'},COF_NOTE={C:'C4',G:'G4',D:'D4',A:'A4',E:'E4',B:'B4','F#':'F#4','C#':'C#4',Ab:'G#4',Eb:'D#4',Bb:'A#4',F:'F4'};
-function startFifthGame(len){fifthActive=true;fifthScore=0;fifthStep=0;document.getElementById('fifth-score').textContent='0';document.getElementById('fifth-area').classList.add('active');buildPiano('piano-fifth');genFifthSeq(len);}
-function genFifthSeq(len){const start=Math.floor(Math.random()*COF.length);fifthSeq=[];for(let i=0;i<len;i++)fifthSeq.push(COF[(start+i)%COF.length]);fifthStep=0;document.getElementById('fifth-seq').innerHTML=fifthSeq.map((n,i)=>`<div id="fb-${i}" style="width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;background:${i===0?'#3949ab':'white'};color:${i===0?'white':'#3949ab'};border:3px solid #3949ab;margin:2px;transition:all .3s;">${notation==='es'?(COF_ES[n]||n):(COF_EN[n]||n)}</div>`).join('');document.getElementById('fifth-hint').textContent='Orden: '+fifthSeq.map(n=>notation==='es'?(COF_ES[n]||n):(COF_EN[n]||n)).join(' → ');document.getElementById('nd-fifth').innerHTML='';clearHL('piano-fifth');const first=COF_NOTE[fifthSeq[0]];if(first)hlKey('piano-fifth',first);ensureSynth();Tone.start().then(()=>{fifthSeq.forEach((n,i)=>{const note=COF_NOTE[n];if(note)setTimeout(()=>{try{pianoSynth.triggerAttackRelease(note,'.35');}catch(e){}},i*440);});});}
+// Dibuja el círculo de quintas. Se genera por código y no como imagen: escala
+// sin pixelarse, respeta la notación elegida y no suma un asset que cachear.
+function renderCoF(resaltar){
+  const cont=document.getElementById('cof-svg');if(!cont)return;
+  const cx=130,cy=130,R=97,r=23;
+  const nodos=COF.map((n,i)=>{
+    const ang=(-90+i*30)*Math.PI/180;
+    const x=cx+R*Math.cos(ang),y=cy+R*Math.sin(ang);
+    const color=NOTE_COLORS[n.replace('b','').replace('#','')]||'#3949ab';
+    const nombre=(notation==='es'?COF_ES:COF_EN)[n]||n;
+    const on=Array.isArray(resaltar)&&resaltar.includes(n);
+    return `<g class="cof-nodo${on?' on':''}">
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="${color}" opacity="${on?1:.88}"/>
+      <text x="${x.toFixed(1)}" y="${(y+4.5).toFixed(1)}" text-anchor="middle" font-size="${nombre.length>2?11:13}"
+        font-weight="800" fill="white" font-family="Nunito,sans-serif">${nombre}</text>
+    </g>`;
+  }).join('');
+  cont.innerHTML=`<svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" role="img"
+      aria-label="Círculo de quintas: ${COF.map(n=>COF_ES[n]||n).join(', ')}">
+    <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#e4e4f2" stroke-width="2"/>
+    <path d="M ${cx+34} ${cy-16} A 38 38 0 0 1 ${cx+34} ${cy+16}" fill="none" stroke="#bdbdd8" stroke-width="2.5"
+      marker-end="url(#cof-flecha)"/>
+    <defs><marker id="cof-flecha" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#bdbdd8"/></marker></defs>
+    <text x="${cx}" y="${cy-2}" text-anchor="middle" font-size="12" font-weight="800" fill="#9a9ab0"
+      font-family="Nunito,sans-serif">+5 notas</text>
+    <text x="${cx}" y="${cy+13}" text-anchor="middle" font-size="10" font-weight="700" fill="#bdbdd8"
+      font-family="Nunito,sans-serif">cada paso</text>
+    ${nodos}
+  </svg>`;
+}
+function startFifthGame(len){fifthActive=true;fifthScore=0;fifthStep=0;document.getElementById('fifth-score').textContent='0';document.getElementById('fifth-area').classList.add('active');buildPiano('piano-fifth');renderCoF();genFifthSeq(len);}
+function genFifthSeq(len){const start=Math.floor(Math.random()*COF.length);fifthSeq=[];for(let i=0;i<len;i++)fifthSeq.push(COF[(start+i)%COF.length]);fifthStep=0;renderCoF(fifthSeq);document.getElementById('fifth-seq').innerHTML=fifthSeq.map((n,i)=>`<div id="fb-${i}" style="width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;background:${i===0?'#3949ab':'white'};color:${i===0?'white':'#3949ab'};border:3px solid #3949ab;margin:2px;transition:all .3s;">${notation==='es'?(COF_ES[n]||n):(COF_EN[n]||n)}</div>`).join('');document.getElementById('fifth-hint').textContent='Orden: '+fifthSeq.map(n=>notation==='es'?(COF_ES[n]||n):(COF_EN[n]||n)).join(' → ');document.getElementById('nd-fifth').innerHTML='';clearHL('piano-fifth');const first=COF_NOTE[fifthSeq[0]];if(first)hlKey('piano-fifth',first);ensureSynth();Tone.start().then(()=>{fifthSeq.forEach((n,i)=>{const note=COF_NOTE[n];if(note)setTimeout(()=>{try{pianoSynth.triggerAttackRelease(note,'.35');}catch(e){}},i*440);});});}
 function checkFifthNote(note){if(!fifthActive||fifthStep>=fifthSeq.length)return;const exp=COF_NOTE[fifthSeq[fifthStep]];const norm=n=>n.replace(/\d/g,'').replace('Ab','G#').replace('Eb','D#').replace('Bb','A#');if(norm(note)===norm(exp||'')){const sb=document.getElementById('fb-'+fifthStep);if(sb){sb.style.background='#26a69a';sb.style.color='white';sb.style.borderColor='#26a69a';}fifthStep++;stars+=4;fifthScore++;updateStatsUI();clearHL('piano-fifth');if(fifthStep<fifthSeq.length){const next=COF_NOTE[fifthSeq[fifthStep]];if(next)hlKey('piano-fifth',next);const nb2=document.getElementById('fb-'+fifthStep);if(nb2){nb2.style.background='#3949ab';nb2.style.color='white';}document.getElementById('nd-fifth').innerHTML='<span class="note-bubble" style="background:#26a69a">¡Correcto! +4⭐</span>';}else{document.getElementById('nd-fifth').innerHTML='<span class="note-bubble" style="background:#3949ab">¡Secuencia completa! 🌀</span>';addXP(30);saveProgress();setTimeout(()=>genFifthSeq(fifthSeq.length),1500);}}else{const sb=document.getElementById('fb-'+fifthStep);if(sb){sb.style.background='#c62828';sb.style.color='white';setTimeout(()=>{sb.style.background='white';sb.style.color='#3949ab';},500);}document.getElementById('nd-fifth').innerHTML='<span class="note-bubble" style="background:#c62828">¡Casi! 😅</span>';}}
 function stopFifthGame(){fifthActive=false;document.getElementById('fifth-area').classList.remove('active');showToast('Quintas · '+fifthScore+' pts');}
 
@@ -1968,6 +2226,7 @@ buildLessonGrid();renderSongs();buildGameGrid();buildAchievements();
 buildBeatDots();setBpm(80);updateStatsUI();buildGenreChips();
 // Teclado MIDI: si hay uno conectado aparece el chip verde en el encabezado.
 // En Safari/iOS no existe Web MIDI y simplemente no pasa nada.
+aplicarTema();aplicarAvatar();revisarHitos();renderHome();
 midiIniciar();
 </script>
 </body>

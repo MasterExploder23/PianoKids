@@ -17,6 +17,7 @@ const EXPOSED = [
   'STAFF_LINES', 'STAFF_TOP', 'STAFF_BOTTOM',
   'midiSoportado', 'midiEntradas', 'ACH_MIDI',
   'MODULOS', 'modProgress', 'FASES', 'modActual', 'lecActual', 'faseActual', 'pasoActual', 'erroresEval',
+  'MISIONES', 'misionEstado', 'HITOS', 'hitosCobrados', 'TEMAS', 'AVATARES', 'comprados', 'temaActivo', 'avatarActivo', 'COF',
 ];
 const EXPOSED_FN = [
   'saveProgress', 'loadProgress', 'recomputeStreak', 'markActivityToday',
@@ -27,6 +28,9 @@ const EXPOSED_FN = [
   'buildLessonGrid', 'startLesson', 'siguienteFase', 'checkLessonNote', 'finishLesson', 'exitLesson',
   'lecEstrellas', 'lecDesbloqueada', 'moduloDesbloqueado', 'estrellasPorErrores', 'lecClave',
   'migrarLeccionesViejas', 'showPadresLecc', 'buildPadresLeccTabs', 'mostrarFase',
+  'misionesDeHoy', 'avanzarMision', 'renderMisiones', 'revisarHitos', 'renderHitos',
+  'comprar', 'aplicar', 'estrellasDisponibles', 'estrellasGastadas', 'renderTienda', 'renderHome',
+  'renderCoF', 'semillaDelDia', 'misionCumplida',
 ];
 
 function boot(opts = {}) {

@@ -109,32 +109,36 @@ const midi = n => { const m = /^([A-G]#?)(\d)$/.exec(n); return PC[m[1]] + 12 * 
 }
 
 // ═══════════════════════════════════════════════════════════
-// Progresión y desbloqueo
+// Progresión encadenada
+// (el reparto de lecciones libres por módulo se testea en engagement.js,
+//  acá sólo verificamos que más allá de las libres la cadena siga vigente)
 // ═══════════════════════════════════════════════════════════
 {
   const { app } = boot();
+  const m = app.MODULOS[0], libres = m.libres;
 
-  test('Usuario nuevo: sólo el primer módulo está abierto', () => {
-    assert(app.fn.moduloDesbloqueado(0), 'el primer módulo debe estar abierto');
-    [1, 2, 3, 4].forEach(i => assert(!app.fn.moduloDesbloqueado(i), `el módulo ${i} no debería estar abierto`));
+  test('Más allá de las lecciones libres hay que ganarse la siguiente', () => {
+    assert(app.fn.lecDesbloqueada(0, libres - 1), 'la última libre debería estar abierta');
+    assert(!app.fn.lecDesbloqueada(0, libres), 'la primera no-libre no debería estar abierta');
   });
-  test('Usuario nuevo: sólo la primera lección del primer módulo está abierta', () => {
-    assert(app.fn.lecDesbloqueada(0, 0));
-    assert(!app.fn.lecDesbloqueada(0, 1), 'la segunda lección no debería estar abierta');
+  test('Completar la última libre abre la siguiente', () => {
+    app.modProgress[app.fn.lecClave(m.id, m.lecciones[libres - 1].id)] = { stars: 1 };
+    assert(app.fn.lecDesbloqueada(0, libres), 'no se abrió la siguiente');
+    assert(!app.fn.lecDesbloqueada(0, libres + 1), 'se abrieron de más');
   });
-  test('Completar una lección abre la siguiente', () => {
-    const m = app.MODULOS[0];
-    app.modProgress[app.fn.lecClave(m.id, m.lecciones[0].id)] = { stars: 1 };
-    assert(app.fn.lecDesbloqueada(0, 1), 'no se abrió la lección siguiente');
-    assert(!app.fn.lecDesbloqueada(0, 2), 'se abrieron de más');
+  test('Una lección con 0 estrellas no abre la siguiente', () => {
+    const { app: a } = boot();
+    const mm = a.MODULOS[0];
+    a.modProgress[a.fn.lecClave(mm.id, mm.lecciones[mm.libres - 1].id)] = { stars: 0 };
+    assert(!a.fn.lecDesbloqueada(0, mm.libres), 'abrió sin haberla completado');
   });
-  test('El módulo siguiente se abre al completar la mitad del anterior', () => {
-    const m = app.MODULOS[0];
-    assert(!app.fn.moduloDesbloqueado(1), 'todavía no debería abrirse');
-    m.lecciones.slice(0, Math.ceil(m.lecciones.length / 2)).forEach(l => {
-      app.modProgress[app.fn.lecClave(m.id, l.id)] = { stars: 2 };
+  test('La cadena vale en todos los módulos, no sólo en el primero', () => {
+    const { app: a } = boot();
+    a.MODULOS.forEach((mod, mi) => {
+      const i = mod.libres;
+      if (i >= mod.lecciones.length) return;
+      assert(!a.fn.lecDesbloqueada(mi, i), `${mod.id}: la lección ${i} arranca abierta de más`);
     });
-    assert(app.fn.moduloDesbloqueado(1), 'no se abrió el módulo 2 al llegar a la mitad');
   });
 }
 
@@ -323,12 +327,10 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
     const total = app.MODULOS.reduce((n, m) => n + m.lecciones.length, 0);
     eq(doc.querySelectorAll('#lesson-grid .lesson-card').length, total);
   });
-  test('Los módulos bloqueados se muestran como tales', () => {
-    eq(doc.querySelectorAll('#lesson-grid .modulo.locked').length, 4);
-  });
-  test('Sólo la primera lección arranca clickeable', () => {
-    const abiertas = [...doc.querySelectorAll('#lesson-grid .lesson-card')].filter(c => !c.classList.contains('locked'));
-    eq(abiertas.length, 1);
+  test('Las lecciones aún no alcanzadas se muestran con candado', () => {
+    const total = app.MODULOS.reduce((n, m) => n + m.lecciones.length, 0);
+    const libres = app.MODULOS.reduce((n, m) => n + m.libres, 0);
+    eq(doc.querySelectorAll('#lesson-grid .lesson-card.locked').length, total - libres);
   });
   test('El panel de padres tiene una pestaña por módulo', () => {
     app.fn.buildPadresLeccTabs();
