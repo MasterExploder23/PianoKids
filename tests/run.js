@@ -24,7 +24,20 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
   test('Las 19 lecciones siguen presentes (5 notas + 7 mayores + 7 menores)', () => {
     eq(app.LESSONS_NOTES.length + app.LESSONS_MAJ.length + app.LESSONS_MEN.length, 19);
   });
-  test('Los 10 logros siguen presentes', () => eq(app.ACHS.length, 10));
+  // El progreso guardado referencia los logros por índice, así que los nuevos
+  // sólo pueden agregarse AL FINAL. Si se insertan en el medio, a un usuario
+  // existente se le desbloquean logros equivocados.
+  test('Los 10 logros originales siguen en su posición', () => {
+    const originales = ['Primera nota', 'Racha de 5', 'Primera nota acorde', 'Acorde completo',
+      'Primera lección', 'Primera canción', '10 estrellas', 'Quintas master',
+      'Cambió el sonido', 'Notación americana'];
+    eq(app.ACHS.slice(0, 10).map(a => a.n), originales,
+      'se reordenaron los logros: el progreso guardado quedaría corrupto');
+  });
+  test('Hay al menos los 10 originales', () => assert(app.ACHS.length >= 10));
+  test('Ningún logro arranca desbloqueado', () => {
+    assert(app.ACHS.every(a => a.ok === false), 'hay logros marcados de entrada');
+  });
   test('Las canciones de karaoke siguen presentes', () => assert(app.KARAOKE_SONGS.length > 0));
   test('Los 5 niveles siguen presentes', () => eq(app.LEVELS.length, 5));
   test('El DOM tiene los 12 paneles de navegación', () => {

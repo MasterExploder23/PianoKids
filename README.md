@@ -14,7 +14,8 @@ pianokids/
 │   ├── harness.js  ← Arranca la app en JSDOM con audio stubbeado
 │   ├── run.js      ← Suite de regresión (36 tests)
 │   ├── smoke.js    ← Smoke funcional simulando uso real (32 tests)
-│   └── v13.js      ← Pentagrama, teclas, arrastre y audio (35 tests)
+│   ├── v13.js      ← Pentagrama, teclas, arrastre y audio (35 tests)
+│   └── midi.js     ← Teclado MIDI con puerto simulado (34 tests)
 └── README.md       ← Este archivo
 ```
 
@@ -83,11 +84,28 @@ El banner "Instalar" aparece automáticamente en Chrome/Edge/Android.
 - Clic en el ícono de instalación en la barra de direcciones
 - O menú → "Instalar PianoKids"
 
+## Teclado MIDI
+
+Conectá cualquier teclado MIDI por USB antes de abrir la app (o después: se
+detecta solo). Cuando hay uno conectado aparece un chip verde con su nombre en
+el encabezado, y el teclado toca en la pestaña que estés viendo: lecciones,
+canciones, juegos y pentagrama.
+
+- **Rango:** el teclado en pantalla va de C3 a C6. Las notas fuera de ese rango
+  se transportan por octavas hasta que entran, así que un controlador de 61 u 88
+  teclas funciona sin configurar nada. La nota nunca cambia, sólo la octava.
+- **Dinámica:** la fuerza con que tocás (velocity MIDI) controla el volumen.
+  Con mouse, dedo o teclas de la PC no hay dinámica y se usa un valor fijo.
+- **Soporte:** Web MIDI anda en Chrome, Edge y Android. **Safari e iOS no lo
+  implementan**; ahí el chip no aparece y el teclado en pantalla funciona igual.
+- Chrome puede pedir permiso la primera vez. Si lo rechazás, la app sigue
+  andando normalmente sin MIDI.
+
 ## Deploy — IMPORTANTE
 
 Antes de cada push a producción:
 
-1. `npm test` (tiene que dar 103/103)
+1. `npm test` (tiene que dar 139/139)
 2. **Subí `BUILD` en `sw.js`** (línea 5). Es lo que invalida la caché vieja.
    Si no lo subís, los usuarios que ya instalaron la app siguen viendo la versión anterior.
 3. Commit → push → Vercel redeploya solo.
@@ -113,6 +131,7 @@ del 80% central. Herramienta útil: https://maskable.app
 - 🎼 Pentagrama en tiempo real
 - 🥁 Metrónomo con péndulo animado
 - 🎮 7 mini juegos (incluye karaoke, dictado melódico y memoria musical)
+- 🎛️ Soporte de teclado MIDI real por USB, con dinámica por velocity
 - 🎙️ Detección de notas por micrófono
 - 💾 Progreso guardado automáticamente (localStorage)
 - 🔥 Racha diaria real, calculada sobre días de calendario

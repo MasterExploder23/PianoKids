@@ -15,12 +15,14 @@ const EXPOSED = [
   'dayStreak', 'activeDays', 'dailyNotes', 'noteFrequency', 'songHistory',
   'STAFF_Y', 'WHITE_NOTES', 'BLACK_DEFS', 'INSTRUMENTOS', 'pressedKeys',
   'STAFF_LINES', 'STAFF_TOP', 'STAFF_BOTTOM',
+  'midiSoportado', 'midiEntradas', 'ACH_MIDI',
 ];
 const EXPOSED_FN = [
   'saveProgress', 'loadProgress', 'recomputeStreak', 'markActivityToday',
   'last7Days', 'pruneActivity', 'dayKeyOf', 'todayKey',
   'renderPadresProgreso', 'renderPadresStats', 'updateStatsUI',
   'ledgerLinesFor', 'updateStaff', 'releaseAllKeys', 'buildPiano', 'rebuildAll',
+  'midiANota', 'midiAlRango', 'midiMensaje', 'midiIniciar', 'midiRefrescar', 'pianoActivo',
 ];
 
 function boot(opts = {}) {
@@ -67,6 +69,36 @@ function boot(opts = {}) {
   w.confirm = () => false;
   w.scrollTo = noop;
 
+  // Teclado MIDI simulado. Devuelve un puerto al que los tests le pueden
+  // "enchufar" mensajes crudos, igual que haría un teclado real por USB.
+  let midi = null;
+  if (opts.midi) {
+    const puerto = {
+      id: 'test-1', name: opts.midiName || 'Teclado de Prueba', type: 'input',
+      state: 'connected', onmidimessage: null,
+    };
+    const puertos = opts.midiInputs === 0 ? [] : [puerto];
+    const acceso = {
+      inputs: { values: () => puertos.values() },
+      outputs: { values: () => [].values() },
+      onstatechange: null,
+    };
+    w.navigator.requestMIDIAccess = () => Promise.resolve(acceso);
+    midi = {
+      acceso, puerto,
+      // data: [status, nota, velocity]
+      enviar: data => { if (puerto.onmidimessage) puerto.onmidimessage({ data }); },
+      noteOn: (nota, vel = 100) => midi.enviar([0x90, nota, vel]),
+      noteOff: nota => midi.enviar([0x80, nota, 0]),
+      desconectar: () => {
+        puerto.state = 'disconnected'; puertos.length = 0;
+        if (acceso.onstatechange) acceso.onstatechange({ port: puerto });
+      },
+    };
+  } else if (opts.midi === false) {
+    delete w.navigator.requestMIDIAccess;
+  }
+
   // Estado previo de localStorage, si el test lo pide.
   if (opts.storage) {
     for (const [k, v] of Object.entries(opts.storage)) {
@@ -103,7 +135,7 @@ function boot(opts = {}) {
   // Re-cablear automáticamente lo que la app inyecte con innerHTML.
   new w.MutationObserver(wire).observe(w.document.body, { childList: true, subtree: true });
 
-  return { w, dom, app: w.__app, doc: w.document, wire };
+  return { w, dom, app: w.__app, doc: w.document, wire, midi };
 }
 
 // ── mini framework de asserts ────────────────────────────────

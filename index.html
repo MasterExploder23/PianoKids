@@ -269,6 +269,7 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#667eea,#
   <div class="stat-chip">🔥 <span id="sc-streak">0</span></div>
   <div class="stat-chip">🏆 <span id="sc-level">Nivel 1</span></div>
   <div class="stat-chip" id="sc-sound">🎹 Piano</div>
+  <div class="stat-chip" id="midi-chip" style="display:none;background:#2e7d32;" title="Teclado MIDI conectado">🎹 MIDI</div>
   <div class="stat-chip">💾 <span id="save-status">Guardado</span><span class="save-dot" id="save-dot"></span></div>
 </div>
 <div class="nav">
@@ -986,9 +987,12 @@ function buildPiano(id){
 }
 function clearHL(id){document.querySelectorAll('#'+id+' .wk,#'+id+' .bk').forEach(k=>{k.classList.remove('hl');k.style.background='';});}
 function hlKey(id,note){const el=document.getElementById('k-'+id+'-'+note);if(el)el.classList.add('hl');}
-function pianoPlay(note,el,pid){
+// vel: 0..1. Sólo la manda el teclado MIDI; con mouse, dedo o teclas de PC
+// no hay dinámica, así que va un valor fijo cómodo.
+function pianoPlay(note,el,pid,vel){
   if(pressedKeys.has(note))return;pressedKeys.add(note);
-  ensureSynth();Tone.start().then(()=>{try{pianoSynth.triggerAttack(note);}catch(e){}});
+  const v=(typeof vel==='number'&&vel>0)?Math.max(.15,Math.min(1,vel)):.8;
+  ensureSynth();Tone.start().then(()=>{try{pianoSynth.triggerAttack(note,undefined,v);}catch(e){}});
   if(el){el.classList.add('pressed');if(!el.classList.contains('hl'))el.style.background=nc(note)+'66';}
   const c=nc(note),esn=NOTE_ES[nb(note)]||nb(note),enn=NOTE_EN[nb(note)]||nb(note);
   const primary=notation==='es'?esn:enn,secondary=notation==='es'?enn:esn;
@@ -1019,22 +1023,100 @@ function onNote(note,pid){
 // TECLADO PC
 // ════════════════════════════════════════════
 const KB_MAP={a:'C4',w:'C#4',s:'D4',e:'D#4',d:'E4',f:'F4',t:'F#4',g:'G4',y:'G#4',h:'A4',u:'A#4',j:'B4',k:'C5',o:'C#5',l:'D5',p:'D#5'};
+// Qué piano está a la vista. Lo usan el teclado de la PC y el teclado MIDI.
+function pianoActivo(){
+  const aid=document.querySelector('.panel.active')?.id||'';
+  if(aid==='tab-staff')return 'piano-staff';
+  if(aid==='tab-canciones')return 'piano-songs';
+  if(aid==='tab-lecciones')return 'piano-lesson';
+  if(aid==='tab-juegos'){
+    if(karaokeActive)return 'piano-karaoke';
+    if(dictadoActive)return 'piano-dictado';
+    if(memoriaActive)return 'piano-memoria';
+    return 'piano-fifth';
+  }
+  return 'piano-libre';
+}
 document.addEventListener('keydown',ev=>{
   if(ev.repeat)return;const n=KB_MAP[ev.key.toLowerCase()];if(!n)return;
-  const aid=document.querySelector('.panel.active')?.id||'';
-  let pid='piano-libre';
-  if(aid==='tab-staff')pid='piano-staff';
-  else if(aid==='tab-canciones')pid='piano-songs';
-  else if(aid==='tab-lecciones')pid='piano-lesson';
-  else if(aid==='tab-juegos'){
-    if(karaokeActive)pid='piano-karaoke';
-    else if(dictadoActive)pid='piano-dictado';
-    else if(memoriaActive)pid='piano-memoria';
-    else pid='piano-fifth';
-  }
+  const pid=pianoActivo();
   const el=document.getElementById('k-'+pid+'-'+n);pianoPlay(n,el,pid);
 });
 document.addEventListener('keyup',ev=>{const n=KB_MAP[ev.key.toLowerCase()];if(n)document.querySelectorAll(`[id$="-${n}"]`).forEach(el=>pianoStop(n,el));});
+
+// ════════════════════════════════════════════
+// TECLADO MIDI (Web MIDI API)
+// ════════════════════════════════════════════
+const MIDI_NOMBRES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+let midiAcceso=null,midiEntradas=[],midiSoportado=('requestMIDIAccess'in navigator);
+
+// Número MIDI a nombre científico. El do central es 60 = C4.
+function midiANota(num){
+  if(num<0||num>127)return null;
+  return MIDI_NOMBRES[num%12]+(Math.floor(num/12)-1);
+}
+// El teclado en pantalla va de C3 a C6. Un controlador de 61 u 88 teclas manda
+// notas fuera de ese rango: en vez de ignorarlas, las traemos por octavas.
+// Así cualquier teclado sirve sin configurar nada.
+function midiAlRango(num){
+  if(num===null||num===undefined)return null;
+  const MIN=48,MAX=84; // C3 y C6 en números MIDI
+  let n=num;
+  while(n<MIN)n+=12;
+  while(n>MAX)n-=12;
+  return (n>=MIN&&n<=MAX)?n:null;
+}
+function midiMensaje(ev){
+  const [estado,dato1,dato2]=ev.data;
+  const tipo=estado&0xf0;
+  // Note On con velocity 0 es, por convención MIDI, un Note Off.
+  const esNoteOn=(tipo===0x90&&dato2>0),esNoteOff=(tipo===0x80||(tipo===0x90&&dato2===0));
+  if(!esNoteOn&&!esNoteOff)return;
+  const nota=midiANota(midiAlRango(dato1));
+  if(!nota)return;
+  const pid=pianoActivo(),el=document.getElementById('k-'+pid+'-'+nota);
+  if(esNoteOn)pianoPlay(nota,el,pid,dato2/127);
+  else pianoStop(nota,el);
+}
+function midiRefrescar(){
+  if(!midiAcceso)return;
+  midiEntradas=[...midiAcceso.inputs.values()];
+  midiEntradas.forEach(inp=>{inp.onmidimessage=midiMensaje;});
+  const chip=document.getElementById('midi-chip');
+  if(!chip)return;
+  if(midiEntradas.length){
+    const nombre=midiEntradas[0].name||'Teclado MIDI';
+    chip.textContent='🎹 '+(midiEntradas.length>1?midiEntradas.length+' teclados':nombre);
+    chip.style.display='';chip.style.background='#2e7d32';
+    unlockAch(ACH_MIDI);
+  }else{
+    chip.style.display='none';
+  }
+}
+function midiIniciar(){
+  const chip=document.getElementById('midi-chip');
+  if(!midiSoportado){
+    // Safari e iOS no implementan Web MIDI. No es un error: el teclado en
+    // pantalla sigue funcionando igual.
+    if(chip)chip.style.display='none';
+    return Promise.resolve(false);
+  }
+  return navigator.requestMIDIAccess({sysex:false}).then(acc=>{
+    midiAcceso=acc;
+    acc.onstatechange=e=>{
+      midiRefrescar();
+      if(e.port&&e.port.type==='input'){
+        if(e.port.state==='connected')showToast('🎹 Teclado conectado: '+(e.port.name||''));
+        else if(e.port.state==='disconnected'){releaseAllKeys();showToast('Teclado MIDI desconectado');}
+      }
+    };
+    midiRefrescar();
+    return true;
+  }).catch(()=>{
+    if(chip)chip.style.display='none';
+    return false;
+  });
+}
 
 // ════════════════════════════════════════════
 // TOGGLES
@@ -1266,7 +1348,10 @@ const ACHS=[
   {n:'Primera lección',e:'📚',ok:false},{n:'Primera canción',e:'🎂',ok:false},
   {n:'10 estrellas',e:'⭐',ok:false},{n:'Quintas master',e:'🌀',ok:false},
   {n:'Cambió el sonido',e:'🎺',ok:false},{n:'Notación americana',e:'🇺🇸',ok:false},
+  // v1.4 — se agrega al final para no correr los índices ya guardados en localStorage.
+  {n:'Teclado real',e:'🎛️',ok:false},
 ];
+const ACH_MIDI=10;
 function unlockAch(i){if(i<ACHS.length&&!ACHS[i].ok){ACHS[i].ok=true;showToast('¡Logro! '+ACHS[i].e+' '+ACHS[i].n);saveProgress();}}
 function buildAchievements(){
   const g=document.getElementById('ach-grid');g.innerHTML='';ACHS.forEach(a=>{const el=document.createElement('div');el.className='ach-item'+(a.ok?'':' locked');el.innerHTML=`<div class="ach-icon">${a.e}</div><div class="ach-name">${a.n}</div>`;g.appendChild(el);});
@@ -1285,7 +1370,7 @@ function renderPadresProgreso(){
   document.getElementById('stat-grid-p').innerHTML=[
     {icon:'⭐',num:stars,lbl:'Estrellas'},{icon:'🏆',num:'Nivel '+level,lbl:'Nivel'},
     {icon:'🎵',num:songsCompleted,lbl:'Canciones'},{icon:'📚',num:lessonsCompleted,lbl:'Lecciones'},
-    {icon:'🎹',num:notesPlayed,lbl:'Notas tocadas'},{icon:'🏅',num:achCount+'/10',lbl:'Logros'},
+    {icon:'🎹',num:notesPlayed,lbl:'Notas tocadas'},{icon:'🏅',num:achCount+'/'+ACHS.length,lbl:'Logros'},
   ].map(s=>`<div class="stat-card-p"><div style="font-size:20px;">${s.icon}</div><div class="stat-num-p">${s.num}</div><div class="stat-lbl-p">${s.lbl}</div></div>`).join('');
   // Racha real, calculada sobre días de calendario con actividad
   recomputeStreak();
@@ -1342,6 +1427,9 @@ buildSynth('piano');
 buildPiano('piano-libre');buildPiano('piano-staff');buildPiano('piano-songs');
 buildLessonGrid();renderSongs();buildGameGrid();buildAchievements();
 buildBeatDots();setBpm(80);updateStatsUI();buildGenreChips();
+// Teclado MIDI: si hay uno conectado aparece el chip verde en el encabezado.
+// En Safari/iOS no existe Web MIDI y simplemente no pasa nada.
+midiIniciar();
 </script>
 </body>
 </html>
