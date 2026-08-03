@@ -18,7 +18,7 @@ const EXPOSED = [
   'midiSoportado', 'midiEntradas', 'ACH_MIDI',
   'MODULOS', 'modProgress', 'FASES', 'modActual', 'lecActual', 'faseActual', 'pasoActual', 'erroresEval',
   'perfiles', 'perfilActivo', 'PKEY', 'MAX_PERFILES', 'AVATARES_PERFIL', 'BACKUP_VERSION',
-  'Audio2', 'MISIONES', 'misionEstado', 'HITOS', 'hitosCobrados', 'TEMAS', 'AVATARES', 'comprados', 'temaActivo', 'avatarActivo', 'COF',
+  'Audio2', 'Ritmo', 'modoCancion', 'MISIONES', 'misionEstado', 'HITOS', 'hitosCobrados', 'TEMAS', 'AVATARES', 'comprados', 'temaActivo', 'avatarActivo', 'COF',
 ];
 const EXPOSED_FN = [
   'saveProgress', 'loadProgress', 'recomputeStreak', 'markActivityToday',
@@ -35,6 +35,7 @@ const EXPOSED_FN = [
   'iniciarPerfiles', 'crearPerfil', 'cambiarPerfil', 'borrarPerfil', 'renombrarPerfil',
   'perfilPorId', 'perfilCorriente', 'claveDe', 'claveActual', 'resetEstado', 'saveProgressAhora',
   'armarBackup', 'validarBackup', 'aplicarBackup', 'renderPerfiles', 'snapshotProgreso',
+  'setModoCancion', 'startSong', 'stopSong', 'checkSong', 'registrarCancionCompleta',
 ];
 
 // Desde v1.9 los datos viven en data/*.js, cargados con <script src> antes de
@@ -42,11 +43,13 @@ const EXPOSED_FN = [
 // harness alcanza con concatenarlos delante.
 const DATOS = ['canciones.js', 'curriculum.js', 'escenas.js'];
 const MOTOR = 'audio.js'; // la sintesis, que antes era Tone.js
+const RITMO = 'ritmo.js'; // el motor de ritmo (v2.1)
 
 function boot(opts = {}) {
   const html = fs.readFileSync(INDEX, 'utf8');
   const datosJs =
     fs.readFileSync(path.join(ROOT, MOTOR), 'utf8') + '\n' +
+    fs.readFileSync(path.join(ROOT, RITMO), 'utf8') + '\n' +
     DATOS.map(f => fs.readFileSync(path.join(ROOT, 'data', f), 'utf8')).join('\n');
   // El script de la app es el ultimo bloque inline. Los otros son <script src=...>,
   // que no contienen la subcadena exacta '<script>'.
@@ -212,6 +215,7 @@ function report(suite) {
 function leerFuente() {
   return fs.readFileSync(INDEX, 'utf8') +
     fs.readFileSync(path.join(ROOT, MOTOR), 'utf8') +
+    fs.readFileSync(path.join(ROOT, RITMO), 'utf8') +
     DATOS.map(f => fs.readFileSync(path.join(ROOT, 'data', f), 'utf8')).join('\n');
 }
 const src = leerFuente();

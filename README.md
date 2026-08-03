@@ -11,6 +11,7 @@ pianokids/
 ├── icon-512.png    ← Ícono app grande
 ├── package.json    ← Scripts de test
 ├── audio.js        ← Motor de sonido (Web Audio puro, sin dependencias)
+├── ritmo.js        ← Motor de ritmo: tempo, ventanas de timing y precisión
 ├── data/           ← Datos separados del código
 │   ├── canciones.js   ← Catálogo de canciones
 │   ├── curriculum.js  ← Los 5 módulos de lecciones
@@ -23,7 +24,8 @@ pianokids/
 │   ├── midi.js     ← Teclado MIDI con puerto simulado (34 tests)
 │   ├── lecciones.js← Currículum, progresión y teoría musical (45 tests)
 │   ├── engagement.js← Misiones, racha, tienda, fondos y mascota (74 tests)
-│   └── perfiles.js ← Perfiles y copia de seguridad (42 tests)
+│   ├── perfiles.js ← Perfiles y copia de seguridad (42 tests)
+│   └── ritmo.js    ← Formato con duración, tempo y precisión (47 tests)
 └── README.md       ← Este archivo
 ```
 
@@ -113,7 +115,7 @@ canciones, juegos y pentagrama.
 
 Antes de cada push a producción:
 
-1. `npm test` (tiene que dar 311/311)
+1. `npm test` (tiene que dar 358/358)
 2. **Subí `BUILD` en `sw.js`** (línea 5). Es lo que invalida la caché vieja.
    Si no lo subís, los usuarios que ya instalaron la app siguen viendo la versión anterior.
 3. Commit → push → Vercel redeploya solo.
@@ -136,7 +138,9 @@ del 80% central. Herramienta útil: https://maskable.app
 - 🎹 Teclado de 3 octavas con 2 instrumentos (piano y órgano) sintetizados
 - 📚 Currículum de 23 lecciones en 5 módulos, con explicación, demostración,
   práctica guiada y evaluación con estrellas según desempeño
-- 🎵 15+ canciones (folklore, Disney, clásicas, navidad, pop)
+- 🎵 15 canciones (folklore, Disney, clásicas, navidad, pop) en dos modos:
+  **a mi tiempo** (la app espera) y **con ritmo** (la canción avanza al tempo y
+  se mide la precisión)
 - 🎼 Pentagrama en tiempo real
 - 🥁 Metrónomo con péndulo animado
 - 🎮 7 mini juegos (incluye karaoke, dictado melódico y memoria musical)
@@ -177,6 +181,24 @@ Todo el sonido se genera matemáticamente: no hay samples ni archivos de audio.
 **Los datos de `data/` se cargan con `<script>` normales**, no con `fetch`. Así
 comparten el scope global y el arranque sigue siendo sincrónico. Editar una
 canción o una lección no requiere abrir `index.html`.
+
+## Ritmo y duraciones
+
+Cada nota es `{n: altura, d: duración en negras}`. `d:1` es negra, `0.5` corchea,
+`2` blanca, `3` blanca con puntillo.
+
+**7 de las 15 canciones tienen el ritmo real escrito a mano.** Las otras 8 están
+marcadas con `ritmoAprox: true` y usan negras uniformes, que es lo que la app
+hacía hasta v2.0. Se marcan así a propósito: escribir de memoria las 141
+duraciones del Himno Nacional y darlas por buenas sería inventar datos. La app
+avisa en pantalla cuando el ritmo es aproximado.
+
+Corregir una canción es sólo editar sus `d` en `data/canciones.js`. Un test
+verifica que la cantidad de duraciones coincida con la de notas.
+
+En modo ritmo se puntúa por ventanas de tolerancia (90 / 200 / 380 ms), y el
+resultado separa **qué** tocó de **cuándo** lo tocó: acierto de notas y precisión
+rítmica se muestran por separado.
 
 ## Stack técnico
 

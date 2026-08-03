@@ -981,6 +981,58 @@ body.tocando .mascota .rastro {
   cursor: pointer;
   margin-top: 2px;
 }
+#ritmo-panel {
+  margin: 6px 0 8px;
+}
+.ritmo-cuenta {
+  font-family: 'Fredoka One', cursive;
+  font-size: 30px;
+  color: #3949ab;
+  text-align: center;
+  line-height: 1.1;
+}
+.ritmo-feedback {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 800;
+  min-height: 20px;
+  margin-top: 4px;
+  color: #888;
+  transition: color 0.15s;
+}
+.ritmo-feedback.perfecto { color: #26a69a; }
+.ritmo-feedback.bien { color: #43a047; }
+.ritmo-feedback.casi { color: #fb8c00; }
+.ritmo-feedback.fuera { color: #c62828; }
+.ritmo-resultado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  background: #f4f4f8;
+  border-radius: 12px;
+  padding: 12px;
+}
+.ritmo-estrellas {
+  font-size: 26px;
+  color: #fb8c00;
+  letter-spacing: 2px;
+}
+.ritmo-dato {
+  text-align: center;
+}
+.ritmo-dato b {
+  display: block;
+  font-family: 'Fredoka One', cursive;
+  font-size: 20px;
+  color: #3949ab;
+}
+.ritmo-dato span {
+  font-size: 10px;
+  font-weight: 700;
+  color: #888;
+}
 .cof-nota {
   background: #f3f0ff;
   border-left: 4px solid #7c6df2;
@@ -2198,7 +2250,13 @@ body.tocando .mascota .rastro {
   <div class="status-bar" id="song-status">🎹 Elegí una canción y tocá las notas que brillan.</div>
   <div class="piano-wrapper"><div id="piano-songs" class="piano"></div></div>
   <div class="note-display" id="nd-songs"></div>
+  <div style="display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap;align-items:center;" id="modo-cancion-btns">
+    <span style="font-size:11px;font-weight:800;color:#666;">Modo:</span>
+    <button onclick="setModoCancion('libre',this)" style="background:#3949ab;color:white;border:2px solid #3949ab;border-radius:8px;padding:6px 13px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">🎹 A mi tiempo</button>
+    <button onclick="setModoCancion('ritmo',this)" style="background:white;color:#3949ab;border:2px solid #3949ab;border-radius:8px;padding:6px 13px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">🥁 Con ritmo</button>
+  </div>
   <div class="song-active-panel" id="song-active-panel">
+    <div id="ritmo-panel" style="display:none;"></div>
     <div style="font-weight:800;font-size:13px;color:#333;margin-bottom:5px;" id="song-active-name"></div>
     <div class="prog-bar"><div class="prog-fill" id="main-prog-fill"></div></div>
     <div style="font-size:10px;color:#3949ab;font-weight:700;margin-top:3px;" id="main-step-lbl"></div>
@@ -2434,6 +2492,7 @@ body.tocando .mascota .rastro {
 
 <!-- Motor de audio propio: Web Audio puro, sin dependencias externas -->
 <script src="audio.js"></script>
+<script src="ritmo.js"></script>
 <!-- Datos separados: editarlos no requiere abrir el index.html -->
 <script src="data/escenas.js"></script>
 <script src="data/curriculum.js"></script>
@@ -4812,6 +4871,15 @@ function renderSongs() {
     list.appendChild(card);
   });
 }
+// modoCancion: 'libre' espera al chico (el de siempre); 'ritmo' avanza al tempo
+// y mide cuando toca cada nota.
+let modoCancion = 'libre';
+function setModoCancion(m, btn) {
+  modoCancion = m;
+  document.querySelectorAll('#modo-cancion-btns button').forEach(b => btnOff(b));
+  if (btn) btnOn(btn);
+  if (currentSong !== null) startSong(currentSong);
+}
 function startSong(idx) {
   if (currentSong !== null) _clearSong();
   currentSong = idx;
@@ -4819,9 +4887,79 @@ function startSong(idx) {
   document.getElementById('song-active-panel').style.display = 'block';
   document.getElementById('song-active-name').textContent =
     SONGS[idx].emoji + ' ' + SONGS[idx].name;
-  document.getElementById('song-status').textContent = '🎹 Tocá la nota que brilla en el teclado.';
   renderSongs();
+  if (modoCancion === 'ritmo') return startSongRitmo(idx);
+  document.getElementById('song-status').textContent = '🎹 Tocá la nota que brilla en el teclado.';
+  document.getElementById('ritmo-panel').style.display = 'none';
   showSongStep();
+}
+
+// ── Modo ritmo ──────────────────────────────────────────
+function startSongRitmo(idx) {
+  const song = SONGS[idx];
+  const panel = document.getElementById('ritmo-panel');
+  panel.style.display = 'block';
+  panel.innerHTML =
+    '<div class="ritmo-cuenta" id="ritmo-cuenta">Preparate...</div>' +
+    '<div class="ritmo-feedback" id="ritmo-feedback"></div>';
+  document.getElementById('song-status').textContent =
+    '🥁 ' + song.bpm + ' BPM · compás ' + song.compas +
+    (song.ritmoAprox ? ' · ritmo aproximado' : '');
+  Audio2.iniciar();
+  // Cuenta regresiva de un compás para que el chico se prepare.
+  let cuenta = 4;
+  const negra = Ritmo.msPorNegra(song.bpm);
+  const tick = () => {
+    const el = document.getElementById('ritmo-cuenta');
+    if (!el || currentSong === null) return;
+    if (cuenta > 0) {
+      el.textContent = cuenta;
+      Audio2.metronomo('click', cuenta === 4);
+      cuenta--;
+      setTimeout(tick, negra);
+    } else {
+      el.textContent = '¡Ahora!';
+      arrancarRitmo(song);
+    }
+  };
+  tick();
+}
+function arrancarRitmo(song) {
+  Ritmo.iniciar(song, song.bpm, {
+    onNota: (ev, i) => {
+      clearHL('piano-songs');
+      hlKey('piano-songs', ev.n);
+      songStep = i;
+      const pct = Math.round((i / song.notas.length) * 100);
+      document.getElementById('main-prog-fill').style.width = pct + '%';
+      document.getElementById('main-step-lbl').textContent =
+        'Nota ' + (i + 1) + ' de ' + song.notas.length;
+    },
+    onEvaluacion: r => {
+      const el = document.getElementById('ritmo-feedback');
+      if (!el) return;
+      el.textContent = r.emoji + ' ' + r.texto;
+      el.className = 'ritmo-feedback ' + r.id;
+      if (r.puntos > 0) {
+        stars += r.puntos;
+        updateStatsUI();
+      }
+    },
+    onFin: res => finishSongRitmo(song, res),
+  });
+}
+function finishSongRitmo(song, res) {
+  clearHL('piano-songs');
+  const panel = document.getElementById('ritmo-panel');
+  if (panel)
+    panel.innerHTML =
+      '<div class="ritmo-resultado">' +
+      '<div class="ritmo-estrellas">' + '★'.repeat(res.estrellas) + '☆'.repeat(3 - res.estrellas) + '</div>' +
+      '<div class="ritmo-dato"><b>' + res.aciertoNotas + '%</b><span>notas correctas</span></div>' +
+      '<div class="ritmo-dato"><b>' + res.precision + '%</b><span>precisión rítmica</span></div>' +
+      '</div>';
+  if (res.notasOk > 0) registrarCancionCompleta(song);
+  _clearSong();
 }
 function showSongStep() {
   if (currentSong === null) return;
@@ -4845,6 +4983,10 @@ function showSongStep() {
 }
 function checkSong(played) {
   if (currentSong === null) return;
+  if (Ritmo.activo) {
+    Ritmo.tocar(played);
+    return;
+  }
   if (nb(played) === nb(SONGS[currentSong].notes[songStep])) {
     songStep++;
     stars += 2;
@@ -4852,8 +4994,8 @@ function checkSong(played) {
     setTimeout(showSongStep, 120);
   }
 }
-function finishSong() {
-  const song = SONGS[currentSong];
+// Lo comun a los dos modos: logros, mision, XP e historial.
+function registrarCancionCompleta(song) {
   showToast('¡Canción completa! 🎵🎉');
   unlockAch(5);
   songsCompleted++;
@@ -4867,6 +5009,10 @@ function finishSong() {
       date: new Date().toLocaleDateString('es-AR'),
     });
   saveProgress();
+}
+function finishSong() {
+  const song = SONGS[currentSong];
+  registrarCancionCompleta(song);
   clearHL('piano-songs');
   setTimeout(() => {
     document.getElementById('song-active-panel').style.display = 'none';
@@ -4874,13 +5020,17 @@ function finishSong() {
   _clearSong();
 }
 function stopSong() {
+  Ritmo.cancelar();
   clearHL('piano-songs');
+  const rp = document.getElementById('ritmo-panel');
+  if (rp) rp.style.display = 'none';
   document.getElementById('song-active-panel').style.display = 'none';
   document.getElementById('song-status').textContent =
     '🎹 Elegí una canción y tocá las notas que brillan.';
   _clearSong();
 }
 function _clearSong() {
+  Ritmo.cancelar();
   currentSong = null;
   songStep = 0;
   renderSongs();
