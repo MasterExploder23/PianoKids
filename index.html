@@ -981,6 +981,22 @@ body.tocando .mascota .rastro {
   cursor: pointer;
   margin-top: 2px;
 }
+.partitura-wrap {
+  background: #fbfbff;
+  border: 2px solid #e6e6f2;
+  border-radius: 12px;
+  padding: 6px 4px;
+  margin: 8px 0;
+}
+.partitura-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+.partitura-scroll svg {
+  display: block;
+}
 #ritmo-panel {
   margin: 6px 0 8px;
 }
@@ -2257,6 +2273,9 @@ body.tocando .mascota .rastro {
   </div>
   <div class="song-active-panel" id="song-active-panel">
     <div id="ritmo-panel" style="display:none;"></div>
+    <div class="partitura-wrap" id="partitura-wrap" style="display:none;">
+      <div class="partitura-scroll" id="partitura-scroll"></div>
+    </div>
     <div style="font-weight:800;font-size:13px;color:#333;margin-bottom:5px;" id="song-active-name"></div>
     <div class="prog-bar"><div class="prog-fill" id="main-prog-fill"></div></div>
     <div style="font-size:10px;color:#3949ab;font-weight:700;margin-top:3px;" id="main-step-lbl"></div>
@@ -2493,6 +2512,7 @@ body.tocando .mascota .rastro {
 <!-- Motor de audio propio: Web Audio puro, sin dependencias externas -->
 <script src="audio.js"></script>
 <script src="ritmo.js"></script>
+<script src="partitura.js"></script>
 <!-- Datos separados: editarlos no requiere abrir el index.html -->
 <script src="data/escenas.js"></script>
 <script src="data/curriculum.js"></script>
@@ -4899,6 +4919,21 @@ function setModoCancion(m, btn) {
   if (btn) btnOn(btn);
   if (currentSong !== null) startSong(currentSong);
 }
+// Dibuja la canción como partitura y centra la vista en la nota actual.
+function renderPartitura(song, actual) {
+  const wrap = document.getElementById('partitura-wrap');
+  const cont = document.getElementById('partitura-scroll');
+  if (!wrap || !cont || !song) return;
+  wrap.style.display = 'block';
+  cont.innerHTML = Partitura.render(song.notas, STAFF_Y, {
+    compas: song.compas,
+    actual: typeof actual === 'number' ? actual : -1,
+  });
+  if (typeof actual === 'number' && actual >= 0) {
+    const x = Partitura.xDeNota(song.notas, actual);
+    cont.scrollLeft = Math.max(0, x - cont.clientWidth / 2);
+  }
+}
 function startSong(idx) {
   if (currentSong !== null) _clearSong();
   currentSong = idx;
@@ -4907,6 +4942,7 @@ function startSong(idx) {
   document.getElementById('song-active-name').textContent =
     SONGS[idx].emoji + ' ' + SONGS[idx].name;
   renderSongs();
+  renderPartitura(SONGS[idx], 0);
   if (modoCancion === 'ritmo') return startSongRitmo(idx);
   document.getElementById('song-status').textContent = '🎹 Tocá la nota que brilla en el teclado.';
   document.getElementById('ritmo-panel').style.display = 'none';
@@ -4949,6 +4985,7 @@ function arrancarRitmo(song) {
       clearHL('piano-songs');
       hlKey('piano-songs', ev.n);
       songStep = i;
+      renderPartitura(song, i);
       const pct = Math.round((i / song.notas.length) * 100);
       document.getElementById('main-prog-fill').style.width = pct + '%';
       document.getElementById('main-step-lbl').textContent =
@@ -4999,6 +5036,7 @@ function showSongStep() {
       'Nota ' + (songStep + 1) + ' de ' + song.notes.length;
   clearHL('piano-songs');
   hlKey('piano-songs', note);
+  renderPartitura(song, songStep);
 }
 function checkSong(played) {
   if (currentSong === null) return;
@@ -5043,6 +5081,8 @@ function stopSong() {
   clearHL('piano-songs');
   const rp = document.getElementById('ritmo-panel');
   if (rp) rp.style.display = 'none';
+  const pw = document.getElementById('partitura-wrap');
+  if (pw) pw.style.display = 'none';
   document.getElementById('song-active-panel').style.display = 'none';
   document.getElementById('song-status').textContent =
     '🎹 Elegí una canción y tocá las notas que brillan.';

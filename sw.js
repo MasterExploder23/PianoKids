@@ -2,7 +2,7 @@
 // ─────────────────────────────────────────────────────────────
 // IMPORTANTE: subí BUILD en cada deploy. Es lo que invalida la caché vieja.
 // Si no lo subís, los usuarios que ya instalaron la app siguen viendo la versión anterior.
-const BUILD = '2.2.0';
+const BUILD = '2.3.0';
 const CACHE_NAME = `pianokids-${BUILD}`;
 
 // Assets que se intentan precachear en el install.
@@ -15,6 +15,7 @@ const ASSETS = [
   './icon-512.png',
   './audio.js',
   './ritmo.js',
+  './partitura.js',
   './data/canciones.js',
   './data/curriculum.js',
   './data/escenas.js',

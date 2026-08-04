@@ -12,6 +12,7 @@ pianokids/
 ├── package.json    ← Scripts de test
 ├── audio.js        ← Motor de sonido (Web Audio puro, sin dependencias)
 ├── ritmo.js        ← Motor de ritmo: tempo, ventanas de timing y precisión
+├── partitura.js    ← Notación musical dibujada a mano en SVG
 ├── data/           ← Datos separados del código
 │   ├── canciones.js   ← Catálogo de canciones
 │   ├── curriculum.js  ← Los 5 módulos de lecciones
@@ -25,7 +26,8 @@ pianokids/
 │   ├── lecciones.js← Currículum, progresión y teoría musical (53 tests)
 │   ├── engagement.js← Misiones, racha, tienda, fondos y mascota (74 tests)
 │   ├── perfiles.js ← Perfiles y copia de seguridad (42 tests)
-│   └── ritmo.js    ← Formato con duración, tempo y precisión (47 tests)
+│   ├── ritmo.js    ← Formato con duración, tempo y precisión (47 tests)
+│   └── partitura.js← Figuras, plicas y líneas adicionales (33 tests)
 └── README.md       ← Este archivo
 ```
 
@@ -115,7 +117,7 @@ canciones, juegos y pentagrama.
 
 Antes de cada push a producción:
 
-1. `npm test` (tiene que dar 366/366)
+1. `npm test` (tiene que dar 399/399)
 2. **Subí `BUILD` en `sw.js`** (línea 5). Es lo que invalida la caché vieja.
    Si no lo subís, los usuarios que ya instalaron la app siguen viendo la versión anterior.
 3. Commit → push → Vercel redeploya solo.
@@ -142,7 +144,9 @@ del 80% central. Herramienta útil: https://maskable.app
 - 🎵 15 canciones (folklore, Disney, clásicas, navidad, pop) en dos modos:
   **a mi tiempo** (la app espera) y **con ritmo** (la canción avanza al tempo y
   se mide la precisión)
-- 🎼 Pentagrama en tiempo real
+- 🎼 Pentagrama en tiempo real y **partitura real** de cada canción, con figuras
+  según la duración (redonda, blanca, negra, corchea), plicas, corchetes,
+  puntillos y líneas adicionales, con cursor que sigue la ejecución
 - 🥁 Metrónomo con péndulo animado
 - 🎮 7 mini juegos (incluye karaoke, dictado melódico y memoria musical)
 - 🎛️ Soporte de teclado MIDI real por USB, con dinámica por velocity
@@ -200,6 +204,17 @@ verifica que la cantidad de duraciones coincida con la de notas.
 En modo ritmo se puntúa por ventanas de tolerancia (90 / 200 / 380 ms), y el
 resultado separa **qué** tocó de **cuándo** lo tocó: acierto de notas y precisión
 rítmica se muestran por separado.
+
+## Notación musical
+
+`partitura.js` dibuja la partitura a mano con SVG. **No se usa VexFlow ni ninguna
+librería de notación**: pesan más de 200 KB, más que toda la app, y las dos
+piezas difíciles ya estaban resueltas — las posiciones del pentagrama (v1.3) y
+las duraciones (v2.1). Dibujar las figuras son 150 líneas.
+
+La geometría es la misma que la del pentagrama en vivo, y un test verifica que
+las dos vistas coincidan: si divergen, la misma nota se dibujaría en dos lugares
+distintos.
 
 ## Stack técnico
 
