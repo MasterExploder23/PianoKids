@@ -4696,23 +4696,42 @@ function marcarFase() {
     )
     .join('');
 }
+// La demo acepta dos formas:
+//   ['C4','D4']              -> notas a intervalo fijo (lo de siempre)
+//   [{n:'C4',d:1},...]       -> con ritmo real, en negras
+// Asi el modulo de Ritmo puede ENSEÑAR ritmo en vez de solo nombrarlo.
+function demoConRitmo(l) {
+  return l.demo.length > 0 && typeof l.demo[0] === 'object';
+}
 function reproducirDemo() {
   const l = lecCorriente();
   if (!l) return;
   clearTimeout(demoTimer);
   ensureSynth();
+  const conRitmo = demoConRitmo(l);
+  const bpm = l.bpm || 90;
+  const negra = Ritmo.msPorNegra(bpm);
   Audio2.iniciar().then(() => {
-    l.demo.forEach((n, i) => {
+    let t = 0;
+    l.demo.forEach(p => {
+      const nota = conRitmo ? p.n : p;
+      const ms = conRitmo ? p.d * negra : 520;
       setTimeout(() => {
         try {
-          Audio2.nota(n, '8n');
+          Audio2.nota(nota, conRitmo ? (p.d * 60) / bpm : '8n');
         } catch (e) {}
         clearHL('piano-lesson');
-        hlKey('piano-lesson', n);
-      }, i * 520);
+        hlKey('piano-lesson', nota);
+      }, t);
+      t += ms;
     });
-    demoTimer = setTimeout(() => clearHL('piano-lesson'), l.demo.length * 520 + 400);
+    demoTimer = setTimeout(() => clearHL('piano-lesson'), t + 400);
   });
+}
+// Nombre de la figura para mostrarle al chico qué está tocando.
+function nombreFigura(d) {
+  const F = { 0.25: 'semicorchea', 0.5: 'corchea', 1: 'negra', 1.5: 'negra con puntillo', 2: 'blanca', 3: 'blanca con puntillo', 4: 'redonda' };
+  return F[d] || d + ' tiempos';
 }
 function mostrarPaso() {
   const pasos = pasosDeFase(),

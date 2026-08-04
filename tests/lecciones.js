@@ -16,7 +16,7 @@ const midi = n => { const m = /^([A-G]#?)(\d)$/.exec(n); return PC[m[1]] + 12 * 
   const { app } = boot();
   const M = app.MODULOS;
 
-  test('Hay 5 módulos', () => eq(M.length, 5));
+  test('Hay 6 módulos', () => eq(M.length, 6));
   test('Cada módulo tiene id, nombre, emoji, color, descripción y lecciones', () => {
     M.forEach(m => {
       ['id', 'nombre', 'emoji', 'color', 'desc'].forEach(k => assert(m[k], `${m.id}: falta ${k}`));
@@ -53,6 +53,45 @@ const midi = n => { const m = /^([A-G]#?)(\d)$/.exec(n); return PC[m[1]] + 12 * 
     const total = M.reduce((n, m) => n + m.lecciones.length, 0);
     assert(total >= 20, `sólo ${total} lecciones`);
   });
+  test('No hay huecos en el array de módulos', () => {
+    assert(M.every(m => m && m.id), 'hay un módulo undefined: coma de más en el array');
+  });
+
+  // ── Módulo de ritmo (v2.2) ────────────────────────────
+  const ritmo = M.find(m => m.id === 'ritmo');
+  test('Existe el módulo de ritmo', () => assert(ritmo, 'falta el módulo de ritmo'));
+  test('Sus lecciones traen duración en cada paso', () => {
+    ritmo.lecciones.forEach(l =>
+      [...l.practica, ...l.evaluacion].forEach((p, i) =>
+        assert(typeof p.d === 'number' && p.d > 0, `${l.id}[${i}]: sin duración`))
+    );
+  });
+  test('La demo del módulo de ritmo lleva el ritmo escrito', () => {
+    ritmo.lecciones.forEach(l => {
+      assert(typeof l.demo[0] === 'object', `${l.id}: la demo no tiene ritmo`);
+      l.demo.forEach(p => assert(p.n && p.d > 0, `${l.id}: paso de demo incompleto`));
+    });
+  });
+  test('Cada lección de ritmo define su tempo', () => {
+    ritmo.lecciones.forEach(l => assert(l.bpm > 0, `${l.id}: sin bpm`));
+  });
+  test('Enseña las tres figuras básicas en orden', () => {
+    const duraciones = ritmo.lecciones.map(l => new Set(l.evaluacion.map(p => p.d)));
+    assert(duraciones[1].has(1), 'la lección 2 debería enseñar la negra');
+    assert(duraciones[2].has(2), 'la lección 3 debería enseñar la blanca');
+    assert(duraciones[3].has(0.5), 'la lección 4 debería enseñar la corchea');
+  });
+  test('La última lección mezcla las tres figuras', () => {
+    const d = new Set(ritmo.lecciones[ritmo.lecciones.length - 1].evaluacion.map(p => p.d));
+    assert(d.has(0.5) && d.has(1) && d.has(2), `la prueba final sólo usa ${[...d].join(', ')}`);
+  });
+  test('Las duraciones del módulo son figuras reales', () => {
+    const validas = [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4];
+    ritmo.lecciones.forEach(l =>
+      [...l.demo, ...l.practica, ...l.evaluacion].forEach(p =>
+        assert(validas.includes(p.d), `${l.id}: duración ${p.d} no es una figura`))
+    );
+  });
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -65,7 +104,8 @@ const midi = n => { const m = /^([A-G]#?)(\d)$/.exec(n); return PC[m[1]] + 12 * 
   const todasLasNotas = () => {
     const out = [];
     M.forEach(m => m.lecciones.forEach(l => {
-      l.demo.forEach(n => out.push([`${m.id}/${l.id} demo`, n]));
+      // La demo puede ser ['C4',...] o [{n:'C4',d:1},...] desde v2.2.
+      l.demo.forEach(x => out.push([`${m.id}/${l.id} demo`, typeof x === 'object' ? x.n : x]));
       [...l.practica, ...l.evaluacion].forEach(p =>
         (p.acorde || [p.n]).forEach(n => out.push([`${m.id}/${l.id}`, n])));
     }));
@@ -321,7 +361,7 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
   const { app, doc } = boot();
   app.fn.buildLessonGrid();
 
-  test('Se renderizan los 5 módulos', () => eq(doc.querySelectorAll('#lesson-grid .modulo').length, 5));
+  test('Se renderizan todos los módulos', () => eq(doc.querySelectorAll('#lesson-grid .modulo').length, app.MODULOS.length));
   test('Se renderizan todas las lecciones', () => {
     const total = app.MODULOS.reduce((n, m) => n + m.lecciones.length, 0);
     eq(doc.querySelectorAll('#lesson-grid .lesson-card').length, total);
@@ -333,7 +373,7 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
   });
   test('El panel de padres tiene una pestaña por módulo', () => {
     app.fn.buildPadresLeccTabs();
-    eq(doc.querySelectorAll('#padres-lecc-tabs button').length, 5);
+    eq(doc.querySelectorAll('#padres-lecc-tabs button').length, app.MODULOS.length);
   });
   test('El panel de padres muestra el detalle de un módulo', () => {
     app.fn.showPadresLecc('notas', doc.querySelector('#padres-lecc-tabs button'));

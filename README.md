@@ -22,7 +22,7 @@ pianokids/
 │   ├── smoke.js    ← Smoke funcional simulando uso real (32 tests)
 │   ├── v13.js      ← Pentagrama, teclas, arrastre y motor de audio (46 tests)
 │   ├── midi.js     ← Teclado MIDI con puerto simulado (34 tests)
-│   ├── lecciones.js← Currículum, progresión y teoría musical (45 tests)
+│   ├── lecciones.js← Currículum, progresión y teoría musical (53 tests)
 │   ├── engagement.js← Misiones, racha, tienda, fondos y mascota (74 tests)
 │   ├── perfiles.js ← Perfiles y copia de seguridad (42 tests)
 │   └── ritmo.js    ← Formato con duración, tempo y precisión (47 tests)
@@ -115,7 +115,7 @@ canciones, juegos y pentagrama.
 
 Antes de cada push a producción:
 
-1. `npm test` (tiene que dar 358/358)
+1. `npm test` (tiene que dar 366/366)
 2. **Subí `BUILD` en `sw.js`** (línea 5). Es lo que invalida la caché vieja.
    Si no lo subís, los usuarios que ya instalaron la app siguen viendo la versión anterior.
 3. Commit → push → Vercel redeploya solo.
@@ -136,7 +136,8 @@ del 80% central. Herramienta útil: https://maskable.app
 ## Funciones
 
 - 🎹 Teclado de 3 octavas con 2 instrumentos (piano y órgano) sintetizados
-- 📚 Currículum de 23 lecciones en 5 módulos, con explicación, demostración,
+- 📚 Currículum de 28 lecciones en 6 módulos (notas, dedos, intervalos,
+  acordes mayores, acordes menores y **ritmo**), con explicación, demostración,
   práctica guiada y evaluación con estrellas según desempeño
 - 🎵 15 canciones (folklore, Disney, clásicas, navidad, pop) en dos modos:
   **a mi tiempo** (la app espera) y **con ritmo** (la canción avanza al tempo y
