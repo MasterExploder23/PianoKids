@@ -2250,6 +2250,9 @@ body.tocando .mascota .rastro {
     </div>
     <div class="fase-row" id="fase-indicador"></div>
     <div class="exp-card" id="lesson-explicacion" style="display:none;"></div>
+    <div class="partitura-wrap" id="lesson-partitura-wrap" style="display:none;">
+      <div class="partitura-scroll" id="lesson-partitura-scroll"></div>
+    </div>
     <div id="lesson-prompt-zone">
       <div class="lesson-prompt"><div class="prompt-label" id="prompt-label">Tocá esta nota:</div><div class="prompt-main" id="prompt-main">Do</div><div class="prompt-sub" id="prompt-sub"></div></div>
       <div class="lesson-acciones" id="lesson-acciones"></div>
@@ -2286,7 +2289,6 @@ body.tocando .mascota .rastro {
     <button onclick="setFilter('argentina',this)" style="background:white;color:#3949ab;border:2px solid #3949ab;border-radius:9px;padding:5px 12px;font-size:10px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">🇦🇷 Argentina</button>
     <button onclick="setFilter('clasica',this)" style="background:white;color:#3949ab;border:2px solid #3949ab;border-radius:9px;padding:5px 12px;font-size:10px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">🎻 Clásica</button>
     <button onclick="setFilter('infantil',this)" style="background:white;color:#3949ab;border:2px solid #3949ab;border-radius:9px;padding:5px 12px;font-size:10px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">👶 Infantil</button>
-    <button onclick="setFilter('disney',this)" style="background:white;color:#3949ab;border:2px solid #3949ab;border-radius:9px;padding:5px 12px;font-size:10px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">✨ Disney</button>
     <button onclick="setFilter('navidad',this)" style="background:white;color:#3949ab;border:2px solid #3949ab;border-radius:9px;padding:5px 12px;font-size:10px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">🎄 Navidad</button>
     <button onclick="setFilter('pop',this)" style="background:white;color:#3949ab;border:2px solid #3949ab;border-radius:9px;padding:5px 12px;font-size:10px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">🎤 Pop</button>
   </div>
@@ -2690,7 +2692,6 @@ const GENRE_LABELS = {
   argentina: '🇦🇷 Argentina',
   clasica: '🎻 Clásica',
   infantil: '👶 Infantil',
-  disney: '✨ Disney',
   navidad: '🎄 Navidad',
   pop: '🎤 Pop',
 };
@@ -4654,6 +4655,7 @@ function startLesson(mi, li) {
   acordeApretado = new Set();
   document.getElementById('lesson-select').style.display = 'none';
   document.getElementById('lesson-playing').classList.add('active');
+  ocultarPartituraLeccion();
   const m = MODULOS[mi],
     l = m.lecciones[li];
   document.getElementById('lesson-title').textContent = l.emoji + ' ' + l.nombre;
@@ -4679,6 +4681,7 @@ function mostrarFase() {
   if (fase === 'explicacion') {
     zonaExp.style.display = 'block';
     zonaPrompt.style.display = 'none';
+    ocultarPartituraLeccion();
     zonaExp.innerHTML = `<div class="exp-titulo">${l.explicacion.titulo}</div>
       <div class="exp-texto">${l.explicacion.texto}</div>
       <div class="exp-tip">💡 ${l.explicacion.tip}</div>
@@ -4697,6 +4700,7 @@ function mostrarFase() {
     document.getElementById('lesson-acciones').innerHTML =
       `<button class="exp-btn" onclick="reproducirDemo()">▶ Escuchar de nuevo</button>
        <button class="exp-btn alt" onclick="siguienteFase()">Ahora yo →</button>`;
+    renderPartituraLeccion(l.demo, -1);
     reproducirDemo();
     marcarFase();
     return;
@@ -4723,6 +4727,38 @@ function marcarFase() {
 function demoConRitmo(l) {
   return l.demo.length > 0 && typeof l.demo[0] === 'object';
 }
+// ── Partitura dentro de la lección (módulo Lectura) ──
+// Sólo los módulos marcados con partitura:true la muestran. En los demás la
+// nota se dice por su nombre; mostrar el papel ahí sería adelantarse.
+function moduloConPartitura() {
+  return modActual !== null && !!MODULOS[modActual].partitura;
+}
+function pasosAPartitura(pasos) {
+  return pasos.filter(p => p && p.n).map(p => ({ n: p.n, d: p.d || 1 }));
+}
+function renderPartituraLeccion(pasos, actual) {
+  const wrap = document.getElementById('lesson-partitura-wrap');
+  const cont = document.getElementById('lesson-partitura-scroll');
+  if (!wrap || !cont) return;
+  const notas = moduloConPartitura() ? pasosAPartitura(pasos || []) : [];
+  if (!notas.length) {
+    wrap.style.display = 'none';
+    cont.innerHTML = '';
+    return;
+  }
+  wrap.style.display = 'block';
+  cont.innerHTML = Partitura.render(notas, STAFF_Y, { compas: '4/4', actual: actual });
+  if (typeof actual === 'number' && actual >= 0) {
+    const x = Partitura.xDeNota(notas, actual);
+    cont.scrollLeft = Math.max(0, x - cont.clientWidth / 2);
+  }
+}
+function ocultarPartituraLeccion() {
+  const wrap = document.getElementById('lesson-partitura-wrap');
+  const cont = document.getElementById('lesson-partitura-scroll');
+  if (wrap) wrap.style.display = 'none';
+  if (cont) cont.innerHTML = '';
+}
 function reproducirDemo() {
   const l = lecCorriente();
   if (!l) return;
@@ -4733,7 +4769,7 @@ function reproducirDemo() {
   const negra = Ritmo.msPorNegra(bpm);
   Audio2.iniciar().then(() => {
     let t = 0;
-    l.demo.forEach(p => {
+    l.demo.forEach((p, i) => {
       const nota = conRitmo ? p.n : p;
       const ms = conRitmo ? p.d * negra : 520;
       setTimeout(() => {
@@ -4742,6 +4778,7 @@ function reproducirDemo() {
         } catch (e) {}
         clearHL('piano-lesson');
         hlKey('piano-lesson', nota);
+        if (moduloConPartitura()) renderPartituraLeccion(l.demo, i);
       }, t);
       t += ms;
     });
@@ -4769,6 +4806,7 @@ function mostrarPaso() {
     prog.appendChild(d);
   });
   clearHL('piano-lesson');
+  renderPartituraLeccion(pasos, pasoActual);
   acordeApretado = new Set();
   const notas = p.acorde || [p.n];
   document.getElementById('prompt-label').textContent = evaluando
@@ -4879,6 +4917,7 @@ function exitLesson() {
   acordeApretado = new Set();
   clearFingers();
   clearHL('piano-lesson');
+  ocultarPartituraLeccion();
   document.getElementById('lesson-select').style.display = 'block';
   document.getElementById('lesson-playing').classList.remove('active');
 }
@@ -5447,172 +5486,51 @@ function stopFifthGame() {
 }
 
 // ════ KARAOKE ════
+// Karaoke. Todas las letras en castellano: si el chico no entiende lo que canta,
+// el juego pierde la mitad de la gracia. Villancicos y tradicionales de dominio
+// publico; las de Disney se sacaron por derechos de autor.
 const KARAOKE_SONGS = [
   {
     name: 'Cumpleaños Feliz',
     emoji: '🎂',
     diff: 0,
-    notes: [
-      'C4',
-      'C4',
-      'D4',
-      'C4',
-      'F4',
-      'E4',
-      'C4',
-      'C4',
-      'D4',
-      'C4',
-      'G4',
-      'F4',
-      'C4',
-      'C4',
-      'C5',
-      'A4',
-      'F4',
-      'E4',
-      'D4',
-      'A#4',
-      'A#4',
-      'A4',
-      'F4',
-      'G4',
-      'F4',
-    ],
-    lyrics: [
-      'Cum',
-      'ple',
-      'a',
-      'ños',
-      'fe',
-      'liz',
-      'Cum',
-      'ple',
-      'a',
-      'ños',
-      'fe',
-      'liz',
-      'Cum',
-      'ple',
-      'a',
-      'ños',
-      'que',
-      'ri',
-      'do',
-      'a',
-      'mi',
-      'go',
-      'fe',
-      'liz',
-    ],
+    notes: ['C4','C4','D4','C4','F4','E4','C4','C4','D4','C4','G4','F4'],
+    lyrics: ['Cum','ple','a','ños','fe','liz','cum','ple','a','ños','fe','liz'],
   },
   {
-    name: 'Estrellita',
+    name: 'Estrellita dónde estás',
     emoji: '⭐',
     diff: 0,
-    notes: ['C4', 'C4', 'G4', 'G4', 'A4', 'A4', 'G4', 'F4', 'F4', 'E4', 'E4', 'D4', 'D4', 'C4'],
-    lyrics: [
-      'Es',
-      'tre',
-      'lli',
-      'ta',
-      'dón',
-      'de',
-      'es',
-      'tás',
-      'me',
-      'pre',
-      'gun',
-      'to',
-      'qué',
-      'se',
-      'rás',
-    ],
+    notes: ['C4','C4','G4','G4','A4','A4','G4','F4','F4','E4','E4','D4','D4','C4'],
+    lyrics: ['Es','tre','lli','ta','dón','de','estás','me','pre','gun','to','quién','se','rás'],
   },
   {
     name: 'Himno de la Alegría',
     emoji: '🎻',
     diff: 1,
-    notes: [
-      'E4',
-      'E4',
-      'F4',
-      'G4',
-      'G4',
-      'F4',
-      'E4',
-      'D4',
-      'C4',
-      'C4',
-      'D4',
-      'E4',
-      'E4',
-      'D4',
-      'D4',
-    ],
-    lyrics: [
-      'A',
-      'le',
-      'grí',
-      'a',
-      'a',
-      'le',
-      'grí',
-      'a',
-      'can',
-      'ta',
-      'y',
-      'bai',
-      'la',
-      'con',
-      'nos',
-    ],
+    notes: ['E4','E4','F4','G4','G4','F4','E4','D4','C4','C4','D4','E4','E4','D4','D4'],
+    lyrics: ['Es','cu','cha','her','ma','no','la','can','ción','de','la','a','le','grí','a'],
   },
   {
-    name: 'Jingle Bells',
+    name: 'Navidad, Navidad',
     emoji: '🔔',
     diff: 0,
-    notes: ['E4', 'E4', 'E4', 'E4', 'E4', 'E4', 'E4', 'G4', 'C4', 'D4', 'E4'],
-    lyrics: ['Jin', 'gle', 'bells', 'jin', 'gle', 'bells', 'jin', 'gle', 'all', 'the', 'way'],
+    notes: ['E4','E4','E4','E4','E4','E4','E4','G4','C4','D4','E4'],
+    lyrics: ['Na','vi','dad','Na','vi','dad','dul','ce','Na','vi','dad'],
   },
   {
-    name: 'Let It Go',
-    emoji: '❄️',
-    diff: 1,
-    notes: [
-      'G4',
-      'A4',
-      'C5',
-      'A4',
-      'C5',
-      'D5',
-      'C5',
-      'G4',
-      'A4',
-      'C5',
-      'D5',
-      'E5',
-      'D5',
-      'C5',
-      'A4',
-    ],
-    lyrics: [
-      'Let',
-      'it',
-      'go',
-      'let',
-      'it',
-      'go',
-      "can't",
-      'hold',
-      'it',
-      'back',
-      'a',
-      'ny',
-      'mo',
-      're',
-      'now',
-    ],
+    name: 'Los pollitos dicen',
+    emoji: '🐥',
+    diff: 0,
+    notes: ['G4','G4','G4','G4','E4','G4','A4','A4','A4','A4','F4','A4'],
+    lyrics: ['Los','po','lli','tos','di','cen','pí','o','pí','o','pí','o'],
+  },
+  {
+    name: 'Que llueva, que llueva',
+    emoji: '🌧️',
+    diff: 0,
+    notes: ['G4','E4','G4','E4','G4','G4','E4','A4','G4','F4','E4','D4'],
+    lyrics: ['Que','llue','va','que','llue','va','la','vie','ja','está','en','la'],
   },
 ];
 function openKaraokeSelector() {
@@ -6242,7 +6160,6 @@ const GENRES_P = [
   { key: 'infantil', label: '👶 Infantil' },
   { key: 'clasica', label: '🎻 Clásica' },
   { key: 'argentina', label: '🇦🇷 Argentina' },
-  { key: 'disney', label: '✨ Disney' },
   { key: 'navidad', label: '🎄 Navidad' },
   { key: 'pop', label: '🎤 Pop' },
 ];

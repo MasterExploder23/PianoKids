@@ -14,7 +14,12 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
   const { app, doc } = boot();
 
   test('La app bootea sin excepciones', () => assert(app, 'no se expuso el scope'));
-  test('Las 15 canciones siguen presentes', () => eq(app.SONGS.length, 15));
+  // Contra el catálogo, no contra un número fijo: crece seguido y el test se
+  // volvía falso rojo cada vez. Lo que importa es que no se encoja.
+  test('El catálogo de canciones no se encogió', () => {
+    assert(app.SONGS.length >= 21, 'quedaron ' + app.SONGS.length + ' canciones');
+    assert(app.SONGS.every(s => s && s.name && s.notes && s.notes.length), 'hay canciones incompletas');
+  });
   test('Toda canción tiene name, emoji, diff, genre y notas', () => {
     app.SONGS.forEach(s => {
       assert(s.name && s.emoji && s.diff && s.genre, `canción incompleta: ${s.name}`);
@@ -42,6 +47,22 @@ const daysAgo = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d
     assert(app.ACHS.every(a => a.ok === false), 'hay logros marcados de entrada');
   });
   test('Las canciones de karaoke siguen presentes', () => assert(app.KARAOKE_SONGS.length > 0));
+  test('Cada sílaba del karaoke tiene su nota', () => {
+    app.KARAOKE_SONGS.forEach(k =>
+      eq(k.notes.length, k.lyrics.length, k.name + ': notas y sílabas no coinciden'));
+  });
+  test('El karaoke está todo en español', () => {
+    // Nada de letras en inglés: es una app para chicos hispanohablantes y
+    // cantar lo que no se entiende no enseña nada.
+    const ingles = /\b(the|you|and|let|it|go|my|we|love|snow|jingle|bells|way)\b/i;
+    app.KARAOKE_SONGS.forEach(k =>
+      k.lyrics.forEach(s => assert(!ingles.test(s), k.name + ': sílaba en inglés "' + s + '"')));
+  });
+  test('El catálogo no tiene canciones con derechos de autor vigentes', () => {
+    const conDerechos = /frozen|hakuna|let it go|matata/i;
+    app.SONGS.forEach(s => assert(!conDerechos.test(s.name), 'volvió ' + s.name));
+    assert(!app.SONGS.some(s => s.genre === 'disney'), 'volvió el género disney');
+  });
   test('Los 5 niveles siguen presentes', () => eq(app.LEVELS.length, 5));
   test('El DOM tiene los 12 paneles de navegación', () => {
     assert(doc.querySelectorAll('.panel').length >= 8, 'faltan paneles');

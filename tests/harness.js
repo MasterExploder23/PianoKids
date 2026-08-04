@@ -36,6 +36,7 @@ const EXPOSED_FN = [
   'perfilPorId', 'perfilCorriente', 'claveDe', 'claveActual', 'resetEstado', 'saveProgressAhora',
   'armarBackup', 'validarBackup', 'aplicarBackup', 'renderPerfiles', 'snapshotProgreso',
   'setModoCancion', 'startSong', 'renderPartitura', 'stopSong', 'checkSong', 'registrarCancionCompleta',
+  'moduloConPartitura', 'pasosAPartitura', 'renderPartituraLeccion', 'ocultarPartituraLeccion',
 ];
 
 // Desde v1.9 los datos viven en data/*.js, cargados con <script src> antes de

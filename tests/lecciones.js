@@ -16,7 +16,10 @@ const midi = n => { const m = /^([A-G]#?)(\d)$/.exec(n); return PC[m[1]] + 12 * 
   const { app } = boot();
   const M = app.MODULOS;
 
-  test('Hay 6 módulos', () => eq(M.length, 6));
+  test('Hay 7 módulos, sin huecos', () => {
+    eq(M.length, 7);
+    assert(M.every(m => m && m.id && m.lecciones && m.lecciones.length), 'hay un módulo vacío o undefined');
+  });
   test('Cada módulo tiene id, nombre, emoji, color, descripción y lecciones', () => {
     M.forEach(m => {
       ['id', 'nombre', 'emoji', 'color', 'desc'].forEach(k => assert(m[k], `${m.id}: falta ${k}`));
@@ -386,6 +389,129 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
       .forEach(id => assert(!srcC.includes(id), `sigue existiendo ${id}`));
   });
 }
+
+// ═══════════════════════════════════════════════════════════
+// Módulo 7 — Lectura de partitura (v2.4)
+// ═══════════════════════════════════════════════════════════
+{
+  const { app, doc } = boot();
+  const M = app.MODULOS;
+  const lec = M.find(m => m.id === 'lectura');
+
+  test('Existe el módulo de lectura y es el último', () => {
+    assert(lec, 'no está el módulo lectura');
+    eq(M[M.length - 1].id, 'lectura');
+  });
+  test('Es el único módulo marcado con partitura', () => {
+    eq(M.filter(m => m.partitura).length, 1);
+    assert(lec.partitura === true, 'lectura no tiene partitura:true');
+  });
+  test('Todos sus pasos traen duración escrita', () => {
+    lec.lecciones.forEach(l => {
+      [...l.demo, ...l.practica, ...l.evaluacion].forEach(p => {
+        assert(typeof p === 'object' && p.n, `${l.id}: paso sin nota`);
+        assert(typeof p.d === 'number' && p.d > 0, `${l.id}: paso sin duración`);
+      });
+    });
+  });
+  test('Todas sus duraciones son figuras dibujables', () => {
+    const validas = new Set(app.Partitura.FIGURAS.map(f => f.d));
+    lec.lecciones.forEach(l =>
+      [...l.demo, ...l.practica, ...l.evaluacion].forEach(p =>
+        assert(validas.has(p.d), `${l.id}: la duración ${p.d} no tiene figura`)));
+  });
+  test('Todas sus notas tienen posición en el pentagrama', () => {
+    lec.lecciones.forEach(l =>
+      [...l.demo, ...l.practica, ...l.evaluacion].forEach(p =>
+        assert(app.STAFF_Y[p.n] !== undefined, `${l.id}: ${p.n} no está en STAFF_Y`)));
+  });
+  test('La lección de las líneas usa exactamente las 5 notas de línea', () => {
+    const l = lec.lecciones.find(x => x.id === 'p1');
+    eq(l.demo.map(p => p.n), ['E4', 'G4', 'B4', 'D5', 'F5']);
+    // Y esas notas caen sobre las líneas del pentagrama, no en los espacios.
+    l.demo.forEach(p => assert(app.Partitura.LINEAS.includes(app.STAFF_Y[p.n]),
+      `${p.n} (y=${app.STAFF_Y[p.n]}) no cae sobre una línea`));
+  });
+  test('La lección de los espacios usa notas que NO caen en líneas', () => {
+    const l = lec.lecciones.find(x => x.id === 'p2');
+    eq(l.demo.map(p => p.n), ['F4', 'A4', 'C5', 'E5']);
+    l.demo.forEach(p => assert(!app.Partitura.LINEAS.includes(app.STAFF_Y[p.n]),
+      `${p.n} debería estar en un espacio`));
+  });
+  test('La lección del Do central usa una nota con línea adicional', () => {
+    const l = lec.lecciones.find(x => x.id === 'p3');
+    assert(l.demo.some(p => p.n === 'C4'), 'no aparece el Do central');
+    assert(app.Partitura.ledgers(app.STAFF_Y['C4']).length === 1,
+      'el Do central debería llevar exactamente una línea adicional');
+  });
+  test('Las primeras 2 lecciones vienen abiertas', () => eq(lec.libres, 2));
+
+  // ── La partitura dentro de la lección ──
+  test('pasosAPartitura conserva nota y duración', () => {
+    const out = app.fn.pasosAPartitura([{ n: 'C4', d: 2, pista: 'x' }, { n: 'G4' }]);
+    eq(out, [{ n: 'C4', d: 2 }, { n: 'G4', d: 1 }]);
+  });
+  test('pasosAPartitura descarta pasos de acorde, que no tienen .n', () => {
+    eq(app.fn.pasosAPartitura([{ acorde: ['C4', 'E4', 'G4'] }, { n: 'C4', d: 1 }]).length, 1);
+  });
+
+  const iLectura = M.findIndex(m => m.id === 'lectura');
+  const wrap = () => doc.getElementById('lesson-partitura-wrap');
+  const svg = () => doc.querySelectorAll('#lesson-partitura-scroll svg');
+
+  test('En la explicación todavía no se muestra la partitura', () => {
+    app.fn.startLesson(iLectura, 0);
+    eq(wrap().style.display, 'none');
+  });
+  test('En la práctica aparece la partitura con una nota por paso', () => {
+    app.fn.startLesson(iLectura, 0);
+    app.fn.siguienteFase(); // demo
+    app.fn.siguienteFase(); // práctica
+    eq(wrap().style.display, 'block');
+    eq(svg().length, 1);
+    const l = lec.lecciones[0];
+    eq(doc.querySelectorAll('#lesson-partitura-scroll ellipse').length, l.practica.length);
+  });
+  test('La nota del paso actual se resalta en la partitura', () => {
+    app.fn.startLesson(iLectura, 0);
+    app.fn.siguienteFase();
+    app.fn.siguienteFase();
+    // El resaltado es un círculo naranja alrededor de la cabeza: uno solo.
+    eq(doc.querySelectorAll('#lesson-partitura-scroll circle[stroke="#fb8c00"]').length, 1);
+  });
+  test('Avanzar de paso mueve el resaltado a otra nota', () => {
+    app.fn.startLesson(iLectura, 0);
+    const pasos = lec.lecciones[0].practica;
+    const cx = i => {
+      app.fn.renderPartituraLeccion(pasos, i);
+      const c = doc.querySelector('#lesson-partitura-scroll circle[stroke="#fb8c00"]');
+      assert(c, 'no hay nota resaltada en el paso ' + i);
+      return c.getAttribute('cx');
+    };
+    const a = cx(0), b = cx(1);
+    assert(a !== b, 'el resaltado no se movió: quedó en cx=' + a);
+  });
+  test('Los otros módulos no muestran partitura en la práctica', () => {
+    app.fn.startLesson(0, 0);
+    app.fn.siguienteFase();
+    app.fn.siguienteFase();
+    eq(wrap().style.display, 'none');
+    eq(svg().length, 0);
+  });
+  test('Salir de la lección limpia la partitura', () => {
+    app.fn.startLesson(iLectura, 0);
+    app.fn.siguienteFase();
+    app.fn.siguienteFase();
+    app.fn.exitLesson();
+    eq(wrap().style.display, 'none');
+    eq(doc.getElementById('lesson-partitura-scroll').innerHTML, '');
+  });
+  test('La partitura de la lección usa la misma geometría que la de canciones', () => {
+    assert(/renderPartituraLeccion[\s\S]{0,400}Partitura\.render\(notas,STAFF_Y/.test(srcC),
+      'la lección debería dibujar con STAFF_Y, igual que el pentagrama en vivo');
+  });
+}
+
 
 process.exit(report('PianoKids v1.5 — currículum de lecciones') === 0 ? 0 : 1);
 })();

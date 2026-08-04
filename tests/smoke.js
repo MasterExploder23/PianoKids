@@ -133,8 +133,9 @@ const tocar = k => { puntero(k, 'pointerdown'); puntero(k, 'pointerup'); };
   const navBtns = [...doc.querySelectorAll('.nav-btn')];
   click(navBtns.find(b => /Canciones/.test(b.textContent)));
 
-  test('Se renderizan las 15 tarjetas de canción', () => {
-    eq(doc.querySelectorAll('#song-list .song-card').length, 15);
+  test('Se renderiza una tarjeta por cada canción del catálogo', () => {
+    assert(app.SONGS.length >= 15, 'el catálogo no debería encogerse: ' + app.SONGS.length);
+    eq(doc.querySelectorAll('#song-list .song-card').length, app.SONGS.length);
   });
   test('Cada tarjeta muestra la cantidad de notas', () => {
     const txt = doc.getElementById('song-list').textContent;

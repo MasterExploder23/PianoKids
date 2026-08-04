@@ -158,7 +158,7 @@ const { boot, test, assert, eq, report, src, srcC } = require('./harness');
     const svg = P.render([{ n: 'C4', d: 1 }], app.STAFF_Y, {});
     assert(/aria-label="Partitura/.test(svg));
   });
-  test('Las 15 canciones se dibujan sin romper', () => {
+  test('Todas las canciones del catálogo se dibujan sin romper', () => {
     app.SONGS.forEach(s => {
       const svg = P.render(s.notas, app.STAFF_Y, { compas: s.compas });
       assert(svg.startsWith('<svg'), `${s.name} no generó SVG`);

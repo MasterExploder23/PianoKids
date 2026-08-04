@@ -15,15 +15,15 @@ pianokids/
 ├── partitura.js    ← Notación musical dibujada a mano en SVG
 ├── data/           ← Datos separados del código
 │   ├── canciones.js   ← Catálogo de canciones
-│   ├── curriculum.js  ← Los 5 módulos de lecciones
+│   ├── curriculum.js  ← Los 7 módulos de lecciones
 │   └── escenas.js     ← Fondos SVG de la tienda
 ├── tests/
 │   ├── harness.js  ← Arranca la app en JSDOM con audio stubbeado
-│   ├── run.js      ← Suite de regresión (36 tests)
+│   ├── run.js      ← Suite de regresión (41 tests)
 │   ├── smoke.js    ← Smoke funcional simulando uso real (32 tests)
 │   ├── v13.js      ← Pentagrama, teclas, arrastre y motor de audio (46 tests)
 │   ├── midi.js     ← Teclado MIDI con puerto simulado (34 tests)
-│   ├── lecciones.js← Currículum, progresión y teoría musical (53 tests)
+│   ├── lecciones.js← Currículum, progresión y teoría musical (71 tests)
 │   ├── engagement.js← Misiones, racha, tienda, fondos y mascota (74 tests)
 │   ├── perfiles.js ← Perfiles y copia de seguridad (42 tests)
 │   ├── ritmo.js    ← Formato con duración, tempo y precisión (47 tests)
@@ -117,7 +117,7 @@ canciones, juegos y pentagrama.
 
 Antes de cada push a producción:
 
-1. `npm test` (tiene que dar 399/399)
+1. `npm test` (tiene que dar 420/420)
 2. **Subí `BUILD` en `sw.js`** (línea 5). Es lo que invalida la caché vieja.
    Si no lo subís, los usuarios que ya instalaron la app siguen viendo la versión anterior.
 3. Commit → push → Vercel redeploya solo.
@@ -138,10 +138,11 @@ del 80% central. Herramienta útil: https://maskable.app
 ## Funciones
 
 - 🎹 Teclado de 3 octavas con 2 instrumentos (piano y órgano) sintetizados
-- 📚 Currículum de 28 lecciones en 6 módulos (notas, dedos, intervalos,
-  acordes mayores, acordes menores y **ritmo**), con explicación, demostración,
-  práctica guiada y evaluación con estrellas según desempeño
-- 🎵 15 canciones (folklore, Disney, clásicas, navidad, pop) en dos modos:
+- 📚 Currículum de 33 lecciones en 7 módulos (notas, dedos, intervalos,
+  acordes mayores, acordes menores, **ritmo** y **lectura de partitura**), con
+  explicación, demostración, práctica guiada y evaluación con estrellas según
+  desempeño
+- 🎵 21 canciones (folklore, clásicas, infantiles, navidad, pop) en dos modos:
   **a mi tiempo** (la app espera) y **con ritmo** (la canción avanza al tempo y
   se mide la precisión)
 - 🎼 Pentagrama en tiempo real y **partitura real** de cada canción, con figuras
@@ -166,14 +167,14 @@ del 80% central. Herramienta útil: https://maskable.app
 
 ## Peso y rendimiento
 
-Medido en v2.0, después de sacar Tone.js:
+Medido en v2.4:
 
 | | crudo | gzip |
 |---|---|---|
-| `index.html` | 185 KB | 45 KB |
-| `audio.js` | 9 KB | 3 KB |
-| `data/*.js` | 45 KB | 8 KB |
-| **Total** | **239 KB** | **56 KB** |
+| `index.html` | 196 KB | 48 KB |
+| `audio.js` + `ritmo.js` + `partitura.js` | 28 KB | 7 KB |
+| `data/*.js` | 68 KB | 12 KB |
+| **Total** | **281 KB** | **66 KB** |
 
 **La app no tiene ninguna dependencia externa de JavaScript.** Antes cargaba
 Tone.js (349 KB / 79 KB gzip) desde un CDN para usar 7 de sus clases. Se
@@ -192,9 +193,9 @@ canción o una lección no requiere abrir `index.html`.
 Cada nota es `{n: altura, d: duración en negras}`. `d:1` es negra, `0.5` corchea,
 `2` blanca, `3` blanca con puntillo.
 
-**7 de las 15 canciones tienen el ritmo real escrito a mano.** Las otras 8 están
-marcadas con `ritmoAprox: true` y usan negras uniformes, que es lo que la app
-hacía hasta v2.0. Se marcan así a propósito: escribir de memoria las 141
+**14 de las 21 canciones tienen el ritmo real escrito a mano.** Las otras 7
+están marcadas con `ritmoAprox: true` y usan negras uniformes, que es lo que la
+app hacía hasta v2.0. Se marcan así a propósito: escribir de memoria las 141
 duraciones del Himno Nacional y darlas por buenas sería inventar datos. La app
 avisa en pantalla cuando el ritmo es aproximado.
 
@@ -204,6 +205,20 @@ verifica que la cantidad de duraciones coincida con la de notas.
 En modo ritmo se puntúa por ventanas de tolerancia (90 / 200 / 380 ms), y el
 resultado separa **qué** tocó de **cuándo** lo tocó: acierto de notas y precisión
 rítmica se muestran por separado.
+
+## Repertorio y derechos de autor
+
+El catálogo son **21 canciones de dominio público**: tradicionales (folklore
+argentino y latinoamericano, canciones infantiles, villancicos) y clásicas
+anteriores a 1900 (Beethoven, Bach, Mozart, Strauss, Mendelssohn).
+
+En v2.4 se sacaron las canciones de Disney, que tienen derechos vigentes. Las 6
+canciones del karaoke están **todas en español**, con la letra sílaba por
+sílaba: un test verifica que cada sílaba tenga su nota y que no se cuele texto
+en inglés.
+
+Queda una excepción conocida: **"Despacito" (2017) también tiene derechos
+plenos.** Está marcada acá para decidirlo, no para olvidarlo.
 
 ## Notación musical
 
